@@ -1,160 +1,174 @@
 <?php
 session_start();
 
-$message = "";
+require_once 'include/header.php';
+
+$message = '';
 
 if(isset($_POST['login']))
 {
-    $mobile   = $_POST['mobile'];
-    $password = $_POST['password'];
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
 
-    // Demo Login
-    if($mobile == "9876543210" && $password == "admin123")
+    $sql = "SELECT * FROM users 
+            WHERE username = ? 
+            AND is_active = 1";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0)
     {
-        $_SESSION['mobile'] = $mobile;
-        header("Location: dashboard.php");
-        exit();
+        $user = $result->fetch_assoc();
+
+        if($password == $user['password'])
+        {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+
+            if($user['username'] == 'CEO')
+            {
+                header("Location: ceo_dashboard.php");
+                exit();
+            }
+            elseif($user['username'] == 'Sachiv')
+            {
+                header("Location: sachiv_dashboard.php");
+                exit();
+            }
+            elseif($user['username'] == 'HM')
+            {
+                header("Location: hm_dashboard.php");
+                exit();
+            }
+        }
+        else
+        {
+            $message = "Invalid Password";
+        }
     }
     else
     {
-        $message = "Invalid Mobile Number or Password";
+        $message = "Invalid Username";
     }
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Samruddha Shala E-Portal</title>
+<?php include 'include/header.php'; ?>
 
 <style>
-body{
-    margin:0;
-    padding:0;
-    font-family:Arial, sans-serif;
-    background:#eef2f7;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+.login-container{
+    width:400px;
+    margin:50px auto;
+    background:#ffffff;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0px 0px 15px rgba(0,0,0,0.15);
 }
 
-.login-box{
-    width:420px;
-    background:#ffffff;
-    border-radius:12px;
-    padding:30px;
-    box-shadow:0 0 20px rgba(0,0,0,0.15);
+.login-container h2{
     text-align:center;
+    color:#003366;
+    margin-bottom:20px;
 }
 
 .logo{
-    width:150px;
-    height:auto;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.logo img{
+    width:120px;
+}
+
+.form-group{
     margin-bottom:15px;
 }
 
-.portal-title{
-    color:#003366;
-    font-size:24px;
-    font-weight:bold;
+.form-group label{
+    display:block;
     margin-bottom:5px;
+    font-weight:bold;
 }
 
-.portal-subtitle{
-    color:#666;
-    margin-bottom:25px;
-}
-
-input{
+.form-control{
     width:100%;
-    padding:12px;
-    margin-top:12px;
+    padding:10px;
     border:1px solid #ccc;
-    border-radius:6px;
-    font-size:15px;
-    box-sizing:border-box;
+    border-radius:5px;
 }
 
-.login-btn{
+.btn-login{
     width:100%;
-    padding:12px;
-    background:#0d6efd;
+    background:#003366;
     color:white;
     border:none;
-    border-radius:6px;
-    margin-top:18px;
+    padding:12px;
+    border-radius:5px;
     cursor:pointer;
     font-size:16px;
-    font-weight:bold;
 }
 
-.login-btn:hover{
-    background:#084298;
+.btn-login:hover{
+    background:#0055aa;
 }
 
 .error{
     color:red;
-    margin-top:15px;
-}
-
-.footer{
-    margin-top:20px;
-    font-size:12px;
-    color:#777;
+    text-align:center;
+    margin-top:10px;
 }
 </style>
 
-</head>
+<div class="container">
 
-<body>
+    <div class="login-container">
 
-<div class="login-box">
-
-    <!-- Logo -->
-    <img src="loginlogo.png" alt="Samruddha Shala Logo" class="logo">
-
-    <div class="portal-title">
-        Samruddha Shala E-Portal
-    </div>
-
-    <div class="portal-subtitle">
-        Zilla Parishad School Construction Monitoring System
-    </div>
-
-    <form method="POST">
-
-        <input
-            type="text"
-            name="mobile"
-            maxlength="10"
-            placeholder="Enter Mobile Number"
-            required>
-
-        <input
-            type="password"
-            name="password"
-            placeholder="Enter Password"
-            required>
-
-        <button type="submit" name="login" class="login-btn">
-            LOGIN
-        </button>
-
-    </form>
-
-    <?php if(!empty($message)) { ?>
-        <div class="error">
-            <?php echo $message; ?>
+        <div class="logo">
+            <img src="images/logo.png" alt="Samruddha Shala Logo">
         </div>
-    <?php } ?>
 
-    <div class="footer">
-        Government of Maharashtra
+        <h2>Samruddha Shala E-Portal</h2>
+
+        <form method="POST">
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text"
+                       name="username"
+                       class="form-control"
+                       placeholder="Enter Username"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Enter Password"
+                       required>
+            </div>
+
+            <button type="submit"
+                    name="login"
+                    class="btn-login">
+                Login
+            </button>
+
+        </form>
+
+        <?php if(!empty($message)) { ?>
+            <div class="error">
+                <?php echo $message; ?>
+            </div>
+        <?php } ?>
+
     </div>
 
 </div>
 
-</body>
-</html>
+<?php include 'include/footer.php'; ?>
