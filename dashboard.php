@@ -6,6 +6,7 @@ $user = $_SESSION['user'];
 ?>
 <?php require_once __DIR__ . '/include/header.php'; ?>
 <?php require_once __DIR__ . '/include/navbar.php'; ?>
+<?php require_once __DIR__ . '/include/site-header.php'; ?>
 
 <div class="container py-5">
     <div class="card dashboard-card mb-4">
