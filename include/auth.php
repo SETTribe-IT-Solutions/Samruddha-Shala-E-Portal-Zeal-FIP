@@ -43,7 +43,19 @@ function requireLogin()
 function requireRole($allowedRoles)
 {
     requireLogin();
-    if (!in_array($_SESSION['user']['role'], $allowedRoles, true)) {
+    $userRole = $_SESSION['user']['role'] ?? '';
+    
+    $normalizedAllowed = [];
+    foreach ($allowedRoles as $role) {
+        $normalizedAllowed[] = $role;
+        if ($role === 'HM') {
+            $normalizedAllowed[] = 'Head Master';
+        } elseif ($role === 'Head Master') {
+            $normalizedAllowed[] = 'HM';
+        }
+    }
+    
+    if (!in_array($userRole, $normalizedAllowed, true)) {
         http_response_code(403);
         echo 'Access denied';
         exit;

@@ -1,12 +1,19 @@
 <?php
+
 $host = "localhost";
-$username = "root";
-$password = "";
-$database = "samruddha_shala";
+$username = "u196817721_S_Eportal_U";
+$password = "Sam_shalaEportal@2026";
+$database = "u196817721_S_shalaEportal";
 
-$conn = new mysqli($host, $username, $password, $database);
+// Create connection
+$conn = mysqli_connect($host, $username, $password, $database);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Check connection
+if (!$conn) {
+    die("Database Connection Failed: " . mysqli_connect_error());
 }
+
+// Set character set
+mysqli_set_charset($conn, "utf8");
+
 ?>

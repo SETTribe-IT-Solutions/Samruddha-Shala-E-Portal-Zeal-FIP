@@ -40,7 +40,7 @@ $user = $_SESSION['user'];
             </div>
         <?php endif; ?>
 
-        <?php if ($user['role'] === 'CEO' || $user['role'] === 'HM'): ?>
+        <?php if ($user['role'] === 'CEO' || $user['role'] === 'HM' || $user['role'] === 'Head Master'): ?>
             <div class="col-md-6 col-lg-4">
                 <div class="card dashboard-card h-100 p-3">
                     <h5 class="fw-bold">Student Monitoring</h5>
@@ -49,7 +49,7 @@ $user = $_SESSION['user'];
             </div>
         <?php endif; ?>
 
-        <?php if ($user['role'] === 'CEO' || $user['role'] === 'Sachiv' || $user['role'] === 'HM'): ?>
+        <?php if ($user['role'] === 'CEO' || $user['role'] === 'Sachiv' || $user['role'] === 'HM' || $user['role'] === 'Head Master'): ?>
             <div class="col-md-6 col-lg-4">
                 <div class="card dashboard-card h-100 p-3">
                     <h5 class="fw-bold">Reports & Notices</h5>
