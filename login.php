@@ -1,58 +1,66 @@
 <?php
 session_start();
 
+require_once 'include/dbConfig.php';
 require_once 'include/header.php';
 
 $message = '';
 
 if(isset($_POST['login']))
 {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+    $password = isset($_POST['password']) ? trim($_POST['password']) : '';
 
-    $sql = "SELECT * FROM users 
-            WHERE username = ? 
-            AND is_active = 1";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    if($result->num_rows > 0)
+    if (!empty($username) && !empty($password))
     {
-        $user = $result->fetch_assoc();
+        $sql = "SELECT * FROM users 
+                WHERE username = ? 
+                AND is_active = 1";
 
-        if($password == $user['password'])
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if($result->num_rows > 0)
         {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
+            $user = $result->fetch_assoc();
 
-            if($user['username'] == 'CEO')
+            if($password == $user['password'])
             {
-                header("Location: ceo_dashboard.php");
-                exit();
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+
+                if($user['username'] == 'CEO')
+                {
+                    header("Location: Dashboard/ceo_dashboard.php");
+                    exit();
+                }
+                elseif($user['username'] == 'Sachiv')
+                {
+                    header("Location: Dashboard/sachiv_dashboard.php");
+                    exit();
+                }
+                elseif($user['username'] == 'HM')
+                {
+                    header("Location: Dashboard/hm_dashboard.php");
+                    exit();
+                }
             }
-            elseif($user['username'] == 'Sachiv')
+            else
             {
-                header("Location: sachiv_dashboard.php");
-                exit();
-            }
-            elseif($user['username'] == 'HM')
-            {
-                header("Location: hm_dashboard.php");
-                exit();
+                $message = "Invalid Password";
             }
         }
         else
         {
-            $message = "Invalid Password";
+            $message = "Invalid Username";
         }
     }
     else
     {
-        $message = "Invalid Username";
+        $message = "Please enter both username and password";
     }
 }
 ?>
