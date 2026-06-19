@@ -43,7 +43,7 @@ if(isset($_POST['login']))
                 }
                 elseif($user['username'] == 'HM')
                 {
-                    header("Location: Dashboard/hm_dashboard.php");
+                    header("Location: dashboard/hm_dashboard.php");
                     exit();
                 }
             }

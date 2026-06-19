@@ -36,9 +36,9 @@
                         <i class="fa-solid fa-clock-rotate-left"></i>Report History
                     </a>
                 </li>
-                <li id="nav-hm-utilization">
-                    <a href="hm_utilization.php">
-                        <i class="fa-solid fa-chart-pie"></i>Amount Utilization Report
+                <li id="nav-ceo-updates">
+                    <a href="../CEO_updates.php">
+                        <i class="fa-solid fa-file-lines"></i>CEO Updates
                     </a>
                 </li>
             </ul>
