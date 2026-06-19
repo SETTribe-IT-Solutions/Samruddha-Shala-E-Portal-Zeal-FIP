@@ -364,5 +364,6 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
         }
     </script>
 
+    <?php include("include/footer.php"); ?>
 </body>
 </html>
