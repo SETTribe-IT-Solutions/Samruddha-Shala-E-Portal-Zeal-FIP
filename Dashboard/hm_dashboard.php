@@ -36,6 +36,11 @@
                         <i class="fa-solid fa-clock-rotate-left"></i>Report History
                     </a>
                 </li>
+                <li id="nav-ceo-updates">
+                    <a href="../CEO_updates.php">
+                        <i class="fa-solid fa-file-lines"></i>CEO Updates
+                    </a>
+                </li>
             </ul>
 
             <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
