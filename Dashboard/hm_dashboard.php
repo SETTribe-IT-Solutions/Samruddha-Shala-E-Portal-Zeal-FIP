@@ -17,32 +17,7 @@
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-                <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
-            </div>
-
-            <!-- HM Specific Sidebar Menu -->
-            <ul class="list-unstyled components">
-                <p>School reporting</p>
-                <li class="active" id="nav-hm-report">
-                    <a href="javascript:void(0)" onclick="switchTab('hm-report')">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>Upload Progress
-                    </a>
-                </li>
-                <li id="nav-hm-history">
-                    <a href="javascript:void(0)" onclick="switchTab('hm-history')">
-                        <i class="fa-solid fa-clock-rotate-left"></i>Report History
-                    </a>
-                </li>
-            </ul>
-
-            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
-                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
-            </div>
-        </nav>
+       <?php include '../include/sidebar.php'; ?>
 
         <!-- Page Content -->
         <div id="content">
@@ -58,15 +33,8 @@
                     </div>
 
                     <div class="ms-auto d-flex align-items-center">
-                        <!-- Active User Indicator -->
-                        <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Shri. Maruti Kadam</p>
-                                <small class="text-muted">ZP School In-charge</small>
-                            </div>
-                            <span class="role-badge badge-hm">Head Master</span>
-                        </div>
-                    </div>
+    <span class="role-badge badge-hm"></span>
+</div>
                 </div>
             </nav>
 
