@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/sumruddha-shala-eportal/Samruddha-Shala-E-Portal-Zeal-FIP/css/header.css">
+<link rel="stylesheet" href="/Samruddha-Shala-E-Portal-Zeal-FIP/css/header.css">
 
 <div class="site-banner-wrapper">
 
@@ -7,7 +7,7 @@
         <!-- Left Logo -->
         <div class="site-banner-left">
             <div class="site-logo-box">
-                <img src="/sumruddha-shala-eportal/Samruddha-Shala-E-Portal-Zeal-FIP/images/THREELIONS__1_-removebg-preview.png"
+                <img src="/Samruddha-Shala-E-Portal-Zeal-FIP/images/THREELIONS__1_-removebg-preview.png"
                      alt="Satyamev Jayate"
                      class="site-banner-logo">
             </div>
@@ -29,7 +29,7 @@
         <!-- Right Logo -->
         <div class="site-banner-right">
             <div class="site-logo-box">
-                <img src="/sumruddha-shala-eportal/Samruddha-Shala-E-Portal-Zeal-FIP/images/demo.jpg"
+                <img src="/Samruddha-Shala-E-Portal-Zeal-FIP/images/demo.jpg"
                      alt="ZP Kolhapur"
                      class="site-banner-logo">
             </div>

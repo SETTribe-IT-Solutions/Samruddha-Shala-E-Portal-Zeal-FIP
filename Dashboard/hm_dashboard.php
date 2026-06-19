@@ -36,6 +36,11 @@
                         <i class="fa-solid fa-clock-rotate-left"></i>Report History
                     </a>
                 </li>
+                <li id="nav-hm-utilization">
+                    <a href="hm_utilization.php">
+                        <i class="fa-solid fa-chart-pie"></i>Amount Utilization Report
+                    </a>
+                </li>
             </ul>
 
             <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
