@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/include/auth.php';
+require_once __DIR__ . '/../include/auth.php';
 requireLogin();
 
 $user = $_SESSION['user'];
 ?>
-<?php require_once __DIR__ . '/include/header.php'; ?>
-<?php require_once __DIR__ . '/include/navbar.php'; ?>
-<?php require_once __DIR__ . '/include/site-header.php'; ?>
+<?php require_once __DIR__ . '/../include/landing_header.php'; ?>
+<?php require_once __DIR__ . '/../include/navbar.php'; ?>
 
 <div class="container py-5">
     <div class="card dashboard-card mb-4">
@@ -21,8 +20,8 @@ $user = $_SESSION['user'];
                 </p>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <a href="login.php" class="btn btn-outline-primary btn-sm">Separate Login</a>
-                <a href="logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
+                <a href="../login.php" class="btn btn-outline-primary btn-sm">Separate Login</a>
+                <a href="../logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
             </div>
         </div>
     </div>
@@ -61,5 +60,5 @@ $user = $_SESSION['user'];
     </div>
 </div>
 
-<?php require_once __DIR__ . '/include/footer.php'; ?>
-<?php require_once __DIR__ . '/include/script.php'; ?>
+<?php require_once __DIR__ . '/../include/landing_footer.php'; ?>
+<?php require_once __DIR__ . '/../include/script.php'; ?>
