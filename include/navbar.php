@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="index.php">
-            <img src="images/ZP%20Kolhapur%20Logo.jpg"
+            <img src="images/demo.jpg"
                  alt="ZP Kolhapur Logo"
                  class="me-2"
                  style="height: 40px; width: auto;">
