@@ -22,8 +22,9 @@ if (!$conn) {
 mysqli_set_charset($conn, "utf8");
 
 // Success message
-echo "<h3 style='color:green'>
-✅ Database Connected Successfully
-</h3>";
+// echo "<h3 style='color:green'>
+// ✅ Database Connected Successfully
+// </h3>";
+
 
 ?>
