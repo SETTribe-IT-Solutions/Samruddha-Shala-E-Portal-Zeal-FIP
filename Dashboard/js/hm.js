@@ -36,6 +36,8 @@ function renderActiveViewData() {
         renderHMReportPortal();
     } else if (id === 'hm-history-view') {
         renderHMHistoryTimeline();
+    } else if (id === 'hm-utilization-view') {
+        // This view is rendered server-side by PHP form submission.
     }
 }
 

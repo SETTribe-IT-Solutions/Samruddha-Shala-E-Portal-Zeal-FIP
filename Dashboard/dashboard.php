@@ -4,7 +4,7 @@ requireLogin();
 
 $user = $_SESSION['user'];
 ?>
-<?php require_once __DIR__ . '/../include/header.php'; ?>
+<?php require_once __DIR__ . '/../include/landing_header.php'; ?>
 <?php require_once __DIR__ . '/../include/navbar.php'; ?>
 
 <div class="container py-5">
@@ -60,5 +60,5 @@ $user = $_SESSION['user'];
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../include/footer.php'; ?>
+<?php require_once __DIR__ . '/../include/landing_footer.php'; ?>
 <?php require_once __DIR__ . '/../include/script.php'; ?>

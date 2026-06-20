@@ -17,33 +17,7 @@
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-                <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
-            </div>
-
-            <!-- Sachiv Specific Sidebar Menu -->
-            <ul class="list-unstyled components">
-                <p>Review Actions</p>
-                <li class="active" id="nav-sachiv-queue">
-                    <a href="javascript:void(0)" onclick="switchTab('sachiv-queue')">
-                        <i class="fa-solid fa-clipboard-check"></i>Verification Queue
-                        <span id="sachivSidebarQueueBadge" class="badge bg-info ms-auto rounded-pill d-none">0</span>
-                    </a>
-                </li>
-                <li id="nav-sachiv-schools">
-                    <a href="javascript:void(0)" onclick="switchTab('sachiv-schools')">
-                        <i class="fa-solid fa-school"></i>School Performance Grid
-                    </a>
-                </li>
-            </ul>
-
-            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
-                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
-            </div>
-        </nav>
+       <?php include '../include/sidebar.php'; ?>
 
         <!-- Page Content -->
         <div id="content">
@@ -60,13 +34,7 @@
 
                     <div class="ms-auto d-flex align-items-center">
                         <!-- Active User Indicator -->
-                        <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Smt. Manisha Verma, IAS</p>
-                                <small class="text-muted">Divisional Secretary</small>
-                            </div>
-                            <span class="role-badge badge-sachiv">Sachiv</span>
-                        </div>
+                        
                     </div>
                 </div>
             </nav>

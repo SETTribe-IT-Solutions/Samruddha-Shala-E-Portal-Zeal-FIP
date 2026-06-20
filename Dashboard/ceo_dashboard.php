@@ -19,54 +19,8 @@
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-                <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
-            </div>
-
-            <!-- CEO Specific Sidebar Menu -->
-            <ul class="list-unstyled components">
-                <p>Monitoring & Analytics</p>
-                <li class="active" id="nav-ceo-overview">
-                    <a href="javascript:void(0)" onclick="switchTab('ceo-overview')">
-                        <i class="fa-solid fa-chart-pie"></i>Overview Dashboard
-                    </a>
-                </li>
-                <li id="nav-ceo-task">
-                    <a href="javascript:void(0)" onclick="switchTab('ceo-task')">
-                        <i class="fa-solid fa-file-signature"></i>Assign Task
-                    </a>
-                </li>
-                <li id="nav-ceo-physical">
-                    <a href="javascript:void(0)" onclick="switchTab('ceo-physical')">
-                        <i class="fa-solid fa-industry"></i>Physical Progress
-                    </a>
-                </li>
-                <li id="nav-ceo-funding">
-                    <a href="javascript:void(0)" onclick="switchTab('ceo-funding')">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>Funding Distribution
-                    </a>
-                </li>
-                <li id="nav-ceo-alerts">
-                    <a href="javascript:void(0)" onclick="switchTab('ceo-alerts')">
-                        <i class="fa-solid fa-bell"></i>Alerts & Notifications
-                        <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
-                    </a>
-                </li>
-                <p>Database & Reports</p>
-                <li id="nav-ceo-monitor">
-                    <a href="javascript:void(0)" onclick="switchTab('ceo-monitor')">
-                        <i class="fa-solid fa-list-check"></i>School Project Monitor
-                    </a>
-                </li>
-            </ul>
-
-            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
-                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
-            </div>
-        </nav>
+<?php include '../include/sidebar.php'; ?>
+<?php include '../include/header.php'; ?>
 
         <!-- Page Content -->
         <div id="content">
@@ -105,13 +59,7 @@
                         </div>
 
                         <!-- Active User Indicator -->
-                        <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Shri. R. K. Patil, IAS</p>
-                                <small class="text-muted">District CEO</small>
-                            </div>
-                            <span class="role-badge badge-ceo">CEO</span>
-                        </div>
+                        
                     </div>
                 </div>
             </nav>

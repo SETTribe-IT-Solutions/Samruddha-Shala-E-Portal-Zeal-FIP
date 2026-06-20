@@ -2,7 +2,6 @@
 session_start();
 
 require_once 'include/dbConfig.php';
-require_once 'include/header.php';
 
 $message = '';
 
@@ -65,12 +64,39 @@ if(isset($_POST['login']))
 }
 ?>
 
-<?php include 'include/header.php'; ?>
+<?php include 'include/landing_header.php'; ?>
+<?php include 'include/website_header.php'; ?>
 
 <style>
+html, body {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.site-banner-wrapper {
+    background: linear-gradient(135deg, #fff8dc 0%, #fff2bf 55%, #ffe9a8 100%) !important;
+    border-bottom: 2px solid #ecd28a !important;
+    box-shadow: 0 2px 10px rgba(168, 124, 23, 0.14) !important;
+}
+
+.login-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7f1ff;
+    padding: 24px 0;
+}
+
 .login-container{
     width:400px;
-    margin:50px auto;
+    margin:0 auto;
     background:#ffffff;
     padding:30px;
     border-radius:10px;
@@ -131,6 +157,7 @@ if(isset($_POST['login']))
 }
 </style>
 
+<div class="login-main">
 <div class="container">
 
     <div class="login-container">
@@ -178,5 +205,6 @@ if(isset($_POST['login']))
     </div>
 
 </div>
+</div>
 
-<?php include 'include/footer.php'; ?>
+<?php include 'include/website_footer.php'; ?>
