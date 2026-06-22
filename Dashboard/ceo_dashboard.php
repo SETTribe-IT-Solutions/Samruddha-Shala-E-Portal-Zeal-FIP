@@ -20,7 +20,6 @@
     <div id="wrapper">
         <!-- Sidebar Navigation -->
 <?php include '../include/sidebar.php'; ?>
-<?php include '../include/header.php'; ?>
 
         <!-- Page Content -->
         <div id="content">

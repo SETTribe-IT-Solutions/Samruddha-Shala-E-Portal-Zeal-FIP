@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $currentUsername = $_SESSION['username'] ?? '';
 $currentRole = $_SESSION['role'] ?? '';
-$isAdmin = in_array($currentUsername, ['CEO'], true) || in_array($currentRole, ['CEO'], true);
+$isAdmin = in_array($currentUsername, ['CEO', 'Admin'], true) || in_array($currentRole, ['CEO', 'Admin'], true);
 
 if (!$isAdmin) {
     http_response_code(403);
@@ -154,78 +154,35 @@ if ($usersResult) {
 ?>
 <?php include 'include/landing_header.php'; ?>
 <?php include 'include/website_header.php'; ?>
+<link rel="stylesheet" href="css/sidebar.css">
 
 <style>
 .admin-wrapper {
     display: flex;
     min-height: calc(100vh - 120px);
+    align-items: stretch;
 }
 
-.admin-sidebar {
-    width: 270px;
-    min-width: 270px;
-    background: linear-gradient(180deg, var(--primary-color), #7c3aed);
-    color: #fff;
-    padding: 1.25rem 1rem;
-    transition: margin-left 0.25s ease;
-}
-
-.admin-sidebar .sidebar-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin-bottom: 0.2rem;
-}
-
-.admin-sidebar .sidebar-subtitle {
-    font-size: 0.78rem;
-    opacity: 0.9;
-    margin-bottom: 1rem;
-}
-
-.admin-sidebar .menu-label {
-    font-size: 0.74rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    opacity: 0.8;
-    margin: 1rem 0 0.55rem;
-}
-
-.admin-sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.92);
-    border-radius: 0.65rem;
-    padding: 0.55rem 0.7rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-}
-
-.admin-sidebar .nav-link:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.admin-sidebar .nav-link.active {
-    background: #fff;
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.admin-sidebar .sidebar-footer {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+.site-banner-wrapper {
+    margin-left: 280px;
+    width: calc(100% - 280px);
 }
 
 .admin-content {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .admin-page {
     background: var(--page-bg);
-    min-height: 100%;
+    flex: 1;
     padding: 24px 0 40px;
+}
+
+.admin-content footer.login-page-footer {
+    margin-top: auto;
 }
 
 .admin-card {
@@ -320,10 +277,11 @@ if ($usersResult) {
         flex-direction: column;
     }
 
-    .admin-sidebar {
+    .site-banner-wrapper {
+        margin-left: 0;
         width: 100%;
-        min-width: 100%;
     }
+
 
     #sidebar.active {
         margin-left: 0;
@@ -336,41 +294,7 @@ if ($usersResult) {
 </style>
 
 <div class="admin-wrapper">
-    <nav id="sidebar" class="admin-sidebar">
-        <div class="sidebar-title">
-            <i class="fa-solid fa-users-gear me-1"></i> Samruddha Shala
-        </div>
-        <div class="sidebar-subtitle">CEO Controls</div>
-
-        <div class="menu-label">Management</div>
-        <ul class="nav flex-column gap-1">
-            <li class="nav-item">
-                <a class="nav-link active" href="admin_user_management.php">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>User Management</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="Dashboard/ceo_dashboard.php">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>CEO Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="CEO_updates.php">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>CEO Updates</span>
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <a class="nav-link" href="logout.php">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
-        </div>
-    </nav>
+    <?php include 'include/sidebar.php'; ?>
 
     <div id="content" class="admin-content">
     <nav class="navbar admin-topbar py-2 px-3">
@@ -379,7 +303,7 @@ if ($usersResult) {
                 <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <h5 class="topbar-title">CEO User Management</h5>
+                <h5 class="topbar-title">Admin User Management</h5>
             </div>
         </div>
     </nav>
@@ -388,14 +312,15 @@ if ($usersResult) {
     <div class="container">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
             <div>
-                <h2 class="page-title">CEO User Management</h2>
+                <h2 class="page-title">Admin User Management</h2>
                 <p class="page-subtitle">Create user accounts and manage the master users list.</p>
             </div>
         </div>
 
         <?php if (!$isAdmin): ?>
-            <div class="alert alert-danger">Access denied. Only CEO can use this page.</div>
-        <?php else: ?>
+            <div class="alert alert-warning">Limited access mode: you can view existing users. Creating users requires administrator access.</div>
+        <?php endif; ?>
+
             <?php if (!empty($success)): ?>
                 <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
             <?php endif; ?>
@@ -446,7 +371,7 @@ if ($usersResult) {
                             <?php endif; ?>
                         </div>
                         <div class="mt-3">
-                            <button type="submit" name="create_user" class="btn btn-admin">Create User</button>
+                            <button type="submit" name="create_user" class="btn btn-admin" <?php echo $isAdmin ? '' : 'disabled'; ?>>Create User</button>
                         </div>
                     </form>
                 </div>
@@ -501,13 +426,29 @@ if ($usersResult) {
                     </div>
                 </div>
             </div>
-        <?php endif; ?>
     </div>
 </div>
+<?php include 'include/website_footer.php'; ?>
 </div>
 </div>
 
 <script>
+function switchTab() {
+    window.location.href = 'Dashboard/ceo_dashboard.php';
+}
+
+function confirmLogout(event) {
+    event.preventDefault();
+    window.location.href = 'logout.php';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const updatesLink = document.querySelector('#nav-ceo-updates a');
+    if (updatesLink) {
+        updatesLink.setAttribute('href', 'CEO_updates.php');
+    }
+});
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
@@ -515,6 +456,4 @@ function toggleSidebar() {
     }
 }
 </script>
-
-<?php include 'include/website_footer.php'; ?>
 <?php include 'include/script.php'; ?>

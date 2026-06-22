@@ -28,24 +28,32 @@ if(isset($_POST['login']))
 
             if($password == $user['password'])
             {
+                $normalizedRole = strtoupper(trim((string) ($user['role'] ?? '')));
+                if ($normalizedRole === '') {
+                    $normalizedRole = strtoupper(trim((string) ($user['username'] ?? '')));
+                }
+
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $normalizedRole;
 
-                if($user['username'] == 'CEO')
+                if($normalizedRole == 'CEO')
                 {
                     header("Location: Dashboard/ceo_dashboard.php");
                     exit();
                 }
-                elseif($user['username'] == 'Sachiv')
+                elseif($normalizedRole == 'SACHIV')
                 {
                     header("Location: Dashboard/sachiv_dashboard.php");
                     exit();
                 }
-                elseif($user['username'] == 'HM')
+                elseif($normalizedRole == 'HM')
                 {
                     header("Location: dashboard/hm_dashboard.php");
                     exit();
                 }
+
+                $message = "User role is not configured for dashboard access.";
             }
             else
             {

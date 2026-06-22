@@ -1,3 +1,57 @@
+<?php
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+$sessionUsernameRaw = trim((string) ($_SESSION['username'] ?? ''));
+$sessionRoleRaw = trim((string) ($_SESSION['role'] ?? ''));
+
+if ($sessionRoleRaw === '' && isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/dbConfig.php';
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $roleStmt = $conn->prepare('SELECT username, role FROM users WHERE id = ? LIMIT 1');
+        if ($roleStmt) {
+            $userId = (int) $_SESSION['user_id'];
+            $roleStmt->bind_param('i', $userId);
+            $roleStmt->execute();
+            $roleResult = $roleStmt->get_result();
+
+            if ($roleResult && ($dbUser = $roleResult->fetch_assoc())) {
+                if ($sessionUsernameRaw === '' && isset($dbUser['username'])) {
+                    $sessionUsernameRaw = (string) $dbUser['username'];
+                    $_SESSION['username'] = $sessionUsernameRaw;
+                }
+
+                if (isset($dbUser['role']) && trim((string) $dbUser['role']) !== '') {
+                    $sessionRoleRaw = trim((string) $dbUser['role']);
+                    $_SESSION['role'] = strtoupper($sessionRoleRaw);
+                }
+            }
+
+            $roleStmt->close();
+        }
+    }
+}
+
+if ($sessionRoleRaw === '' && $sessionUsernameRaw !== '') {
+    $sessionRoleRaw = $sessionUsernameRaw;
+}
+
+$sessionUsername = strtoupper($sessionUsernameRaw);
+$sessionRole = strtoupper($sessionRoleRaw);
+$isCeoLoggedIn = ($sessionUsername === 'CEO' || $sessionRole === 'CEO');
+
+$scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+$isDashboardPath = stripos($scriptName, '/dashboard/') !== false;
+$isCeoDashboardPage = stripos($scriptName, '/dashboard/ceo_dashboard.php') !== false;
+$isAdminUserPage = stripos($scriptName, '/admin_user_management.php') !== false;
+$basePath = $isDashboardPath ? '..' : '.';
+$adminUserUrl = $basePath . '/admin_user_management.php';
+$ceoUpdatesUrl = $basePath . '/CEO_updates.php';
+$logoutUrl = $basePath . '/logout.php';
+?>
+
 <!-- Sidebar Navigation -->
 <nav id="sidebar">
     <div class="sidebar-header">
@@ -54,10 +108,18 @@
         </li>
 
         <li id="nav-ceo-updates">
-            <a href="../CEO_updates.php">
+            <a href="<?php echo htmlspecialchars($ceoUpdatesUrl); ?>">
                 <i class="fa-solid fa-pen-to-square"></i> CEO Updates
             </a>
         </li>
+
+        <?php if ($isCeoLoggedIn && ($isCeoDashboardPage || $isAdminUserPage)): ?>
+        <li id="nav-ceo-user-management">
+            <a href="<?php echo htmlspecialchars($adminUserUrl); ?>">
+                <i class="fa-solid fa-users-gear"></i> Create User
+            </a>
+        </li>
+        <?php endif; ?>
     </ul>
 
     <!-- Footer -->
@@ -75,10 +137,6 @@
         <p>Version 2.4 (Zeal FIP)</p> -->
     </div>
 </nav>
-<head>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/sidebar.css">
-</head>
 <script>
 function confirmLogout(event) {
     event.preventDefault();
@@ -104,7 +162,7 @@ function confirmLogout(event) {
                 showConfirmButton: false
             }).then(() => {
 
-                window.location.href = '../logout.php';
+                window.location.href = '<?php echo htmlspecialchars($logoutUrl); ?>';
 
             });
 
