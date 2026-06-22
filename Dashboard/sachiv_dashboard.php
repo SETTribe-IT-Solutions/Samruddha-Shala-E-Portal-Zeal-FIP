@@ -1,6 +1,9 @@
 <?php
-require_once '../include/auth.php';
-requireRole(['SACHIV']);
+session_start();
+if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
+    header("Location: ../login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,17 +24,44 @@ requireRole(['SACHIV']);
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-       <?php include '../include/sidebar.php'; ?>
+        <nav id="sidebar">
+            <div class="sidebar-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
+                    <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
+                </div>
+                <button type="button" id="sidebarCollapse" class="btn btn-outline-light btn-sm sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                    <i class="fas fa-align-left"></i>
+                </button>
+            </div>
+
+            <!-- Sachiv Specific Sidebar Menu -->
+            <ul class="list-unstyled components">
+                <p>Review Actions</p>
+                <li class="active" id="nav-sachiv-queue">
+                    <a href="javascript:void(0)" onclick="switchTab('sachiv-queue')">
+                        <i class="fa-solid fa-clipboard-check"></i>Verification Queue
+                        <span id="sachivSidebarQueueBadge" class="badge bg-info ms-auto rounded-pill d-none">0</span>
+                    </a>
+                </li>
+                <li id="nav-sachiv-schools">
+                    <a href="javascript:void(0)" onclick="switchTab('sachiv-schools')">
+                        <i class="fa-solid fa-school"></i>School Performance Grid
+                    </a>
+                </li>
+            </ul>
+
+            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
+                <p class="mb-0">Kolhapur District, Maharashtra</p>
+                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
+            </div>
+        </nav>
 
         <!-- Page Content -->
         <div id="content">
             <!-- Header Top Bar -->
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-                        <i class="fas fa-align-left"></i>
-                    </button>
-
                     <div class="ms-3 d-flex align-items-center">
                         <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Secretary Review Dashboard</h5>
                     </div>

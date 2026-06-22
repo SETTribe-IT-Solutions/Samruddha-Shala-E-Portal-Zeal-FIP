@@ -1,3 +1,13 @@
+// Default seed work types
+const defaultWorkTypes = [
+    { id: "WT-1", name: "Construction", created_at: "2026-06-01", status: "Active" },
+    { id: "WT-2", name: "Non-Construction", created_at: "2026-06-01", status: "Active" },
+    { id: "WT-3", name: "Classrooms", created_at: "2026-06-01", status: "Active" },
+    { id: "WT-4", name: "Toilets", created_at: "2026-06-01", status: "Active" },
+    { id: "WT-5", name: "Fencing", created_at: "2026-06-01", status: "Active" },
+    { id: "WT-6", name: "Water Facilities", created_at: "2026-06-01", status: "Active" }
+];
+
 // Default seed database of ZP Schools in Kolhapur District
 const defaultSchoolsData = [
     {
@@ -327,7 +337,8 @@ let db = {
     schools: [],
     pending: [],
     alerts: [],
-    reminders: []
+    reminders: [],
+    work_types: []
 };
 
 // Initialize state from localstorage or seed
@@ -341,10 +352,14 @@ function initDatabase() {
     if (!localStorage.getItem('eportal_reminders')) {
         localStorage.setItem('eportal_reminders', JSON.stringify([]));
     }
+    if (!localStorage.getItem('eportal_work_types')) {
+        localStorage.setItem('eportal_work_types', JSON.stringify(defaultWorkTypes));
+    }
 
     db.schools = JSON.parse(localStorage.getItem('eportal_schools'));
     db.pending = JSON.parse(localStorage.getItem('eportal_pending'));
     db.reminders = JSON.parse(localStorage.getItem('eportal_reminders'));
+    db.work_types = JSON.parse(localStorage.getItem('eportal_work_types'));
 
     calculateAlerts();
 }
@@ -436,8 +451,53 @@ function saveDatabase() {
     localStorage.setItem('eportal_schools', JSON.stringify(db.schools));
     localStorage.setItem('eportal_pending', JSON.stringify(db.pending));
     localStorage.setItem('eportal_reminders', JSON.stringify(db.reminders));
+    localStorage.setItem('eportal_work_types', JSON.stringify(db.work_types));
     calculateAlerts();
 
     // Dispatch a custom event to notify individual page logic to refresh UI if needed
     window.dispatchEvent(new Event('db_updated'));
+}
+
+// --- Work Types CRUD Helpers ---
+function getWorkTypes() {
+    return db.work_types.filter(wt => wt.status === 'Active');
+}
+
+function addWorkType(name) {
+    const trimmed = name.trim();
+    if (!trimmed) return { success: false, message: 'Work type name cannot be empty.' };
+
+    const duplicate = db.work_types.find(wt => wt.name.toLowerCase() === trimmed.toLowerCase() && wt.status === 'Active');
+    if (duplicate) return { success: false, message: 'A work type with this name already exists.' };
+
+    const maxId = db.work_types.reduce((max, wt) => {
+        const num = parseInt(wt.id.split('-')[1]);
+        return num > max ? num : max;
+    }, 0);
+
+    const newWorkType = {
+        id: `WT-${maxId + 1}`,
+        name: trimmed,
+        created_at: new Date().toISOString().split('T')[0],
+        status: 'Active'
+    };
+
+    db.work_types.push(newWorkType);
+    saveDatabase();
+    return { success: true, message: 'Work type added successfully.', data: newWorkType };
+}
+
+function updateWorkType(id, newName) {
+    const trimmed = newName.trim();
+    if (!trimmed) return { success: false, message: 'Work type name cannot be empty.' };
+
+    const workType = db.work_types.find(wt => wt.id === id);
+    if (!workType) return { success: false, message: 'Work type not found.' };
+
+    const duplicate = db.work_types.find(wt => wt.name.toLowerCase() === trimmed.toLowerCase() && wt.id !== id && wt.status === 'Active');
+    if (duplicate) return { success: false, message: 'Another work type with this name already exists.' };
+
+    workType.name = trimmed;
+    saveDatabase();
+    return { success: true, message: 'Work type updated successfully.' };
 }

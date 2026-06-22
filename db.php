@@ -29,8 +29,35 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ";
     $pdo->exec($tableSql);
+
+    // 5. Create work_types table if it doesn't exist
+    $workTypesSql = "
+        CREATE TABLE IF NOT EXISTS `work_types` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(150) NOT NULL,
+            `status` VARCHAR(20) NOT NULL DEFAULT 'Active',
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ";
+    $pdo->exec($workTypesSql);
+
+    // 6. Seed default work types if they don't exist
+    $workTypeSeeds = [
+        'Construction',
+        'Non-Construction'
+    ];
+
+    $workTypeCheck = $pdo->prepare("SELECT COUNT(*) FROM `work_types` WHERE `name` = :name");
+    $workTypeInsert = $pdo->prepare("INSERT INTO `work_types` (`name`, `status`) VALUES (:name, 'Active')");
+    foreach ($workTypeSeeds as $seedName) {
+        $workTypeCheck->execute([':name' => $seedName]);
+        if ($workTypeCheck->fetchColumn() == 0) {
+            $workTypeInsert->execute([':name' => $seedName]);
+        }
+    }
     
-    // 5. Seed default users if they don't exist
+    // 7. Seed default users if they don't exist
     $seeds = [
         [
             'name' => 'Demo Head Master',

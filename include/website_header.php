@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/Samruddha-Shala-E-Portal-Zeal-FIP/css/header.css">
+<link rel="stylesheet" href="/Samruddha-Shala-E-Portal-Zeal-FIP/css/header.css?v=<?php echo time(); ?>">
 
 <div class="site-banner-wrapper">
 

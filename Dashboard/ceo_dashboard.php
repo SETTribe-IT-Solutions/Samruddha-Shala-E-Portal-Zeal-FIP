@@ -1,6 +1,9 @@
 <?php
-require_once '../include/auth.php';
-requireRole(['CEO']);
+session_start();
+if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
+    header("Location: ../login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,12 +32,8 @@ requireRole(['CEO']);
             <!-- Header Top Bar -->
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-                        <i class="fas fa-align-left"></i>
-                    </button>
-
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">CEO Monitoring Dashboard</h5>
+                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District CEO Overview</h5>
                     </div>
 
                     <div class="ms-auto d-flex align-items-center">
@@ -194,6 +193,16 @@ requireRole(['CEO']);
                             </div>
                         </div>
                     </div>
+
+                    <!-- Active CEO Task Queue -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card p-4 bg-light border-0">
+                                <h5 class="fw-bold mb-3">Active CEO Task Queue</h5>
+                                <div id="ceoTaskSummary"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ============================================== -->
@@ -201,7 +210,7 @@ requireRole(['CEO']);
                 <!-- ============================================== -->
                 <div id="ceo-task-view" class="view-panel d-none">
                     <div class="row">
-                        <div class="col-lg-7">
+                        <div class="col-lg-12">
                             <div class="card p-4">
                                 <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Assign Task to School</h4>
                                 <p class="text-muted mb-4">Create or update the active task for a Kolhapur school. This resets work progress to 0% and marks the task as pending HM action.</p>
@@ -215,10 +224,8 @@ requireRole(['CEO']);
                                         <div class="col-md-6">
                                             <label for="ceoTaskWorkType" class="form-label fw-semibold">Work Type</label>
                                             <select id="ceoTaskWorkType" class="form-select">
-                                                <option>Classrooms</option>
-                                                <option>Toilets</option>
-                                                <option>Fencing</option>
-                                                <option>Water Facilities</option>
+                                                <option value="Construction">Construction</option>
+                                                <option value="Non-Construction">Non-Construction</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -229,11 +236,12 @@ requireRole(['CEO']);
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="ceoTaskFundingSource" class="form-label fw-semibold">Funding Source</label>
-                                            <select id="ceoTaskFundingSource" class="form-select">
-                                                <option>Annual Plan</option>
-                                                <option>Minor Mineral Fund</option>
-                                                <option>ZP Own Fund</option>
-                                                <option>CSR Fund</option>
+                                            <select id="ceoTaskFundingSource" class="form-select" required>
+                                                <option value="" disabled selected>Select Funding Source</option>
+                                                <option value="Annual Plan">Annual Plan</option>
+                                                <option value="Minor Mineral Fund">Minor Mineral Fund</option>
+                                                <option value="ZP Own Fund">ZP Own Fund</option>
+                                                <option value="CSR Fund">CSR Fund</option>
                                             </select>
                                         </div>
                                     </div>
@@ -243,12 +251,6 @@ requireRole(['CEO']);
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold"><i class="fa-solid fa-paper-plane me-2"></i>Assign Task</button>
                                 </form>
-                            </div>
-                        </div>
-                        <div class="col-lg-5">
-                            <div class="card p-4 bg-light border-0">
-                                <h5 class="fw-bold mb-3">Active CEO Task Queue</h5>
-                                <div id="ceoTaskSummary"></div>
                             </div>
                         </div>
                     </div>
@@ -460,7 +462,7 @@ requireRole(['CEO']);
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h4 class="fw-bold mb-1"><i class="fa-solid fa-list-check me-2 text-primary"></i>District-Wide School Project Monitor</h4>
-                                <p class="text-muted mb-0">Overview of all active construction, sanitation, fencing, and water works across Kolhapur district schools</p>
+                                <p class="text-muted mb-0">Overview of all active construction, sanitation, fencing, and water works across schools in Kolhapur District, Maharashtra, by taluka and block</p>
                             </div>
                         </div>
 
@@ -469,7 +471,7 @@ requireRole(['CEO']);
                             <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                                    <input type="text" id="schoolSearchInput" class="form-control border-start-0" placeholder="Search by School Name or Block..." onkeyup="filterSchoolsTable()">
+                                    <input type="text" id="schoolSearchInput" class="form-control border-start-0" placeholder="Search by School Name or Kolhapur Taluka/Block (e.g. Karvir, Shirol)..." onkeyup="filterSchoolsTable()">
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -510,7 +512,7 @@ requireRole(['CEO']);
                                 <thead>
                                     <tr>
                                         <th>School Name</th>
-                                        <th>Block / Taluka</th>
+                                        <th>Kolhapur Taluka / Block (Location)</th>
                                         <th>Work Type</th>
                                         <th>Funding Source</th>
                                         <th>Progress Stage</th>
@@ -528,6 +530,13 @@ requireRole(['CEO']);
                 </div>
 
             </div>
+
+            <footer class="border-top bg-white mt-4">
+                <div class="container-fluid px-4 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center text-muted small">
+                    <span>© 2026 Samruddha Shala E-Portal</span>
+                    <span>Kolhapur District CEO Dashboard</span>
+                </div>
+            </footer>
         </div>
     </div>
 
@@ -555,6 +564,6 @@ requireRole(['CEO']);
     <!-- Shared Database Layer -->
     <script src="js/db.js"></script>
     <!-- CEO Application Logic -->
-    <script src="js/ceo.js"></script>
+    <script src="js/ceo.js?v=4"></script>
 </body>
 </html>
