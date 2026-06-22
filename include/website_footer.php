@@ -6,5 +6,8 @@
         <p class="mb-0" style="font-size:18px; color:#374151;">
             Government of Maharashtra | All Rights Reserved
         </p>
+        <p class="mb-0" style="font-size:14px; color:#6b7280;">
+            @rate
+        </p>
     </div>
 </footer>
