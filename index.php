@@ -1,5 +1,5 @@
 <?php require_once __DIR__ . '/include/landing_header.php'; ?>
-<?php require_once __DIR__ . '/include/navbar.php'; ?>
+<?php require_once __DIR__ . '/include/landing_navbar.php'; ?>
 
 <section class="hero-section">
     <div class="container text-center">
