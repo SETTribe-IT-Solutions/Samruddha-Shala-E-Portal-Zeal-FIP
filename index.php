@@ -82,7 +82,7 @@
             <div class="col-md-6">
                 <div class="gallery-card">
                     <img src="images/Building.png" class="gallery-img" alt="Extra building photo">
-                    <div class="image-caption"># इमारतीचे दृश्य</div>
+                    <div class="image-caption" data-en="# Building View" data-mr="# इमारतीचे दृश्य"># इमारतीचे दृश्य</div>
                 </div>
             </div>
         </div>
