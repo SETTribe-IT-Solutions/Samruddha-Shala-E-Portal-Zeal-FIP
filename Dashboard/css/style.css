@@ -69,31 +69,41 @@ body {
 
 #sidebar .sidebar-toggle-btn {
     position: absolute;
-    right: 12px;
-    top: 18px;
+    right: -10px;
+    top: 34px;
     z-index: 110;
-    background-color: #ffffff;
-    color: #0f172a;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    background: transparent;
+    color: white;
+    border: 1px solid transparent;
+    box-shadow: none;
+    font-size: 1.25rem;
+    padding: 6px 12px;
 }
 
 #sidebar .sidebar-toggle-btn:hover {
-    background-color: #f8fafc;
-    color: #0f172a;
-    border-color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: transparent;
 }
 
 #sidebar.active .sidebar-toggle-btn {
     position: fixed;
-    left: 12px;
-    top: 18px;
+    left: 20px;
+    top: 34px;
     right: auto;
     z-index: 1100;
-    background-color: #ffffff;
-    color: #0f172a;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid transparent;
+    box-shadow: none;
+    font-size: 1.25rem;
+    padding: 6px 12px;
+}
+
+#sidebar.active .sidebar-toggle-btn:hover {
+    background: rgba(106, 27, 154, 0.1);
+    color: var(--primary-color);
+    border-color: transparent;
 }
 
 #sidebar .sidebar-header {
@@ -161,20 +171,16 @@ body {
 ====================== */
 
 #sidebarCollapse {
-    background: linear-gradient(135deg,
-            #6a1b9a,
-            #f5c542);
-    color: white;
-    border: none;
-    padding: 10px 15px;
+    background: transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     cursor: pointer;
-    font-weight: 600;
     margin-bottom: 20px;
 }
 
-#sidebarCollapse:hover {
-    opacity: .9;
+#sidebarCollapse:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 /* ======================

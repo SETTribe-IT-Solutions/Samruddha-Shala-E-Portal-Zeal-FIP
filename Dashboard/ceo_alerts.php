@@ -28,29 +28,23 @@
                         <i class="fa-solid fa-chart-pie"></i>Overview Report
                     </a>
                 </li>
-                <li id="nav-ceo-task">
-                    <a href="ceo_assign_task.php">
-                        <i class="fa-solid fa-file-signature"></i>Create & Assign Work to HM
-                    </a>
-                </li>
                 <li class="active" id="nav-ceo-alerts">
                     <a href="ceo_alerts.php">
                         <i class="fa-solid fa-bell"></i>View Alerts & Notifications
                         <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
                     </a>
                 </li>
-
-                <p class="mt-3">Work Management</p>
                 <li id="nav-ceo-create-work">
                     <a href="ceo_create_work.php">
                         <i class="fa-solid fa-plus-circle"></i>Create Work
                     </a>
                 </li>
+                <li id="nav-ceo-task">
+                    <a href="ceo_assign_task.php">
+                        <i class="fa-solid fa-file-signature"></i>Assign Work to HM
+                    </a>
+                </li>
             </ul>
-            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
-                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
-            </div>
         </nav>
 
         <div id="content">
