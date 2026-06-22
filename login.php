@@ -157,7 +157,7 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
             <div class="login-right">
                 <img src="images/THREELIONS__1_-removebg-preview.png" alt="decor" class="small-illustration" aria-hidden="true">
                 <div class="brand">
-                    <img src="images/logo.png" alt="Logo">
+                    
                     <div>
                         <h2>Samruddha Shala</h2>
                         <div style="color:#6b7280; font-size:13px;">E-Portal System</div>
@@ -184,7 +184,7 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
 
                         <div class="controls">
                             <label class="remember"><input type="checkbox" name="remember"> Remember me</label>
-                            <a href="#">Forgot password?</a>
+                           <a href="forgot_password.php">Forgot Password?</a>
                         </div>
 
                         <button type="submit" name="login" class="btn-login">Login</button>
