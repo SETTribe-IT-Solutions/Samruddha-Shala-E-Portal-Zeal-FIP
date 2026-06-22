@@ -54,10 +54,6 @@ body {
 #sidebar {
     width: 260px;
     min-width: 260px;
-    flex-shrink: 0;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
     background: linear-gradient(180deg,
             #6a1b9a,
             #8e24aa,
@@ -154,8 +150,6 @@ body {
 
 /* ======================
    DASHBOARD FRAME
-====================== */
-
 .dashboard-wrapper {
     max-width: 1300px;
     margin: 0 auto;
