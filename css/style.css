@@ -3,34 +3,36 @@
 
 :root {
     /* Color Palette */
-    --primary-color: #14b8a6; /* Vibrant Teal */
+    --primary-color: #14b8a6;
+    /* Vibrant Teal */
     --primary-hover: #0d9488;
-    --secondary-color: #6366f1; /* Deep Indigo */
+    --secondary-color: #6366f1;
+    /* Deep Indigo */
     --secondary-hover: #4f46e5;
-    
+
     --bg-gradient-light: linear-gradient(135deg, #f0fdfa 0%, #e0e7ff 100%);
     --bg-gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    
+
     --card-bg-light: rgba(255, 255, 255, 0.8);
     --card-bg-dark: rgba(15, 23, 42, 0.6);
-    
+
     --text-main-light: #1e293b;
     --text-main-dark: #f8fafc;
-    
+
     --text-muted-light: #64748b;
     --text-muted-dark: #94a3b8;
-    
+
     --border-light: rgba(255, 255, 255, 0.5);
     --border-dark: rgba(255, 255, 255, 0.08);
-    
+
     --shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
     --shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    
+
     /* System Colors */
     --error-color: #f43f5e;
     --success-color: #10b981;
     --warning-color: #f59e0b;
-    
+
     /* Defaults (Light Mode by default, support dark class) */
     --bg-gradient: var(--bg-gradient-light);
     --card-bg: var(--card-bg-light);
@@ -112,6 +114,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -180,9 +183,19 @@ body {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 /* Form Styles */
@@ -221,8 +234,8 @@ body {
 }
 
 /* Floating Label Animation */
-.form-input:focus ~ .form-label,
-.form-input:not(:placeholder-shown) ~ .form-label {
+.form-input:focus~.form-label,
+.form-input:not(:placeholder-shown)~.form-label {
     top: 0;
     font-size: 12px;
     color: var(--secondary-color);
@@ -640,4 +653,123 @@ body {
 .info-value {
     font-weight: 500;
     color: var(--text-main);
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+/* ==========================================
+   Sidebar User & Footer
+   ========================================== */
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar-user {
+    margin-top: auto;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-user h6 {
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.sidebar-user p {
+    color: #ddd;
+    font-size: 12px;
+    margin: 0;
+}
+
+.sidebar-footer {
+    padding: 15px;
+    text-align: center;
+    color: #ccc;
+    font-size: 12px;
+}
+
+#sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+}
+
+.components {
+    flex: 1 !important;
+}
+
+.sidebar-user {
+    margin-top: auto !important;
+    padding: 15px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.sidebar-footer {
+    padding: 15px !important;
+}
+
+//* ==========================================
+/* ==========================================
+   Universal Logout Button (HM / CEO / Sachiv)
+   ========================================== */
+
+.logout-wrapper {
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    width: 100%;
+    padding: 12px 16px;
+
+    background: linear-gradient(135deg, #ff4d4d, #e63946);
+    color: #fff !important;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.25);
+    transition: all 0.3s ease;
+
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(230, 57, 70, 0.35);
+    background: linear-gradient(135deg, #e63946, #c1121f);
+    color: #fff !important;
+}
+
+.logout-btn:active {
+    transform: scale(0.97);
+}
+
+.logout-btn i {
+    font-size: 16px;
+}
+
+/* Sidebar bottom alignment */
+.sidebar-user {
+    margin-top: auto !important;
+}
+
+.logout-wrapper {
+    margin-top: 12px;
 }

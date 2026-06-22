@@ -1,3 +1,10 @@
+<?php
+session_start();
+if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,13 +68,7 @@
 
                     <div class="ms-auto d-flex align-items-center">
                         <!-- Active User Indicator -->
-                        <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Smt. Manisha Verma, IAS</p>
-                                <small class="text-muted">Divisional Secretary</small>
-                            </div>
-                            <span class="role-badge badge-sachiv">Sachiv</span>
-                        </div>
+                        
                     </div>
                 </div>
             </nav>

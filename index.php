@@ -1,5 +1,5 @@
-<?php require_once __DIR__ . '/include/header.php'; ?>
-<?php require_once __DIR__ . '/include/navbar.php'; ?>
+<?php require_once __DIR__ . '/include/landing_header.php'; ?>
+<?php require_once __DIR__ . '/include/landing_navbar.php'; ?>
 
 <section class="hero-section">
     <div class="container text-center">
@@ -82,7 +82,7 @@
             <div class="col-md-6">
                 <div class="gallery-card">
                     <img src="images/Building.png" class="gallery-img" alt="Extra building photo">
-                    <div class="image-caption"># इमारतीचे दृश्य</div>
+                    <div class="image-caption" data-en="# Building View" data-mr="# इमारतीचे दृश्य"># इमारतीचे दृश्य</div>
                 </div>
             </div>
         </div>
@@ -101,5 +101,5 @@
     </div>
 </section>
 
-<?php require_once __DIR__ . '/include/footer.php'; ?>
+<?php require_once __DIR__ . '/include/landing_footer.php'; ?>
 <?php require_once __DIR__ . '/include/script.php'; ?>

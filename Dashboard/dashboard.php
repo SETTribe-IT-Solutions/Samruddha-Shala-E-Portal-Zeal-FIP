@@ -15,7 +15,7 @@ if ($user['role'] === 'CEO') {
     exit;
 }
 ?>
-<?php require_once __DIR__ . '/../include/header.php'; ?>
+<?php require_once __DIR__ . '/../include/landing_header.php'; ?>
 <?php require_once __DIR__ . '/../include/navbar.php'; ?>
 
 <div class="container py-5">
@@ -71,5 +71,5 @@ if ($user['role'] === 'CEO') {
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../include/footer.php'; ?>
+<?php require_once __DIR__ . '/../include/landing_footer.php'; ?>
 <?php require_once __DIR__ . '/../include/script.php'; ?>
