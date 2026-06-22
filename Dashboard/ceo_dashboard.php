@@ -26,19 +26,58 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-<?php include '../include/sidebar.php'; ?>
+        <nav id="sidebar">
+            <div class="sidebar-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
+                    <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
+                </div>
+                <button type="button" id="sidebarCollapse" class="btn btn-outline-light btn-sm sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                    <i class="fas fa-align-left"></i>
+                </button>
+            </div>
+
+            <!-- CEO Specific Sidebar Menu -->
+            <ul class="list-unstyled components">
+                <p>CEO Modules</p>
+                <li class="active" id="nav-ceo-overview">
+                    <a href="ceo_dashboard.php">
+                        <i class="fa-solid fa-chart-pie"></i>Overview Report
+                    </a>
+                </li>
+                <li id="nav-ceo-task">
+                    <a href="ceo_assign_task.php">
+                        <i class="fa-solid fa-file-signature"></i>Create & Assign Work to HM
+                    </a>
+                </li>
+                <li id="nav-ceo-alerts">
+                    <a href="ceo_alerts.php">
+                        <i class="fa-solid fa-bell"></i>View Alerts & Notifications
+                        <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
+                    </a>
+                </li>
+                
+                <p class="mt-3">Work Management</p>
+                <li id="nav-ceo-create-work">
+                    <a href="ceo_create_work.php">
+                        <i class="fa-solid fa-plus-circle"></i>Create Work
+                    </a>
+                </li>
+            </ul>
+
+            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
+                <p class="mb-0">Kolhapur District Board</p>
+                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
+            </div>
+        </nav>
 
         <!-- Page Content -->
         <div id="content">
             <!-- Header Top Bar -->
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-                        <i class="fas fa-align-left"></i>
-                    </button>
-
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">CEO Monitoring Dashboard</h5>
+                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District CEO Overview</h5>
                     </div>
 
                     <div class="ms-auto d-flex align-items-center">
@@ -198,6 +237,16 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                             </div>
                         </div>
                     </div>
+
+                    <!-- Active CEO Task Queue -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card p-4 bg-light border-0">
+                                <h5 class="fw-bold mb-3">Active CEO Task Queue</h5>
+                                <div id="ceoTaskSummary"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ============================================== -->
@@ -205,7 +254,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                 <!-- ============================================== -->
                 <div id="ceo-task-view" class="view-panel d-none">
                     <div class="row">
-                        <div class="col-lg-7">
+                        <div class="col-lg-12">
                             <div class="card p-4">
                                 <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Assign Task to School</h4>
                                 <p class="text-muted mb-4">Create or update the active task for a Kolhapur school. This resets work progress to 0% and marks the task as pending HM action.</p>
@@ -219,10 +268,8 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                                         <div class="col-md-6">
                                             <label for="ceoTaskWorkType" class="form-label fw-semibold">Work Type</label>
                                             <select id="ceoTaskWorkType" class="form-select">
-                                                <option>Classrooms</option>
-                                                <option>Toilets</option>
-                                                <option>Fencing</option>
-                                                <option>Water Facilities</option>
+                                                <option value="Construction">Construction</option>
+                                                <option value="Non-Construction">Non-Construction</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -233,11 +280,12 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="ceoTaskFundingSource" class="form-label fw-semibold">Funding Source</label>
-                                            <select id="ceoTaskFundingSource" class="form-select">
-                                                <option>Annual Plan</option>
-                                                <option>Minor Mineral Fund</option>
-                                                <option>ZP Own Fund</option>
-                                                <option>CSR Fund</option>
+                                            <select id="ceoTaskFundingSource" class="form-select" required>
+                                                <option value="" disabled selected>Select Funding Source</option>
+                                                <option value="Annual Plan">Annual Plan</option>
+                                                <option value="Minor Mineral Fund">Minor Mineral Fund</option>
+                                                <option value="ZP Own Fund">ZP Own Fund</option>
+                                                <option value="CSR Fund">CSR Fund</option>
                                             </select>
                                         </div>
                                     </div>
@@ -247,12 +295,6 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold"><i class="fa-solid fa-paper-plane me-2"></i>Assign Task</button>
                                 </form>
-                            </div>
-                        </div>
-                        <div class="col-lg-5">
-                            <div class="card p-4 bg-light border-0">
-                                <h5 class="fw-bold mb-3">Active CEO Task Queue</h5>
-                                <div id="ceoTaskSummary"></div>
                             </div>
                         </div>
                     </div>
@@ -464,7 +506,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h4 class="fw-bold mb-1"><i class="fa-solid fa-list-check me-2 text-primary"></i>District-Wide School Project Monitor</h4>
-                                <p class="text-muted mb-0">Overview of all active construction, sanitation, fencing, and water works across Kolhapur district schools</p>
+                                <p class="text-muted mb-0">Overview of all active construction, sanitation, fencing, and water works across schools in Kolhapur District, Maharashtra, by taluka and block</p>
                             </div>
                         </div>
 
@@ -473,7 +515,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                             <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                                    <input type="text" id="schoolSearchInput" class="form-control border-start-0" placeholder="Search by School Name or Block..." onkeyup="filterSchoolsTable()">
+                                    <input type="text" id="schoolSearchInput" class="form-control border-start-0" placeholder="Search by School Name or Kolhapur Taluka/Block (e.g. Karvir, Shirol)..." onkeyup="filterSchoolsTable()">
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -514,7 +556,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                                 <thead>
                                     <tr>
                                         <th>School Name</th>
-                                        <th>Block / Taluka</th>
+                                        <th>Kolhapur Taluka / Block (Location)</th>
                                         <th>Work Type</th>
                                         <th>Funding Source</th>
                                         <th>Progress Stage</th>
@@ -532,6 +574,13 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                 </div>
 
             </div>
+
+            <footer class="border-top bg-white mt-4">
+                <div class="container-fluid px-4 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center text-muted small">
+                    <span>© 2026 Samruddha Shala E-Portal</span>
+                    <span>Kolhapur District CEO Dashboard</span>
+                </div>
+            </footer>
         </div>
     </div>
 
@@ -559,6 +608,6 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <!-- Shared Database Layer -->
     <script src="js/db.js"></script>
     <!-- CEO Application Logic -->
-    <script src="js/ceo.js"></script>
+    <script src="js/ceo.js?v=4"></script>
 </body>
 </html>

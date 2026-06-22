@@ -129,16 +129,12 @@ function renderActiveViewData() {
 
     if (id === 'ceo-overview-view') {
         renderCEOOverview();
-    if (id === 'ceo-task-view') {
+    } else if (id === 'ceo-task-view') {
         renderCEOTaskAssignmentView();
     } else if (id === 'ceo-physical-view') {
         renderCEOPhysical();
-    } else if (id === 'ceo-funding-view') {
-        renderCEOFunding();
     } else if (id === 'ceo-alerts-view') {
         renderCEOAlerts();
-    } else if (id === 'ceo-monitor-view') {
-        renderCEOMonitorTable();
     }
 }
 
@@ -230,6 +226,9 @@ function renderCEOOverview() {
 
     // Setup Chart.js previews
     setupOverviewCharts();
+
+    // Render Active Task Queue
+    renderCEOTaskSummary();
 }
 
 function setupOverviewCharts() {
@@ -305,31 +304,60 @@ function setupOverviewCharts() {
 // --- CEO TASK ASSIGNMENT ---
 function renderCEOTaskAssignmentView() {
     populateCEOAssignTaskSchools();
+    renderCEOTaskSummary();
+}
+
+function renderCEOTaskSummary() {
     const summary = document.getElementById('ceoTaskSummary');
     if (!summary) return;
     summary.innerHTML = '';
 
     const pendingTasks = db.schools.filter(s => s.task_status === 'Pending HM Action');
     if (pendingTasks.length === 0) {
-        summary.innerHTML = `<div class="text-muted">No active CEO task is pending HM action right now.</div>`;
+        summary.innerHTML = `<div class="text-muted text-center py-3">No active CEO task is pending HM action right now.</div>`;
         return;
     }
 
-    pendingTasks.slice(0, 4).forEach(school => {
-        const div = document.createElement('div');
-        div.className = 'border rounded p-3 mb-2 bg-white';
-        div.innerHTML = `
-            <div class="fw-semibold text-dark">${school.name}</div>
-            <div class="small text-muted">${school.task_title || school.work_type}</div>
-            <span class="badge bg-warning text-dark mt-2">${school.task_status}</span>
+    let tableHTML = `
+        <div class="table-responsive" style="max-height: 500px;">
+            <table class="table table-sm table-hover align-middle bg-white border mb-0" style="font-size: 0.85rem;">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th scope="col" style="width: 40%">School</th>
+                        <th scope="col" style="width: 20%">Task</th>
+                        <th scope="col" style="width: 15%">Budget</th>
+                        <th scope="col" style="width: 25%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    pendingTasks.forEach(school => {
+        tableHTML += `
+            <tr>
+                <td>
+                    <div class="fw-semibold text-dark text-wrap text-break">${school.name}</div>
+                    <div class="small text-muted">${school.block}</div>
+                </td>
+                <td><span class="badge bg-primary-soft text-primary text-wrap">${school.task_title || school.work_type}</span></td>
+                <td>₹${school.task_budget}L</td>
+                <td><span class="badge bg-warning text-dark text-wrap lh-base">${school.task_status}</span></td>
+            </tr>
         `;
-        summary.appendChild(div);
     });
+
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    summary.innerHTML = tableHTML;
 }
 
 function populateCEOAssignTaskSchools() {
     const select = document.getElementById('ceoTaskSchoolSelect');
     if (!select) return;
+    
     select.innerHTML = '';
 
     db.schools.forEach(school => {
@@ -338,6 +366,9 @@ function populateCEOAssignTaskSchools() {
         option.textContent = `${school.name} (${school.block})`;
         select.appendChild(option);
     });
+
+    // Dynamically populate work type dropdown from db.work_types
+    populateWorkTypeDropdowns();
 }
 
 function handleAssignTaskSubmit(e) {
@@ -357,25 +388,90 @@ function handleAssignTaskSubmit(e) {
         return;
     }
 
-    school.work_type = workType;
-    school.budget = budget;
-    school.funding_source = fundingSource;
-    school.task_title = workType;
-    school.task_description = description;
-    school.task_budget = budget;
-    school.task_funding_source = fundingSource;
-    school.task_status = 'Pending HM Action';
-    school.task_assigned_at = new Date().toISOString().split('T')[0];
-    school.progress = 0;
-    school.blocker = 'None';
-    school.blocker_details = '';
-    school.geo_tag = 'Missing';
-    school.latitude = '';
-    school.longitude = '';
-    school.remarks = 'Task assigned by CEO. HM to review and start execution.';
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Assigning...';
+    }
 
-    saveDatabase();
-    alert(`Task assigned successfully to ${school.name}. The school now shows a pending HM action.`);
+    const formData = new FormData();
+    formData.append('school_name', school.name);
+    formData.append('work_type', workType);
+    formData.append('budget_lakhs', budget);
+    formData.append('funding_source', fundingSource);
+    formData.append('task_description', description);
+
+    fetch('ceo_assign_task_db.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Assign Task';
+        }
+        
+        if (data.status) {
+            school.work_type = workType;
+            school.budget = budget;
+            school.funding_source = fundingSource;
+            school.task_title = workType;
+            school.task_description = description;
+            school.task_budget = budget;
+            school.task_funding_source = fundingSource;
+            school.task_status = 'Pending HM Action';
+            school.task_assigned_at = new Date().toISOString().split('T')[0];
+            school.progress = 0;
+            school.blocker = 'None';
+            school.blocker_details = '';
+            school.geo_tag = 'Missing';
+            school.latitude = '';
+            school.longitude = '';
+            school.remarks = 'Task assigned by CEO. HM to review and start execution.';
+
+            saveDatabase();
+            document.getElementById('ceoAssignTaskForm').reset();
+            showSuccessPopup('Task assign successfully.');
+            renderCEOTaskSummary();
+        } else {
+            alert('Failed to save to database: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Assign Task';
+        }
+        alert('An error occurred while saving. Please try again.');
+    });
+}
+
+function showSuccessPopup(message) {
+    let modalHtml = `
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-5">
+                    <i class="fa-solid fa-circle-check text-success" style="font-size: 4rem;"></i>
+                    <h4 class="mt-4 fw-bold">Success!</h4>
+                    <p class="text-muted fs-5">${message}</p>
+                    <button type="button" class="btn btn-primary px-4 mt-3" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    let modalEl = document.getElementById('successModal');
+    if (modalEl) {
+        modalEl.remove();
+    }
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    modalEl = document.getElementById('successModal');
+    
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
 }
 
 // --- CEO PHYSICAL PROGRESS DETAIL ---
@@ -843,11 +939,162 @@ function openProjectModal(schoolId) {
     myModal.show();
 }
 
+// ==============================================
+// WORK TYPES MANAGEMENT
+// ==============================================
+
+function renderCEOWorkTypes() {
+    const tbody = document.getElementById('workTypesTableBody');
+    const emptyState = document.getElementById('workTypesEmptyState');
+    const countBadge = document.getElementById('worktypeCountBadge');
+    const tableEl = document.getElementById('workTypesTable');
+    if (!tbody) return;
+
+    const activeTypes = getWorkTypes();
+    tbody.innerHTML = '';
+
+    if (countBadge) countBadge.textContent = `${activeTypes.length} Work Type${activeTypes.length !== 1 ? 's' : ''}`;
+
+    if (activeTypes.length === 0) {
+        if (tableEl) tableEl.classList.add('d-none');
+        if (emptyState) emptyState.classList.remove('d-none');
+        return;
+    }
+
+    if (tableEl) tableEl.classList.remove('d-none');
+    if (emptyState) emptyState.classList.add('d-none');
+
+    activeTypes.forEach((wt, index) => {
+        const tr = document.createElement('tr');
+        tr.className = 'worktype-table-row worktype-animate-in';
+        tr.style.animationDelay = `${index * 0.05}s`;
+
+        tr.innerHTML = `
+            <td>
+                <div class="worktype-serial">${index + 1}</div>
+            </td>
+            <td>
+                <div class="fw-semibold text-dark" style="font-size: 1rem;">${wt.name}</div>
+                <small class="text-muted">ID: ${wt.id}</small>
+            </td>
+            <td>
+                <span class="text-muted">
+                    <i class="fa-regular fa-calendar me-1"></i>${wt.created_at}
+                </span>
+            </td>
+            <td>
+                <span class="worktype-badge worktype-badge-active">
+                    <i class="fa-solid fa-circle-check me-1"></i>${wt.status}
+                </span>
+            </td>
+            <td class="text-center">
+                <button class="worktype-edit-btn" onclick="openEditWorkTypeModal('${wt.id}')" title="Edit Work Type">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function openAddWorkTypeModal() {
+    document.getElementById('workTypeEditId').value = '';
+    document.getElementById('workTypeNameInput').value = '';
+    document.getElementById('workTypeModalLabel').innerHTML = '<i class="fa-solid fa-layer-group me-2"></i>Add New Work Type';
+    document.getElementById('workTypeSubmitBtnText').textContent = 'Save Work Type';
+    document.getElementById('workTypeFormError').classList.add('d-none');
+
+    const modal = new bootstrap.Modal(document.getElementById('workTypeModal'));
+    modal.show();
+}
+
+function openEditWorkTypeModal(id) {
+    const workType = db.work_types.find(wt => wt.id === id);
+    if (!workType) return;
+
+    document.getElementById('workTypeEditId').value = workType.id;
+    document.getElementById('workTypeNameInput').value = workType.name;
+    document.getElementById('workTypeModalLabel').innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i>Edit Work Type';
+    document.getElementById('workTypeSubmitBtnText').textContent = 'Update Work Type';
+    document.getElementById('workTypeFormError').classList.add('d-none');
+
+    const modal = new bootstrap.Modal(document.getElementById('workTypeModal'));
+    modal.show();
+}
+
+function handleWorkTypeFormSubmit(e) {
+    e.preventDefault();
+
+    const editId = document.getElementById('workTypeEditId').value;
+    const name = document.getElementById('workTypeNameInput').value;
+    const errorEl = document.getElementById('workTypeFormError');
+
+    let result;
+    if (editId) {
+        result = updateWorkType(editId, name);
+    } else {
+        result = addWorkType(name);
+    }
+
+    if (!result.success) {
+        errorEl.textContent = result.message;
+        errorEl.classList.remove('d-none');
+        return;
+    }
+
+    // Close modal and refresh
+    const modalEl = document.getElementById('workTypeModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+
+    renderCEOWorkTypes();
+    populateWorkTypeDropdowns();
+}
+
+// Dynamically populate all work type dropdowns across the CEO dashboard
+function populateWorkTypeDropdowns() {
+    const activeTypes = getWorkTypes();
+
+
+
+    // 2. School Project Monitor filter dropdown
+    const filterWorkTypeSelect = document.getElementById('filterWorkType');
+    if (filterWorkTypeSelect) {
+        const currentVal = filterWorkTypeSelect.value;
+        filterWorkTypeSelect.innerHTML = '<option value="">All Work Types</option>';
+        activeTypes.forEach(wt => {
+            const option = document.createElement('option');
+            option.value = wt.name;
+            option.textContent = wt.name;
+            filterWorkTypeSelect.appendChild(option);
+        });
+        // Restore selection if still valid
+        if (currentVal && [...filterWorkTypeSelect.options].some(o => o.value === currentVal)) {
+            filterWorkTypeSelect.value = currentVal;
+        }
+    }
+}
+
 // Initial setup on page load
 window.addEventListener('DOMContentLoaded', () => {
     initDatabase();
     updateAlertBadges();
-    renderActiveViewData();
+    populateWorkTypeDropdowns();
+
+    const params = new URLSearchParams(window.location.search);
+    const requestedView = params.get('view');
+    const viewMap = {
+        overview: 'ceo-overview',
+        task: 'ceo-task',
+        physical: 'ceo-physical',
+        alerts: 'ceo-alerts'
+    };
+
+    if (requestedView && viewMap[requestedView]) {
+        switchTab(viewMap[requestedView]);
+    } else {
+        renderActiveViewData();
+    }
 });
 
 // React on database update events (from other windows/dashboards)
