@@ -29,23 +29,24 @@ if(isset($_POST['login']))
             if($password == $user['password'])
             {
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
+$_SESSION['username'] = $user['username'];
+$_SESSION['role'] = strtoupper($user['username']);
 
-                if($user['username'] == 'CEO')
-                {
-                    header("Location: Dashboard/ceo_dashboard.php");
-                    exit();
-                }
-                elseif($user['username'] == 'Sachiv')
-                {
-                    header("Location: Dashboard/sachiv_dashboard.php");
-                    exit();
-                }
-                elseif($user['username'] == 'HM')
-                {
-                    header("Location: dashboard/hm_dashboard.php");
-                    exit();
-                }
+if($_SESSION['role'] == 'CEO')
+{
+    header("Location: Dashboard/ceo_dashboard.php");
+    exit();
+}
+elseif($_SESSION['role'] == 'SACHIV')
+{
+    header("Location: Dashboard/sachiv_dashboard.php");
+    exit();
+}
+elseif($_SESSION['role'] == 'HM')
+{
+    header("Location: Dashboard/hm_dashboard.php");
+    exit();
+}
             }
             else
             {

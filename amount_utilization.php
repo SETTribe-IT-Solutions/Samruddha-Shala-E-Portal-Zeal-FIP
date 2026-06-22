@@ -95,10 +95,10 @@ if (isset($_POST['save'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/amount_utilization.css">
+    <!--<link rel="stylesheet" href="css/amount_utilization.css"-->
 </head>
 <body style="background: #f4f2fb; font-family: 'Poppins', sans-serif;">
-    <?php include 'include/website_header.php'; ?>
+    <!--?php include 'include/website_header.php'; ?>
     <div id="wrapper">
         <?php include 'include/sidebar.php'; ?>
 
@@ -271,7 +271,7 @@ if (isset($_POST['save'])) {
     </div> <!-- .container -->
     </div> <!-- #content -->
     </div> <!-- #wrapper -->
-    <?php include 'include/website_footer.php'; ?>
+    <!--?php include 'include/website_footer.php'; ?>
     <script>
         function showStep(n) {
             document.querySelectorAll('#util-stepper .step').forEach(function(s){ s.classList.remove('active'); });
@@ -397,3 +397,4 @@ if (isset($_POST['save'])) {
     </script>
 </body>
 </html>
+

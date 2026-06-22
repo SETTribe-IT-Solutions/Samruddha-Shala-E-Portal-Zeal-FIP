@@ -1,3 +1,7 @@
+<?php
+require_once '../include/auth.php';
+requireRole(['CEO']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,9 +23,7 @@
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-<?php include '../include/sidebar.php'; ?>
-<?php include '../include/header.php'; ?>
-
+        <?php include '../include/sidebar.php'; ?>
         <!-- Page Content -->
         <div id="content">
             <!-- Header Top Bar -->

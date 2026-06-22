@@ -1,3 +1,7 @@
+<?php
+require_once '../include/auth.php';
+requireRole(['HM']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

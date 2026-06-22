@@ -1,3 +1,10 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$role = $_SESSION['role'] ?? '';
+?>
 <!-- Sidebar Navigation -->
 <nav id="sidebar">
     <div class="sidebar-header">
@@ -10,107 +17,77 @@
         </small>
     </div>
 
-    <!-- CEO Specific Sidebar Menu -->
+    <!-- CEO Specific Sidebar Role -->
     <ul class="list-unstyled components">
-        <p>Monitoring & Analytics</p>
 
-        <li class="active" id="nav-ceo-overview">
-            <a href="javascript:void(0)" onclick="switchTab('ceo-overview')">
-                <i class="fa-solid fa-chart-pie"></i> Overview Dashboard
-            </a>
-        </li>
+<?php if($role == 'CEO') { ?>
 
-        <li id="nav-ceo-task">
-            <a href="javascript:void(0)" onclick="switchTab('ceo-task')">
-                <i class="fa-solid fa-file-signature"></i> Assign Task
-            </a>
-        </li>
+    <li><a href="ceo_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="work_master.php"><i class="fa-solid fa-briefcase"></i> Work Master</a></li>
+    <li><a href="create_work.php"><i class="fa-solid fa-plus"></i> Create Work</a></li>
+    <li><a href="update_work_master.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
+    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="sachiv_work_master.php"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
+    <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
 
-        <li id="nav-ceo-physical">
-            <a href="javascript:void(0)" onclick="switchTab('ceo-physical')">
-                <i class="fa-solid fa-industry"></i> Physical Progress
-            </a>
-        </li>
+<?php } elseif($role == 'SACHIV') { ?>
 
-        <li id="nav-ceo-funding">
-            <a href="javascript:void(0)" onclick="switchTab('ceo-funding')">
-                <i class="fa-solid fa-hand-holding-dollar"></i> Funding Distribution
-            </a>
-        </li>
+    <li><a href="sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="sachiv_work_master.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
+    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
 
-        <li id="nav-ceo-alerts">
-            <a href="javascript:void(0)" onclick="switchTab('ceo-alerts')">
-                <i class="fa-solid fa-bell"></i> Alerts & Notifications
-                <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
-            </a>
-        </li>
+<?php } elseif($role == 'HM') { ?>
 
-        <p>Database & Reports</p>
+    <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
+    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
 
-        <li id="nav-ceo-monitor">
-            <a href="javascript:void(0)" onclick="switchTab('ceo-monitor')">
-                <i class="fa-solid fa-list-check"></i> School Project Monitor
-            </a>
-        </li>
+<?php } ?>
 
-        <li id="nav-ceo-updates">
-            <a href="../CEO_updates.php">
-                <i class="fa-solid fa-pen-to-square"></i> CEO Updates
-            </a>
-        </li>
-    </ul>
+</ul>
 
     <!-- Footer -->
-    <div class="sidebar-footer">
-        <p>Mr. Anil Deshmukh</p>
-        <p>Head Master</p>
+ <div class="sidebar-footer">
+    <p>Mr. Anil Deshmukh</p>
+    <p>Head Master</p>
+</div>
 
-        <div class="logout-wrapper">
-            <a href="#" class="logout-btn" onclick="confirmLogout(event)">
-    <i class="fas fa-sign-out-alt"></i> Logout
-</a>
-        </div>
-
-        <!-- <p>Kolhapur District Board</p>
-        <p>Version 2.4 (Zeal FIP)</p> -->
-    </div>
+<div class="logout-wrapper">
+    <a href="#" class="logout-btn" onclick="confirmLogout(event)">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</div>
 </nav>
-<head>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/sidebar.css">
-</head>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 function confirmLogout(event) {
     event.preventDefault();
 
     Swal.fire({
-        title: 'Logout?',
-        text: 'Are you sure you want to logout?',
-        icon: 'warning',
+        title: 'Do you want to logout?',
+        icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#6a1b9a',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Logout',
-        cancelButtonText: 'Cancel'
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545'
     }).then((result) => {
-
         if (result.isConfirmed) {
-
-            Swal.fire({
-                title: 'Logged Out!',
-                text: 'You have been logged out successfully.',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-
-                window.location.href = '../logout.php';
-
-            });
-
+            window.location.href = '../logout.php';
         }
-
     });
 }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<head>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+</head>
+
+
