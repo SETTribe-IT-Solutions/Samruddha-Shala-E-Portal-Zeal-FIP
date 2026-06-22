@@ -147,6 +147,8 @@ body {
     font-weight: 700;
     letter-spacing: -0.5px;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -715,7 +717,6 @@ body {
     padding: 15px !important;
 }
 
-//* ==========================================
 /* ==========================================
    Universal Logout Button (HM / CEO / Sachiv)
    ========================================== */

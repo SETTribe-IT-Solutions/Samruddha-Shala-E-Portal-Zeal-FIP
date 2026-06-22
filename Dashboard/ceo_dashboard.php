@@ -26,51 +26,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
-        <nav id="sidebar">
-            <div class="sidebar-header d-flex justify-content-between align-items-start">
-                <div>
-                    <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-                    <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
-                </div>
-                <button type="button" id="sidebarCollapse" class="btn btn-outline-light btn-sm sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-                    <i class="fas fa-align-left"></i>
-                </button>
-            </div>
-
-            <!-- CEO Specific Sidebar Menu -->
-            <ul class="list-unstyled components">
-                <p>CEO Modules</p>
-                <li class="active" id="nav-ceo-overview">
-                    <a href="ceo_dashboard.php">
-                        <i class="fa-solid fa-chart-pie"></i>Overview Report
-                    </a>
-                </li>
-                <li id="nav-ceo-task">
-                    <a href="ceo_assign_task.php">
-                        <i class="fa-solid fa-file-signature"></i>Create & Assign Work to HM
-                    </a>
-                </li>
-                <li id="nav-ceo-alerts">
-                    <a href="ceo_alerts.php">
-                        <i class="fa-solid fa-bell"></i>View Alerts & Notifications
-                        <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
-                    </a>
-                </li>
-                
-                <p class="mt-3">Work Management</p>
-                <li id="nav-ceo-create-work">
-                    <a href="ceo_create_work.php">
-                        <i class="fa-solid fa-plus-circle"></i>Create Work
-                    </a>
-                </li>
-            </ul>
-
-            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
-                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
-            </div>
-        </nav>
-
+        <?php include '../include/sidebar.php'; ?>
         <!-- Page Content -->
         <div id="content">
             <!-- Header Top Bar -->

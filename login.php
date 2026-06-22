@@ -34,26 +34,24 @@ if(isset($_POST['login']))
                 }
 
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $normalizedRole;
+$_SESSION['username'] = $user['username'];
+$_SESSION['role'] = strtoupper($user['username']);
 
-                if($normalizedRole == 'CEO')
-                {
-                    header("Location: Dashboard/ceo_dashboard.php");
-                    exit();
-                }
-                elseif($normalizedRole == 'SACHIV')
-                {
-                    header("Location: Dashboard/sachiv_dashboard.php");
-                    exit();
-                }
-                elseif($normalizedRole == 'HM')
-                {
-                    header("Location: dashboard/hm_dashboard.php");
-                    exit();
-                }
-
-                $message = "User role is not configured for dashboard access.";
+if($_SESSION['role'] == 'CEO')
+{
+    header("Location: Dashboard/ceo_dashboard.php");
+    exit();
+}
+elseif($_SESSION['role'] == 'SACHIV')
+{
+    header("Location: Dashboard/sachiv_dashboard.php");
+    exit();
+}
+elseif($_SESSION['role'] == 'HM')
+{
+    header("Location: Dashboard/hm_dashboard.php");
+    exit();
+}
             }
             else
             {
