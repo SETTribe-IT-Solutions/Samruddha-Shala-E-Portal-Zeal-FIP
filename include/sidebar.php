@@ -69,10 +69,6 @@
         <p>Version 2.4 (Zeal FIP)</p> -->
     </div>
 </nav>
-<head>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/sidebar.css">
-</head>
 <script>
 function confirmLogout(event) {
     event.preventDefault();
@@ -98,7 +94,7 @@ function confirmLogout(event) {
                 showConfirmButton: false
             }).then(() => {
 
-                window.location.href = '../logout.php';
+                window.location.href = '/Samruddha-Shala-E-Portal-Zeal-FIP/logout.php';
 
             });
 
