@@ -3,6 +3,17 @@ require_once __DIR__ . '/../include/auth.php';
 requireLogin();
 
 $user = $_SESSION['user'];
+
+if ($user['role'] === 'CEO') {
+    header('Location: ceo_dashboard.php');
+    exit;
+} elseif ($user['role'] === 'HM') {
+    header('Location: hm_dashboard.php');
+    exit;
+} elseif ($user['role'] === 'Sachiv') {
+    header('Location: sachiv_dashboard.php');
+    exit;
+}
 ?>
 <?php require_once __DIR__ . '/../include/header.php'; ?>
 <?php require_once __DIR__ . '/../include/navbar.php'; ?>

@@ -18,9 +18,14 @@
     <div id="wrapper">
         <!-- Sidebar Navigation -->
         <nav id="sidebar">
-            <div class="sidebar-header">
-                <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-                <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
+            <div class="sidebar-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
+                    <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
+                </div>
+                <button type="button" id="sidebarCollapse" class="btn btn-outline-light btn-sm sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                    <i class="fas fa-align-left"></i>
+                </button>
             </div>
 
             <!-- Sachiv Specific Sidebar Menu -->
@@ -40,7 +45,7 @@
             </ul>
 
             <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
+                <p class="mb-0">Kolhapur District, Maharashtra</p>
                 <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
             </div>
         </nav>
@@ -50,10 +55,6 @@
             <!-- Header Top Bar -->
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-                        <i class="fas fa-align-left"></i>
-                    </button>
-
                     <div class="ms-3 d-flex align-items-center">
                         <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Secretary Review Dashboard</h5>
                     </div>
