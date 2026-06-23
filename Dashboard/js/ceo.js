@@ -401,7 +401,7 @@ function handleAssignTaskSubmit(e) {
     formData.append('funding_source', fundingSource);
     formData.append('task_description', description);
 
-    fetch('ceo_assign_task_db.php', {
+    fetch('ceo_create_work_db.php', {
         method: 'POST',
         body: formData
     })

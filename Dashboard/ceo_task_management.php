@@ -10,7 +10,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samruddha Shala E-Portal - CEO Assign Task</title>
+    <title>Samruddha Shala E-Portal - CEO Task Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -238,10 +238,33 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                 border-radius: 18px;
             }
         }
+
+        /* Form Layout Overrides to prevent overlap and bugs from global styles */
+        #createWorkForm .form-label {
+            position: static;
+            transform: none;
+            pointer-events: auto;
+            margin-bottom: 0.5rem;
+        }
+        #createWorkForm .form-select {
+            border: 1px solid #ced4da !important;
+            appearance: auto !important;
+            -webkit-appearance: auto !important;
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+            background-color: #fff !important;
+        }
+        #createWorkForm .form-control {
+            border: 1px solid #ced4da !important;
+            background-color: #fff !important;
+        }
+        #stagesTable .form-control {
+            position: relative;
+        }
     </style>
 </head>
 <body class="ceo-dashboard-page">
     <div id="wrapper">
+        <!-- Sidebar Navigation -->
         <?php include '../include/sidebar.php'; ?>
 
         <div id="content">
@@ -251,7 +274,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Create Work</h5>
+                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Task Management</h5>
                     </div>
                     <div class="ms-auto d-flex align-items-center">
                         <div class="me-4 position-relative">
@@ -276,95 +299,64 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="card p-4">
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Create Task for HM</h4>
-                                <p class="text-muted mb-4">Create or update the active task for a school in Kolhapur District, Maharashtra. This resets work progress to 0% and marks the task as pending HM action.</p>
-                                <style>
-                                    #ceoAssignTaskForm .form-label {
-                                        position: static;
-                                        transform: none;
-                                        pointer-events: auto;
-                                        margin-bottom: 0.5rem;
-                                    }
-                                    #ceoAssignTaskForm .form-select {
-                                        border: 1px solid #ced4da !important;
-                                        appearance: auto !important;
-                                        -webkit-appearance: auto !important;
-                                        padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
-                                        background-color: #fff !important;
-                                    }
-                                    #ceoAssignTaskForm .form-control {
-                                        border: 1px solid #ced4da !important;
-                                        background-color: #fff !important;
-                                    }
-                                    .btn-ceo-gold {
-                                        background: linear-gradient(135deg, #efbc4d 0%, #f5c542 100%);
-                                        color: #fff;
-                                        border: none;
-                                        border-radius: 12px;
-                                        transition: all 0.3s ease;
-                                        box-shadow: 0 8px 15px rgba(239, 188, 77, 0.2);
-                                    }
-                                    .btn-ceo-gold:hover {
-                                        background: linear-gradient(135deg, #e8b13d 0%, #f1bd30 100%);
-                                        color: #fff;
-                                        transform: translateY(-2px);
-                                    }
-                                    .btn-ceo-purple {
-                                        background: linear-gradient(135deg, #6420a5 0%, #8a45b8 100%);
-                                        color: #fff;
-                                        border: none;
-                                        border-radius: 12px;
-                                        transition: all 0.3s ease;
-                                        box-shadow: 0 8px 15px rgba(100, 32, 165, 0.2);
-                                    }
-                                    .btn-ceo-purple:hover {
-                                        background: linear-gradient(135deg, #571991 0%, #7b3ba6 100%);
-                                        color: #fff;
-                                        transform: translateY(-2px);
-                                    }
-                                </style>
-                                <form id="ceoAssignTaskForm" action="ceo_create_work_db.php" onsubmit="handleAssignTaskSubmit(event)">
-                                    <div class="mb-3">
-                                        <label for="ceoTaskSchoolSelect" class="form-label fw-semibold">Select School</label>
-                                        <select id="ceoTaskSchoolSelect" name="school_name" class="form-select" required></select>
-                                    </div>
+                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-plus-circle me-2 text-primary"></i> Manage Task</h4>
+                                <p class="text-muted mb-4">Define a new work and configure its workflow stages and progress percentages.</p>
+                                <form id="createWorkForm">
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="ceoTaskWorkType" class="form-label fw-semibold">Work Type</label>
-                                            <select id="ceoTaskWorkType" name="work_type" class="form-select" required>
-                                                <option value="Construction">Construction</option>
-                                                <option value="Non-Construction">Non-Construction</option>
+                                            <label for="workTypeSelect" class="form-label fw-semibold">Work Type <span class="text-danger">*</span></label>
+                                            <select id="workTypeSelect" name="work_type_id" class="form-select" required>
+                                                <option value="" disabled selected>Loading...</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="ceoTaskBudget" class="form-label fw-semibold">Budget (Lakhs)</label>
-                                            <input type="number" min="0" step="0.1" id="ceoTaskBudget" class="form-control" placeholder="e.g. 4.0">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="ceoTaskFundingSource" class="form-label fw-semibold">Funding Source</label>
-                                            <select id="ceoTaskFundingSource" name="funding_source" class="form-select" required>
-                                                <option value="" disabled selected>Select Funding Source</option>
-                                                <option value="Annual Plan">Annual Plan</option>
-                                                <option value="Minor Mineral Fund">Minor Mineral Fund</option>
-                                                <option value="ZP Own Fund">ZP Own Fund</option>
-                                                <option value="CSR Fund">CSR Fund</option>
+                                            <label for="workNameSelect" class="form-label fw-semibold">Work Name <span class="text-danger">*</span></label>
+                                            <select id="workNameSelect" name="work_name_id" class="form-select" required>
+                                                <option value="" disabled selected>Select Work Type first</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="ceoTaskDescription" class="form-label fw-semibold">Task Description</label>
-                                        <textarea id="ceoTaskDescription" class="form-control" rows="4" placeholder="Describe the task details, expected outcomes, and priority..." required></textarea>
+
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label fw-semibold mb-0">Stage Details <span class="text-danger">*</span></label>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="addStageBtn">
+                                                <i class="fa-solid fa-plus me-1"></i> Add Stage
+                                            </button>
+                                        </div>
+                                        <div class="table-responsive border rounded">
+                                            <table class="table table-hover align-middle mb-0" id="stagesTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 50%;">Stage Name</th>
+                                                        <th style="width: 30%;">Percentage (%)</th>
+                                                        <th style="width: 20%;" class="text-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="stagesTableBody">
+                                                    <!-- Dynamic rows -->
+                                                </tbody>
+                                                <tfoot class="table-light">
+                                                    <tr>
+                                                        <td class="text-end fw-bold">Total Percentage:</td>
+                                                        <td class="fw-bold fs-5 text-primary" id="totalPercentageDisplay">0%</td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
                                     </div>
-                                    <div class="d-flex gap-3 mt-4">
-                                        <button type="reset" class="btn btn-ceo-gold flex-fill py-2 fw-semibold">
-                                            <i class="fa-solid fa-rotate-right me-2"></i>Reset
-                                        </button>
-                                        <button type="submit" class="btn btn-ceo-purple flex-fill py-2 fw-semibold">
-                                            <i class="fa-solid fa-paper-plane me-2"></i>Assign Task
-                                        </button>
+
+                                    <div class="mb-4">
+                                        <label for="additionalNotes" class="form-label fw-semibold">Additional Information / Notes</label>
+                                        <textarea id="additionalNotes" class="form-control" rows="4" placeholder="Work description, administrative remarks, instructions..."></textarea>
                                     </div>
+                                    
+                                    <div id="formError" class="alert alert-danger d-none mb-3"></div>
+
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="submitWorkBtn">
+                                        <i class="fa-solid fa-paper-plane me-2"></i>Create Work
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -381,6 +373,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/db.js"></script>
     <script src="js/ceo.js?v=5"></script>
+    <script src="js/create_work.js"></script>
 </body>
 </html>
 
