@@ -28,36 +28,31 @@
                         <i class="fa-solid fa-chart-pie"></i>Overview Report
                     </a>
                 </li>
-                <li class="active" id="nav-ceo-task">
-                    <a href="ceo_assign_task.php">
-                        <i class="fa-solid fa-file-signature"></i>Create & Assign Work to HM
-                    </a>
-                </li>
                 <li id="nav-ceo-alerts">
                     <a href="ceo_alerts.php">
                         <i class="fa-solid fa-bell"></i>View Alerts & Notifications
                         <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
                     </a>
                 </li>
-
-                <p class="mt-3">Work Management</p>
                 <li id="nav-ceo-create-work">
                     <a href="ceo_create_work.php">
                         <i class="fa-solid fa-plus-circle"></i>Create Work
                     </a>
                 </li>
+                <li class="active" id="nav-ceo-task">
+                    <a href="ceo_assign_task.php">
+                        <i class="fa-solid fa-file-signature"></i>Assign Work to HM
+                    </a>
+                </li>
             </ul>
-            <div class="mt-auto p-4 border-top border-secondary border-opacity-10 text-center text-muted" style="font-size: 0.75rem;">
-                <p class="mb-0">Kolhapur District Board</p>
-                <span style="font-size: 0.7rem;">Version 2.4 (Zeal FIP)</span>
-            </div>
+    
         </nav>
 
         <div id="content">
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District Work Assignment</h5>
+                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District Work </h5>
                     </div>
                     <div class="ms-auto d-flex align-items-center">
                         <div class="dropdown me-4 position-relative">
@@ -92,7 +87,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="card p-4">
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Assign Task to School</h4>
+                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Assign Task to HM</h4>
                                 <p class="text-muted mb-4">Create or update the active task for a school in Kolhapur District, Maharashtra. This resets work progress to 0% and marks the task as pending HM action.</p>
                                 <form id="ceoAssignTaskForm" action="ceo_assign_task_db.php" onsubmit="handleAssignTaskSubmit(event)">
                                     <div class="mb-3">
