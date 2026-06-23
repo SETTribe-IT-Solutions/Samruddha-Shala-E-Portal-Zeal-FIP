@@ -89,5 +89,3 @@ function confirmLogout(event) {
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/sidebar.css">
 </head>
-
-
