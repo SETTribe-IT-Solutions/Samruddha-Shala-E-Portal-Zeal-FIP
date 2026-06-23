@@ -4,6 +4,33 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $role = $_SESSION['role'] ?? '';
+$username = $_SESSION['username'] ?? '';
+$userFullName = '';
+$userRole = '';
+
+// Fetch user name and role from database
+if (!empty($username)) {
+    require_once __DIR__ . '/dbConfig.php';
+    $stmt = $conn->prepare('SELECT name, role FROM users WHERE username = ? LIMIT 1');
+    if ($stmt) {
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result && $row = $result->fetch_assoc()) {
+            $userFullName = !empty($row['name']) ? $row['name'] : $username;
+            $userRole = $row['role'] ?? $role;
+        }
+        $stmt->close();
+    }
+}
+
+// Fallback if not found
+if (empty($userFullName)) {
+    $userFullName = $username ?: 'User';
+}
+if (empty($userRole)) {
+    $userRole = $role ?: 'Guest';
+}
 ?>
 <!-- Sidebar Navigation -->
 <nav id="sidebar">
@@ -26,7 +53,7 @@ $role = $_SESSION['role'] ?? '';
     <li><a href="work_master.php"><i class="fa-solid fa-briefcase"></i> Work Master</a></li>
     <li><a href="create_work.php"><i class="fa-solid fa-plus"></i> Create Work</a></li>
     <li><a href="update_work_master.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
-    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
     <li><a href="sachiv_work_master.php"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
     <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
     <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
@@ -53,8 +80,8 @@ $role = $_SESSION['role'] ?? '';
 
     <!-- Footer -->
  <div class="sidebar-footer">
-    <p>Mr. Anil Deshmukh</p>
-    <p>Head Master</p>
+    <p><?php echo htmlspecialchars($userFullName); ?></p>
+    <p><?php echo htmlspecialchars($userRole); ?></p>
 </div>
 
 <div class="logout-wrapper">

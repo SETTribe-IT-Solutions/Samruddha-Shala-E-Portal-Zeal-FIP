@@ -38,9 +38,19 @@ if (!in_array('role', $userColumns, true)) {
     }
 }
 
+// Ensure name column exists
+if (!in_array('name', $userColumns, true)) {
+    if ($conn->query("ALTER TABLE users ADD COLUMN name VARCHAR(100) NOT NULL DEFAULT ''")) {
+        $userColumns[] = 'name';
+    } else {
+        $errors[] = 'Unable to add name column to users table.';
+    }
+}
+
 $hasUsername = in_array('username', $userColumns, true);
 $hasPassword = in_array('password', $userColumns, true);
 $hasRole = in_array('role', $userColumns, true);
+$hasName = in_array('name', $userColumns, true);
 $hasIsActive = in_array('is_active', $userColumns, true);
 
 if ($hasRole && $hasUsername) {
@@ -64,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
     $newUsername = trim($_POST['username'] ?? '');
     $newPassword = trim($_POST['password'] ?? '');
     $newRole = trim($_POST['role'] ?? '');
+    $newName = trim($_POST['name'] ?? '');
     $isActive = isset($_POST['is_active']) ? 1 : 0;
 
     if (!$hasUsername || !$hasPassword) {
@@ -76,6 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 
     if ($newPassword === '') {
         $errors[] = 'Password is required.';
+    }
+
+    if ($hasName && $newName === '') {
+        $errors[] = 'Full name is required.';
     }
 
     if ($hasRole && $newRole === '') {
@@ -104,7 +119,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
     }
 
     if (empty($errors)) {
-        if ($hasRole && $hasIsActive) {
+        if ($hasRole && $hasName && $hasIsActive) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name, is_active) VALUES (?, ?, ?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('ssssi', $newUsername, $newPassword, $newRole, $newName, $isActive);
+            }
+        } elseif ($hasRole && $hasName) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('ssss', $newUsername, $newPassword, $newRole, $newName);
+            }
+        } elseif ($hasRole && $hasIsActive) {
             $insertStmt = $conn->prepare('INSERT INTO users (username, password, role, is_active) VALUES (?, ?, ?, ?)');
             if ($insertStmt) {
                 $insertStmt->bind_param('sssi', $newUsername, $newPassword, $newRole, $isActive);
@@ -198,6 +223,71 @@ if ($usersResult) {
     border-top-left-radius: 14px;
     border-top-right-radius: 14px;
     padding: 0.95rem 1.15rem;
+}
+
+.create-user-card {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.create-user-card .card-header {
+    padding: 0.8rem 1rem;
+}
+
+.create-user-card .card-header h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.create-user-card .card-body {
+    padding: 0.9rem 1rem 1.1rem;
+}
+
+.create-user-form .form-label {
+    font-size: 0.92rem;
+    margin-bottom: 0.45rem;
+}
+
+.create-user-form .form-control,
+.create-user-form .form-select {
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #d8deea;
+    box-shadow: none;
+}
+
+.create-user-form .form-control:focus,
+.create-user-form .form-select:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 0.15rem rgba(124, 58, 237, 0.12);
+}
+
+.create-user-form .form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 40px;
+    margin-bottom: 0;
+}
+
+.create-user-form .form-check-input {
+    margin-top: 0;
+}
+
+.create-user-form .form-check-label {
+    font-weight: 500;
+    color: #263041;
+}
+
+.create-user-form .create-user-actions {
+    margin-top: 0.8rem;
+}
+
+.create-user-form .btn-admin {
+    padding: 0.45rem 0.95rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
 }
 
 .page-title {
@@ -335,12 +425,12 @@ if ($usersResult) {
                 </div>
             <?php endif; ?>
 
-            <div class="card admin-card mb-4">
+            <div class="card admin-card create-user-card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Create New User</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" class="create-user-form">
                         <div class="row g-3">
                             <?php if ($hasRole): ?>
                                 <div class="col-md-3">
@@ -353,24 +443,30 @@ if ($usersResult) {
                                     </select>
                                 </div>
                             <?php endif; ?>
-                            <div class="col-md-4">
+                            <?php if ($hasName): ?>
+                                <div class="col-md-3">
+                                    <label class="form-label" for="name">Full Name</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
+                                </div>
+                            <?php endif; ?>
+                            <div class="col-md-2">
                                 <label class="form-label" for="username">Username</label>
                                 <input type="text" id="username" name="username" class="form-control" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <label class="form-label" for="password">Password</label>
                                 <input type="text" id="password" name="password" class="form-control" required>
                             </div>
                             <?php if ($hasIsActive): ?>
-                                <div class="col-md-1 d-flex align-items-end">
-                                    <div class="form-check mb-2">
+                                <div class="col-md-1 d-flex align-items-end justify-content-md-end">
+                                    <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
                                         <label class="form-check-label" for="is_active">Active</label>
                                     </div>
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="mt-3">
+                        <div class="create-user-actions">
                             <button type="submit" name="create_user" class="btn btn-admin" <?php echo $isAdmin ? '' : 'disabled'; ?>>Create User</button>
                         </div>
                     </form>
