@@ -3,6 +3,7 @@ session_start();
 
 require_once 'include/dbConfig.php';
 
+
 $message = '';
 
 if(isset($_POST['login']))
@@ -73,6 +74,7 @@ elseif($_SESSION['role'] == 'HM')
 
 <?php include 'include/landing_header.php'; ?>
 <?php include 'include/website_header.php'; ?>
+<link rel="stylesheet" href="login.css">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -85,17 +87,17 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
 
 .site-banner-wrapper { background: linear-gradient(135deg, #fff8dc 0%, #fff2bf 55%, #ffe9a8 100%) !important; border-bottom: 2px solid #ecd28a !important; box-shadow: 0 2px 10px rgba(168, 124, 23, 0.14) !important; }
 
-.login-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 20px; }
+.login-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 50px 20px; }
 
 .animated-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .animated-bg::before { content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(11,99,183,0.08), transparent); border-radius: 50%; top: 10%; left: 5%; animation: pulse 6s infinite; }
 .animated-bg::after { content: ''; position: absolute; width: 200px; height: 200px; background: radial-gradient(circle, rgba(5,58,138,0.06), transparent); border-radius: 50%; bottom: 15%; right: 10%; animation: pulse 8s infinite 1s; }
 
-.login-panel { width: 100%; max-width: 1150px; display: flex; background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 25px 60px rgba(13, 71, 161, 0.12); position: relative; z-index: 1; animation: slideIn 0.6s ease-out; }
+.login-panel { width: 100%; max-width: 1150px; display: flex; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px rgba(13, 71, 161, 0.12); position: relative; z-index: 1; animation: slideIn 0.6s ease-out; }
 
-.login-left { flex: 1.1; background: url('images/LoginImage_SamruddhaShala.png') center center / cover no-repeat, linear-gradient(180deg, #e8f2ff, #f0faff); min-height: 520px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; overflow: hidden; }
-.login-left::before { content: ''; position: absolute; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; top: 20%; left: 10%; animation: float 6s ease-in-out infinite; }
-.login-left::after { content: ''; position: absolute; width: 100px; height: 100px; background: rgba(255,255,255,0.08); border-radius: 50%; bottom: 20%; right: 15%; animation: float 5s ease-in-out infinite 1s; }
+.login-left { flex: 1.1; background: url('images/LoginImage_SamruddhaShala.png') center center / cover no-repeat, linear-gradient(180deg, #e8f2ff, #f0faff); min-height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; overflow: hidden; }
+.login-left::before { content: ''; position: absolute; width: 150px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 40%; top: 10%; left: 10%; animation: float 6s ease-in-out infinite; }
+.login-left::after { content: ''; position: absolute; width: 100px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 40%; bottom: 10%; right: 10%; animation: float 5s ease-in-out infinite 1s; }
 
 .login-right { flex: 0.9; background: linear-gradient(180deg, #ffffff, #fafbff); padding: 52px 48px; display: flex; flex-direction: column; justify-content: center; position: relative; }
 .login-right::before { content: ''; position: absolute; top: 0; right: 0; width: 200px; height: 200px; background: radial-gradient(circle, rgba(11,99,183,0.04), transparent); border-radius: 50%; }
@@ -130,20 +132,26 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
 .social { flex: 1; text-align: center; padding: 11px 8px; border-radius: 10px; background: linear-gradient(135deg, rgba(11,99,183,0.08), rgba(5,58,138,0.04)); color: #06396b; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; border: 1px solid rgba(11,99,183,0.1); }
 .social:hover { background: linear-gradient(135deg, rgba(11,99,183,0.12), rgba(5,58,138,0.08)); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(11,99,183,0.12); }
 
-.btn-login { width: 100%; background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none; padding: 13px 16px; border-radius: 11px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 8px 24px rgba(11,99,183,0.2); transition: all 0.3s; animation: slideIn 1.1s ease-out; }
-.btn-login:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(11,99,183,0.26); }
+.btn-login{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none; padding: 13px 16px; border-radius: 11px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 8px 24px rgba(11,99,183,0.2); transition: all 0.3s; animation: slideIn 1.1s ease-out; }
+.btn-login:hover { opacity: 0.95; align-items: center; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(11,99,183,0.26); }
 .btn-login:active { transform: translateY(0); }
 
 .login-title { font-size: 26px; color: #07325a; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; animation: slideIn 0.6s ease-out; }
-.login-sub { color: #6b7280; margin-bottom: 20px; font-size: 14px; animation: slideIn 0.7s ease-out; }
+.login-sub { color: #6b7280; align-items: center; margin-bottom: 20px; font-size: 14px; animation: slideIn 0.7s ease-out; }
 
 .error { color: #cc1f1f; text-align: center; margin-top: 12px; font-size: 13px; animation: slideIn 0.4s ease-out; }
 
 @media (max-width: 900px) {
-    .login-panel { flex-direction: column; max-width: 720px; box-shadow: 0 15px 40px rgba(13, 71, 161, 0.1); }
-    .login-left { min-height: 240px; }
-    .login-right { padding: 32px 28px; }
-    .brand { margin-bottom: 20px; }
+    .login-panel { flex-direction: column; max-width: 900px; box-shadow: 0 35px 70px rgba(13, 71, 161, 0.1); }
+    .login-left { min-height: 400px; }
+    .login-right { padding: 32px 38px; }
+    .brand { margin-bottom: 10px; }
     .small-illustration { width: 80px; right: 20px; top: 20px; }
 }
 
@@ -156,11 +164,11 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
             <div class="login-left" aria-hidden="true"></div>
 
             <div class="login-right">
-                <img src="images/THREELIONS__1_-removebg-preview.png" alt="decor" class="small-illustration" aria-hidden="true">
+              
                 <div class="brand">
                     
                     <div>
-                        <h2>Samruddha Shala</h2>
+                        <h1 align="center" bold>Samruddha Shala</h1>
                         <div style="color:#6b7280; font-size:13px;">E-Portal System</div>
                     </div>
                 </div>
@@ -170,18 +178,33 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
                     <div class="login-sub">Sign in to continue to the E-Portal</div>
 
                     <form method="POST">
-                        <div class="form-group input-with-icon">
-                            <label>Username / उपयोगकर्ता नाव</label>
+                        <div class="form-group">
+    <label>Username / उपयोगकर्ता नाव</label>
+    <div class="input-with-icon">
+                            
                             <span class="form-icon">👤</span>
                             <input type="text" name="username" class="form-control" placeholder="Enter username" required>
                         </div>
+                        <div class="form-group">
+    <label>Password / पासवर्ड</label>
 
-                        <div class="form-group input-with-icon">
-                            <label>Password / पासवर्ड</label>
-                            <span class="form-icon">🔒</span>
-                            <input type="password" id="passwordField" name="password" class="form-control" placeholder="Enter password" required>
-                            <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle password visibility">👁️</button>
-                        </div>
+    <div class="input-with-icon">
+        <span class="form-icon">🔒</span>
+
+        <input type="password"
+               id="passwordField"
+               name="password"
+               class="form-control"
+               placeholder="Enter password"
+               required>
+
+        <button type="button"
+                class="toggle-password"
+                onclick="togglePassword()">👁️</button>
+    </div>
+</div>
+
+                       
 
                         <div class="controls">
                             <label class="remember"><input type="checkbox" name="remember"> Remember me</label>
@@ -191,19 +214,38 @@ body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; back
                         <button type="submit" name="login" class="btn-login">Login</button>
 
                         <div class="social-row">
-                            <div class="social">Sign in with Google</div>
-                            <div class="social">Sign in with Office</div>
+                          
                         </div>
+                       
                     </form>
 
                     <?php if(!empty($message)) { ?>
                         <div class="error"><?php echo $message; ?></div>
                     <?php } ?>
+                    
                 </div>
 
             </div>
+               
+        </div>
+      
+    </div>
+
+<body>
+
+
+
+<div class="login-main">
+    <div class="container">
+        <div class="login-panel">
+            
         </div>
     </div>
+</div>
+
+<?php include 'include/website_footer.php'; ?>
+
+</body>
 </div>
 
 <script>
@@ -228,4 +270,3 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-<?php include 'include/website_footer.php'; ?>
