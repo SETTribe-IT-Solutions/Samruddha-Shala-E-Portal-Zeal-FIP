@@ -19,16 +19,243 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom Style Sheet -->
     <link href="css/style.css" rel="stylesheet">
+    <link href="../css/sidebar.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --ceo-sidebar-width: 250px;
+            --ceo-header-height: 64px;
+            --ceo-footer-height: 60px;
+            --ceo-shell-bg: #f4f8fb;
+        }
+
+        body.ceo-dashboard-page {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: block;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(123, 92, 255, 0.08), transparent 28%),
+                linear-gradient(180deg, #eef6fb 0%, #f7fafc 100%);
+        }
+
+        body.ceo-dashboard-page #wrapper {
+            min-height: 100vh;
+        }
+
+        body.ceo-dashboard-page #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--ceo-sidebar-width);
+            min-width: var(--ceo-sidebar-width);
+            max-width: var(--ceo-sidebar-width);
+            height: 100vh;
+            z-index: 1100;
+            overflow: hidden;
+            background: linear-gradient(180deg, #6420a5 0%, #8a45b8 54%, #efbc4d 100%);
+            box-shadow: 10px 0 32px rgba(91, 35, 140, 0.22);
+        }
+
+        body.ceo-dashboard-page #sidebar .sidebar-header {
+            padding: 20px 16px 16px;
+        }
+
+        body.ceo-dashboard-page #sidebar .sidebar-header h4 {
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        body.ceo-dashboard-page #sidebar .sidebar-header small {
+            font-size: 11px !important;
+            letter-spacing: 0.8px !important;
+        }
+
+        body.ceo-dashboard-page #sidebar .components {
+            padding: 10px 0 8px;
+        }
+
+        body.ceo-dashboard-page #sidebar .components li {
+            margin: 4px 10px;
+        }
+
+        body.ceo-dashboard-page #sidebar .components li a {
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        body.ceo-dashboard-page #sidebar .components li a i {
+            width: 18px;
+            font-size: 14px;
+        }
+
+        body.ceo-dashboard-page #sidebar .sidebar-footer {
+            padding: 12px 14px 8px;
+        }
+
+        body.ceo-dashboard-page #sidebar .sidebar-footer p {
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+
+        body.ceo-dashboard-page #sidebar .logout-wrapper {
+            padding: 10px 12px 14px;
+        }
+
+        body.ceo-dashboard-page #sidebar .logout-btn {
+            padding: 10px 14px;
+            font-size: 13px;
+            border-radius: 12px;
+        }
+
+        body.ceo-dashboard-page #content {
+            margin-left: var(--ceo-sidebar-width);
+            width: calc(100vw - var(--ceo-sidebar-width));
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: calc(var(--ceo-header-height) + 16px) 18px calc(var(--ceo-footer-height) + 22px);
+            background: transparent;
+        }
+
+        body.ceo-dashboard-page .ceo-fixed-header,
+        body.ceo-dashboard-page .ceo-fixed-footer {
+            position: fixed;
+            left: var(--ceo-sidebar-width);
+            right: 0;
+            z-index: 1050;
+        }
+
+        body.ceo-dashboard-page .ceo-fixed-header {
+            top: 0;
+        }
+
+        body.ceo-dashboard-page .ceo-fixed-footer {
+            bottom: 0;
+        }
+
+        body.ceo-dashboard-page .ceo-fixed-header .site-banner-wrapper,
+        body.ceo-dashboard-page .ceo-fixed-footer .login-page-footer {
+            width: 100%;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+        }
+
+        body.ceo-dashboard-page .ceo-fixed-header .site-banner-wrapper {
+            box-shadow: 0 2px 12px rgba(17, 24, 39, 0.08);
+        }
+
+        body.ceo-dashboard-page .ceo-fixed-footer .login-page-footer {
+            box-shadow: 0 -2px 12px rgba(17, 24, 39, 0.06);
+        }
+
+        body.ceo-dashboard-page .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(228, 232, 239, 0.95);
+            border-radius: 22px;
+            padding: 18px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 18px 36px rgba(54, 78, 105, 0.08);
+        }
+
+        body.ceo-dashboard-page .container-fluid.p-4 {
+            padding: 0 !important;
+        }
+
+        body.ceo-dashboard-page .row {
+            --bs-gutter-x: 1.15rem;
+            --bs-gutter-y: 1.15rem;
+        }
+
+        body.ceo-dashboard-page .card,
+        body.ceo-dashboard-page .border.rounded.p-4,
+        body.ceo-dashboard-page .border.rounded.p-3 {
+            border: 1px solid rgba(232, 236, 242, 0.9) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 14px 32px rgba(54, 78, 105, 0.08);
+            background: rgba(255, 255, 255, 0.97);
+        }
+
+        body.ceo-dashboard-page .card.p-4.bg-light {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%) !important;
+        }
+
+        body.ceo-dashboard-page .btn-outline-primary {
+            border: none;
+            color: #ffffff;
+            background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%);
+            border-radius: 16px;
+            padding: 10px 16px;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(127, 42, 179, 0.18);
+        }
+
+        body.ceo-dashboard-page .btn-outline-primary:hover {
+            color: #ffffff;
+            background: linear-gradient(135deg, #6f239d 0%, #e2ad35 100%);
+        }
+
+        body.ceo-dashboard-page .table thead th {
+            background: #f7f3ff;
+            color: #4c2a7a;
+            border-bottom: 0;
+        }
+
+        @media (max-width: 991px) {
+            :root {
+                --ceo-sidebar-width: 0px;
+            }
+
+            body.ceo-dashboard-page {
+                overflow-y: auto;
+            }
+
+            body.ceo-dashboard-page #sidebar {
+                width: 250px;
+                min-width: 250px;
+                max-width: 250px;
+                left: -250px;
+                overflow-y: auto;
+            }
+
+            body.ceo-dashboard-page #sidebar.active {
+                left: 0;
+            }
+
+            body.ceo-dashboard-page #content {
+                margin-left: 0;
+                width: 100vw;
+                padding: calc(var(--ceo-header-height) + 12px) 12px calc(var(--ceo-footer-height) + 18px);
+            }
+
+            body.ceo-dashboard-page .ceo-fixed-header,
+            body.ceo-dashboard-page .ceo-fixed-footer {
+                left: 0;
+            }
+
+            body.ceo-dashboard-page .navbar {
+                padding: 14px 16px;
+                border-radius: 18px;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="ceo-dashboard-page">
 
     <div id="wrapper">
         <!-- Sidebar Navigation -->
         <?php include '../include/sidebar.php'; ?>
         <!-- Page Content -->
         <div id="content">
+            <div class="ceo-fixed-header">
+                <?php include '../include/website_header.php'; ?>
+            </div>
             <!-- Header Top Bar -->
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
@@ -213,7 +440,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                         <div class="col-lg-12">
                             <div class="card p-4">
                                 <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Assign Task to School</h4>
-                                <p class="text-muted mb-4">Create or update the active task for a Kolhapur school. This resets work progress to 0% and marks the task as pending HM action.</p>
+                                <p class="text-muted mb-4">Create or update the active task for a Kolhapur school. This resets work progress to 0% and marks the task as pending CEO action.</p>
 
                                 <form id="ceoAssignTaskForm" onsubmit="handleAssignTaskSubmit(event)">
                                     <div class="mb-3">
@@ -531,12 +758,9 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 
             </div>
 
-            <footer class="border-top bg-white mt-4">
-                <div class="container-fluid px-4 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center text-muted small">
-                    <span>© 2026 Samruddha Shala E-Portal</span>
-                    <span>Kolhapur District CEO Dashboard</span>
-                </div>
-            </footer>
+            <div class="ceo-fixed-footer">
+                <?php include '../include/website_footer.php'; ?>
+            </div>
         </div>
     </div>
 
