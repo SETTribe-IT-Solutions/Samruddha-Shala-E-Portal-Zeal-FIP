@@ -22,7 +22,8 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <link href="../css/sidebar.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
+    <link href="css/ceo_dashboard.css" rel="stylesheet">
+    <!-- <style>
         :root {
             --ceo-sidebar-width: 250px;
             --ceo-header-height: 64px;
@@ -244,7 +245,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                 border-radius: 18px;
             }
         }
-    </style>
+    </style> -->
 </head>
 <body class="ceo-dashboard-page">
 
