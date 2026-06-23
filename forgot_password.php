@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 require_once 'include/dbConfig.php';
@@ -57,13 +56,12 @@ if(isset($_POST['reset']))
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Forgot Password - Samruddha Shala E-Portal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <?php include 'include/landing_header.php'; ?>
 <?php include 'include/website_header.php'; ?>
-
 
 <style>
 
@@ -74,28 +72,29 @@ if(isset($_POST['reset']))
     font-family:'Poppins',sans-serif;
 }
 
-html,
-body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
+html,body{
+    min-height:100vh;
     background:#f4f8ff;
 }
 
+body{
+    display:flex;
+    flex-direction:column;
+}
+
 .main-container{
+    flex:1;
     width:100%;
-    height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:15px;
+    padding:20px;
 }
 
 .forgot-panel{
-    width:95%;
-    max-width:1400px;
-    height:90vh;
-    background:#ffffff;
+    width:90%;
+    max-width:1300px;
+    background:#fff;
     border-radius:20px;
     overflow:hidden;
     display:flex;
@@ -103,72 +102,69 @@ body{
 }
 
 .left-section{
-    flex:1.7;
+    flex:1.2;
     display:flex;
     justify-content:center;
     align-items:center;
-    background:#ffffff;
-    padding:15px;
+    padding:5px;
+    background:#fff;
 }
 
 .left-section img{
     width:100%;
-    height:100%;
+    height:auto;
     object-fit:contain;
 }
 
 .right-section{
-    flex:0.8;
+    flex:1;
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:30px;
+    padding:25px;
     background:linear-gradient(to bottom,#ffffff,#f7fbff);
 }
 
 .form-container{
     width:100%;
-    max-width:420px;
+    max-width:500px;
 }
 
 .logo{
     text-align:center;
-    margin-bottom:20px;
-}
-
-.logo img{
-    width:90px;
-    margin-bottom:10px;
+    margin-bottom:25px;
 }
 
 .logo h2{
     color:#003366;
-    font-size:28px;
+    font-size:42px;
+    font-weight:700;
     margin-bottom:5px;
 }
 
 .logo p{
     color:#666;
-    font-size:14px;
+    font-size:16px;
 }
 
 .form-group{
-    margin-bottom:15px;
+    margin-bottom:18px;
 }
 
 .form-group label{
     display:block;
-    margin-bottom:5px;
+    margin-bottom:8px;
     font-weight:600;
-    color:#333;
+    color:#222;
+    font-size:15px;
 }
 
 .form-control{
     width:100%;
-    padding:12px;
-    border:1px solid #d5dce5;
-    border-radius:8px;
-    font-size:14px;
+    padding:14px;
+    border:1px solid #d8dde6;
+    border-radius:10px;
+    font-size:15px;
 }
 
 .form-control:focus{
@@ -179,34 +175,36 @@ body{
 
 .btn-reset{
     width:100%;
-    padding:12px;
+    padding:14px;
     border:none;
-    border-radius:8px;
+    border-radius:10px;
     background:linear-gradient(90deg,#0b63b7,#053a8a);
     color:#fff;
-    font-size:16px;
+    font-size:17px;
     font-weight:600;
     cursor:pointer;
+    transition:.3s;
 }
 
 .btn-reset:hover{
-    opacity:0.95;
+    opacity:.95;
 }
 
 .message{
     margin-top:15px;
     text-align:center;
     color:red;
+    font-size:14px;
 }
 
 .back-link{
     text-align:center;
-    margin-top:15px;
+    margin-top:18px;
 }
 
 .back-link a{
-    text-decoration:none;
     color:#0b63b7;
+    text-decoration:none;
     font-weight:500;
 }
 
@@ -216,22 +214,29 @@ body{
 
 @media(max-width:991px)
 {
-    body{
-        overflow:auto;
-    }
-
     .forgot-panel{
         flex-direction:column;
-        height:auto;
+        width:95%;
     }
 
     .left-section{
-        height:300px;
+        padding:10px;
+    }
+
+    .left-section img{
+        max-height:300px;
+    }
+
+    .right-section{
+        padding:20px;
+    }
+
+    .logo h2{
+        font-size:32px;
     }
 }
 
 </style>
-
 </head>
 
 <body>
@@ -241,7 +246,7 @@ body{
     <div class="forgot-panel">
 
         <div class="left-section">
-            <img src="images/LoginImage_SamruddhaShala.png" alt="Login Image">
+            <img src="images/LoginImage_SamruddhaShala1.png" alt="Samruddha Shala">
         </div>
 
         <div class="right-section">
@@ -249,7 +254,6 @@ body{
             <div class="form-container">
 
                 <div class="logo">
-                    
                     <h2>Forgot Password</h2>
                     <p>Samruddha Shala E-Portal</p>
                 </div>
@@ -291,7 +295,7 @@ body{
 
                 </form>
 
-                <?php if(!empty($message)){ ?>
+                <?php if(!empty($message)) { ?>
                     <div class="message">
                         <?php echo $message; ?>
                     </div>
@@ -299,7 +303,6 @@ body{
 
                 <div class="back-link">
                     <a href="login.php">← Back to Login</a>
-                    <?php include 'include/website_footer.php'; ?>
                 </div>
 
             </div>
@@ -309,6 +312,8 @@ body{
     </div>
 
 </div>
+
+<?php include 'include/website_footer.php'; ?>
+
 </body>
 </html>
-
