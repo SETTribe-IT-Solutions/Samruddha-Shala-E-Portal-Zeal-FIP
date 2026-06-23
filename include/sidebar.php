@@ -5,10 +5,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $role = $_SESSION['role'] ?? '';
 $username = $_SESSION['username'] ?? '';
+$sessionName = $_SESSION['name'] ?? '';
 $userFullName = '';
 $userRole = '';
 
-// Fetch user name and role from database
+// Read from the database first so the displayed CEO name stays in sync everywhere.
 if (!empty($username)) {
     require_once __DIR__ . '/dbConfig.php';
     $stmt = $conn->prepare('SELECT name, role FROM users WHERE username = ? LIMIT 1');
@@ -22,6 +23,14 @@ if (!empty($username)) {
         }
         $stmt->close();
     }
+}
+
+// Session fallback if the user row could not be read.
+if ($userFullName === '') {
+    $userFullName = trim((string) $sessionName);
+}
+if ($userRole === '') {
+    $userRole = trim((string) $role);
 }
 
 // Fallback if not found

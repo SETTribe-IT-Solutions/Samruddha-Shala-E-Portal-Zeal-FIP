@@ -58,15 +58,16 @@ if ($hasRole && $hasUsername) {
     $conn->query("UPDATE users SET role = 'HM' WHERE username = 'HM' AND role <> 'HM'");
 }
 
-$displayColumns = $userColumns;
-if ($hasRole && $hasUsername) {
-    $roleIndex = array_search('role', $displayColumns, true);
-    $usernameIndex = array_search('username', $displayColumns, true);
-    if ($roleIndex !== false && $usernameIndex !== false && $roleIndex > $usernameIndex) {
-        unset($displayColumns[$roleIndex]);
-        $displayColumns = array_values($displayColumns);
-        $usernameIndex = array_search('username', $displayColumns, true);
-        array_splice($displayColumns, $usernameIndex, 0, ['role']);
+$displayColumns = [];
+$preferredColumns = ['id', 'role', 'name', 'username'];
+foreach ($preferredColumns as $columnName) {
+    if (in_array($columnName, $userColumns, true)) {
+        $displayColumns[] = $columnName;
+    }
+}
+foreach ($userColumns as $columnName) {
+    if (!in_array($columnName, $displayColumns, true)) {
+        $displayColumns[] = $columnName;
     }
 }
 

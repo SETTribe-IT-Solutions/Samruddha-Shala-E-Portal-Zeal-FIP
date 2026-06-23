@@ -35,8 +35,8 @@ if(isset($_POST['login']))
 
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = strtoupper($user['username']);
-                $_SESSION['name'] = $user['name'] ?? $user['username'];
+                $_SESSION['role'] = $normalizedRole;
+                $_SESSION['name'] = !empty($user['name']) ? $user['name'] : $user['username'];
 
 if($_SESSION['role'] == 'CEO')
 {
