@@ -4,6 +4,8 @@ session_start();
 require_once 'include/dbConfig.php';
 
 
+
+
 $message = '';
 
 if(isset($_POST['login']))
@@ -216,7 +218,10 @@ background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none
                         <div class="social-row">
                           
                         </div>
-                       
+                         <div class="back-link" align="center">
+                    <a href="index.php">← Back to Home</a>
+                </div>
+
                     </form>
 
                     <?php if(!empty($message)) { ?>
