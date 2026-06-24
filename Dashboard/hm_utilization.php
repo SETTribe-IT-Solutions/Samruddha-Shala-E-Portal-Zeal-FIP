@@ -106,10 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
         <ul class="list-unstyled components">
             <p>School reporting</p>
             <li>
-                <a href="hm_dashboard.php"><i class="fa-solid fa-cloud-arrow-up"></i>Upload Progress</a>
+                <a href="hm_dashboard.php?view=report"><i class="fa-solid fa-cloud-arrow-up"></i>Upload Progress</a>
             </li>
             <li>
-                <a href="hm_dashboard.php"><i class="fa-solid fa-clock-rotate-left"></i>Report History</a>
+                <a href="hm_dashboard.php?view=history"><i class="fa-solid fa-clock-rotate-left"></i>Report History</a>
             </li>
             <li class="active">
                 <a href="hm_utilization.php"><i class="fa-solid fa-chart-pie"></i>Amount Utilization Report</a>

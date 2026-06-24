@@ -7,18 +7,26 @@ function toggleSidebar() {
 
 // Switching Sub-tabs/Views
 function switchTab(tabId) {
+    // Normalize tabId (strip -view or suffix if any)
+    if (tabId.endsWith('-view')) {
+        tabId = tabId.replace('-view', '');
+    }
+    if (tabId.startsWith('hm-')) {
+        tabId = tabId.replace('hm-', '');
+    }
+
     // Hide all tab containers
     document.querySelectorAll('.view-panel').forEach(div => div.classList.add('d-none'));
     
     // Show selected container
-    const activePanel = document.getElementById(`${tabId}-view`);
+    const activePanel = document.getElementById(`hm-${tabId}-view`);
     if (activePanel) activePanel.classList.remove('d-none');
 
-    // De-activate all sidebar nav links
-    document.querySelectorAll('#sidebar ul li').forEach(li => li.classList.remove('active'));
+    // De-activate all custom navigation pill tab links
+    document.querySelectorAll('#hmDashboardTabs button').forEach(btn => btn.classList.remove('active'));
 
-    // Set active state on target nav link
-    const navLink = document.getElementById(`nav-${tabId}`);
+    // Set active state on target nav link pill
+    const navLink = document.getElementById(`nav-hm-${tabId}`);
     if (navLink) navLink.classList.add('active');
 
     // Render specific components if needed (Charts, Grids)
@@ -36,9 +44,76 @@ function renderActiveViewData() {
         renderHMReportPortal();
     } else if (id === 'hm-history-view') {
         renderHMHistoryTimeline();
-    } else if (id === 'hm-utilization-view') {
-        // This view is rendered server-side by PHP form submission.
     }
+}
+
+// Update UI Alert Badges & Notifications Bell for HM
+function updateAlertBadges() {
+    const totalAlerts = db.alerts.length;
+    const headerBadge = document.getElementById('alertsHeaderBadge');
+    const bellsBadgeText = document.getElementById('notifBellCountText');
+
+    if (headerBadge) {
+        if (totalAlerts > 0) {
+            headerBadge.textContent = totalAlerts;
+            headerBadge.classList.remove('d-none');
+        } else {
+            headerBadge.classList.add('d-none');
+        }
+    }
+
+    if (bellsBadgeText) bellsBadgeText.textContent = `${totalAlerts} Alerts`;
+
+    renderNotificationsBellDropdown();
+}
+
+// Render drop-down quick links inside HM header bell
+function renderNotificationsBellDropdown() {
+    const list = document.getElementById('notifBellList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (db.alerts.length === 0) {
+        list.innerHTML = `<li class="text-center py-4 text-muted"><i class="fa-regular fa-circle-check fs-2 mb-2 text-success"></i><br>No alerts active</li>`;
+        return;
+    }
+
+    db.alerts.slice(0, 5).forEach(alert => {
+        let badgeClass = 'bg-secondary';
+        let iconClass = 'fa-circle-question';
+        if (alert.type === 'blocker') { badgeClass = 'bg-danger'; iconClass = 'fa-circle-xmark'; }
+        else if (alert.type === 'delay') { badgeClass = 'bg-warning text-dark'; iconClass = 'fa-triangle-exclamation'; }
+        else if (alert.type === 'geotag') { badgeClass = 'bg-dark'; iconClass = 'fa-location-dot'; }
+        else if (alert.type === 'pending') { badgeClass = 'bg-info text-dark'; iconClass = 'fa-envelope-open-text'; }
+        else if (alert.type === 'task') { badgeClass = 'bg-primary'; iconClass = 'fa-file-signature'; }
+
+        const li = document.createElement('li');
+        li.className = "px-3 py-2 border-bottom hover-bg";
+        li.style.cursor = "pointer";
+        li.onclick = () => {
+            if (alert.type === 'task' || alert.type === 'geotag' || alert.type === 'blocker') {
+                switchTab('hm-report');
+                const select = document.getElementById('hmSchoolSelect');
+                if (select) {
+                    select.value = alert.school_id;
+                    loadHMSchoolSpecificDetails(alert.school_id);
+                }
+            } else {
+                switchTab('hm-history');
+            }
+        };
+        li.innerHTML = `
+            <div class="d-flex align-items-start">
+                <span class="badge ${badgeClass} p-2 me-2 mt-1"><i class="fa-solid ${iconClass}"></i></span>
+                <div style="font-size: 0.85rem;">
+                    <span class="fw-bold d-block text-truncate" style="max-width: 200px;">${alert.school_name}</span>
+                    <span class="text-muted d-block text-truncate" style="max-width: 220px;">${alert.title}</span>
+                    <small class="text-muted" style="font-size:0.75rem;">${alert.date}</small>
+                </div>
+            </div>
+        `;
+        list.appendChild(li);
+    });
 }
 
 // --- HM REPORT PORTAL ---
@@ -61,6 +136,7 @@ function renderHMReportPortal() {
     if (prevSelected && db.schools.find(s => s.id === prevSelected)) {
         select.value = prevSelected;
     } else if (db.schools.length > 0) {
+        select.value = db.schools[0].id;
         loadHMSchoolSpecificDetails(db.schools[0].id);
     }
 }
@@ -105,13 +181,22 @@ function loadHMSchoolSpecificDetails(schoolId) {
 
     // Pre-fill coordinate tag selection
     const geotagEl = document.getElementById('hmGeotagInput');
-    if (geotagEl) geotagEl.value = school.geo_tag || 'Tagged';
+    if (geotagEl) geotagEl.value = school.geo_tag || 'Missing';
+
+    const coordinatesEl = document.getElementById('hmGeoCoordinates');
+    if (coordinatesEl) {
+        if (school.geo_tag === 'Tagged' && school.latitude && school.longitude) {
+            coordinatesEl.value = `${school.latitude}, ${school.longitude}`;
+        } else {
+            coordinatesEl.value = '';
+        }
+    }
 
     // Reset image preview
     const preview = document.getElementById('photoPreview');
     if (preview) {
         preview.className = "upload-preview d-none";
-        preview.src = "";
+        preview.src = "#";
     }
     const photoFileEl = document.getElementById('hmPhotoFile');
     if (photoFileEl) photoFileEl.value = '';
@@ -122,7 +207,7 @@ function loadHMSchoolSpecificDetails(schoolId) {
         summary.innerHTML = `
             <div class="mb-4">
                 <h6 class="text-muted uppercase">Active Target</h6>
-                <h5 class="fw-bold">${school.name}</h5>
+                <h5 class="fw-bold text-primary">${school.name}</h5>
                 <span class="badge bg-secondary">${school.block} Block</span>
             </div>
 
@@ -203,7 +288,8 @@ function captureGeoTaggedPhoto() {
     if (!coordInput) return;
 
     if (!navigator.geolocation) {
-        coordInput.value = '16.7050, 74.2433 (fallback)';
+        coordInput.value = '16.7050, 74.2433';
+        document.getElementById('hmGeotagInput').value = 'Tagged';
         alert('Geolocation is not supported by this browser. Using Kolhapur fallback coordinates.');
         return;
     }
@@ -216,7 +302,7 @@ function captureGeoTaggedPhoto() {
             document.getElementById('hmGeotagInput').value = 'Tagged';
         },
         () => {
-            coordInput.value = '16.7050, 74.2433 (fallback)';
+            coordInput.value = '16.7050, 74.2433';
             document.getElementById('hmGeotagInput').value = 'Tagged';
             alert('Location permission was denied. Using Kolhapur fallback coordinates.');
         },
@@ -245,8 +331,14 @@ function handleHMUpdateSubmit(e) {
     // Photo preview checking
     const preview = document.getElementById('photoPreview');
     const photoSrc = preview ? preview.src : '';
-    if (!photoSrc || photoSrc.endsWith('#')) {
+    if (!photoSrc || photoSrc === '#' || photoSrc.endsWith('#')) {
         alert('Please upload or capture a photo proof before submitting the completion report.');
+        return;
+    }
+
+    // Coordinates requirement check
+    if (!coordText) {
+        alert('Please capture GPS Geo-Tagging Coordinates before submitting.');
         return;
     }
 
@@ -254,19 +346,18 @@ function handleHMUpdateSubmit(e) {
     let lat = "";
     let lng = "";
     if (geo_tag === 'Tagged') {
-        if (coordText) {
-            const [capturedLat, capturedLng] = coordText.split(',');
-            lat = capturedLat ? capturedLat.trim() : '';
-            lng = capturedLng ? capturedLng.trim() : '';
-        } else {
-            lat = '16.7050';
-            lng = '74.2433';
-        }
+        const parts = coordText.split(',');
+        lat = parts[0] ? parts[0].trim() : '16.7050';
+        lng = parts[1] ? parts[1].trim() : '74.2433';
     }
 
-    if (spentAmount > 0 && school.budget >= spentAmount) {
+    if (spentAmount > 0) {
+        if (spentAmount > school.budget) {
+            alert(`Spent amount (₹${spentAmount}L) cannot exceed school budget (₹${school.budget}L).`);
+            return;
+        }
         school.spent = Math.max(school.spent, spentAmount);
-        school.remarks = budgetNotes || school.remarks;
+        school.remarks = budgetNotes || remarks || school.remarks;
     }
 
     // Create Pending approval log entry
@@ -291,10 +382,12 @@ function handleHMUpdateSubmit(e) {
     if (school.task_status === 'Pending HM Action') {
         school.task_status = 'Pending Sachiv Review';
     }
+    
     alert(`Completion report submitted! Waiting verification from Sachiv desk.\n\nOpen 'sachiv_dashboard.php' to review the geo-tagged proof.`);
     
     saveDatabase();
     loadHMSchoolSpecificDetails(schoolId);
+    switchTab('hm-history');
 }
 
 // --- HM HISTORY TIMELINE ---
@@ -342,13 +435,13 @@ function renderHMHistoryTimeline() {
         const div = document.createElement('div');
         div.className = `timeline-item ${item.type === 'approved' ? 'completed' : 'pending'}`;
         div.innerHTML = `
-            <div class="mb-1">
+            <div class="mb-1 d-flex justify-content-between align-items-center">
                 <small class="text-muted fw-bold">${item.date}</small>
-                <span class="ms-2">${item.badge}</span>
+                <span>${item.badge}</span>
             </div>
             <h6 class="fw-bold text-dark mb-1">${item.school_name}</h6>
             <p class="mb-1 text-primary fw-semibold" style="font-size:0.9rem;">${item.title}</p>
-            <p class="text-muted small mb-0 font-italic">"${item.desc}"</p>
+            <p class="text-muted small mb-0 font-italic">"${item.desc || 'No remarks provided.'}"</p>
         `;
         container.appendChild(div);
     });
@@ -357,22 +450,37 @@ function renderHMHistoryTimeline() {
 // Initial setup on page load
 window.addEventListener('DOMContentLoaded', () => {
     initDatabase();
-    renderHMReportPortal();
-    renderActiveViewData();
+    updateAlertBadges();
+    
+    // Check if view parameter is passed
+    const params = new URLSearchParams(window.location.search);
+    const requestedView = params.get('view');
+    const viewMap = {
+        report: 'hm-report',
+        history: 'hm-history'
+    };
+
+    if (requestedView && viewMap[requestedView]) {
+        switchTab(viewMap[requestedView]);
+    } else {
+        renderHMReportPortal();
+        renderActiveViewData();
+    }
 });
 
 // React on database updates
 window.addEventListener('db_updated', () => {
-    renderHMReportPortal();
+    updateAlertBadges();
     renderActiveViewData();
 });
+
 // Listen to storage events for cross-tab synchronizations
 window.addEventListener('storage', (e) => {
     if (e.key === 'eportal_schools' || e.key === 'eportal_pending') {
         db.schools = JSON.parse(localStorage.getItem('eportal_schools'));
         db.pending = JSON.parse(localStorage.getItem('eportal_pending'));
         calculateAlerts();
-        renderHMReportPortal();
+        updateAlertBadges();
         renderActiveViewData();
     }
 });
