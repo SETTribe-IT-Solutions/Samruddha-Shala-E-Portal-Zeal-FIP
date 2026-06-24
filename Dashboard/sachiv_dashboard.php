@@ -132,14 +132,16 @@ $role     = $_SESSION['role'];
                 <h5>Quick Actions</h5>
 
                 <a href="sachiv_work_master.php"
-                   class="btn btn-primary w-100 mb-2">
-                    <i class="fa-solid fa-list"></i>
+                   class="btn w-100 mb-2 text-white fw-semibold shadow-sm"
+                   style="background: linear-gradient(135deg, #6a1b9a 0%, #8e44ad 35%, #b76db8 65%, #f5c542 100%); border: none; border-radius: 8px;">
+                    <i class="fa-solid fa-list me-1"></i>
                     Work Master
                 </a>
 
                 <a href="utility_master.php"
-                   class="btn btn-success w-100">
-                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                   class="btn w-100 text-white fw-semibold shadow-sm"
+                   style="background: linear-gradient(135deg, #6a1b9a 0%, #8e44ad 35%, #b76db8 65%, #f5c542 100%); border: none; border-radius: 8px;">
+                    <i class="fa-solid fa-screwdriver-wrench me-1"></i>
                     Utility Master
                 </a>
 
@@ -187,10 +189,7 @@ $role     = $_SESSION['role'];
                     <tbody>
 
                         <tr>
-                            <td>1</td>
-                            <td>Classroom Repair</td>
-                            <td>ZP Fund</td>
-                            <td>
+
                                 <span class="badge bg-success">
                                     Completed
                                 </span>
@@ -198,28 +197,42 @@ $role     = $_SESSION['role'];
                         </tr>
 
                         <tr>
-                            <td>2</td>
-                            <td>Toilet Construction</td>
-                            <td>CSR Fund</td>
-                            <td>
-                                <span class="badge bg-warning">
-                                    Pending
-                                </span>
-                            </td>
-                        </tr>
+                            <tbody>
 
-                        <tr>
-                            <td>3</td>
-                            <td>Water Tank Installation</td>
-                            <td>Annual Plan</td>
-                            <td>
-                                <span class="badge bg-primary">
-                                    Ongoing
-                                </span>
-                            </td>
-                        </tr>
+<tr>
+    <td>1</td>
+    <td>Classroom Repair</td>
+    <td>ZP Fund</td>
+    <td>
+        <span class="badge bg-success">
+            Completed
+        </span>
+    </td>
+</tr>
 
-                    </tbody>
+
+<tr>
+    <td>3</td>
+    <td>Water Tank Installation</td>
+    <td>Annual Plan</td>
+    <td>
+        <span class="badge bg-warning text-dark">
+            Ongoing
+        </span>
+    </td>
+</tr>
+<tr>
+    <td>2</td>
+    <td>Toilet Construction</td>
+    <td>CSR Fund</td>
+    <td>
+        <span class="badge bg-danger">
+            Pending
+        </span>
+    </td>
+</tr>
+
+</tbody>
 
                 </table>
 
@@ -242,3 +255,18 @@ $role     = $_SESSION['role'];
 
 </body>
 </html>
+<script>
+function showWorkInProgress(event) {
+    event.preventDefault();
+
+    Swal.fire({
+        title: '🚧 Work in Progress',
+        html: '<b>This feature is currently under development.</b><br>It will be available in the next update.',
+        icon: 'warning',
+        confirmButtonText: 'Got It',
+        confirmButtonColor: '#198754',
+        backdrop: true,
+        allowOutsideClick: false
+    });
+}
+</script>
