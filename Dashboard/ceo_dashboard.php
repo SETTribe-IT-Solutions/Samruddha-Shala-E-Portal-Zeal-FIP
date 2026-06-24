@@ -4,6 +4,13 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     header("Location: ../login.php");
     exit();
 }
+
+// Restrict access to CEO only
+if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
+    // If not CEO, redirect them to login page or prevent access
+    header("Location: ../login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
