@@ -68,23 +68,38 @@ if (empty($userRole)) {
 
 <?php } elseif($role == 'HM') { ?>
 
-    <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
-    <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
+<li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+<li>
+    <a href="hm_update_work_progress.php">
+        <i class="fa-solid fa-bell"></i>HM Update Work Progress
+    </a>
+</li>   
+<li>
+    <a href="hm_workmaster.php">
+        <i class="fa-solid fa-chart-line"></i>HM Work Master
+    </a>
+</li>
+<li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+<li>
+    <a href="hm_utilitymaster.php">
+        <i class="fa-solid fa-chart-line"></i>HM Utility Master
+    </a>
+</li>   
+<li>
+    <a href="hm_notification.php">
+        <i class="fa-solid fa-bell"></i>HM Notification
+    </a>
+</li>   
 
 <?php } ?>
 
 </ul>
 
     <!-- Footer -->
- <div class="sidebar-footer">
-    <p><?php echo htmlspecialchars($userFullName); ?></p>
-    <p><?php echo htmlspecialchars($userRole); ?></p>
+ <<div class="sidebar-footer" style="text-align:center;">
+    <i class="fa-solid fa-user-tie" style="font-size:32px;color:white;display:block;margin-bottom:8px;"></i>
+    <p style="color:white;font-weight:600;margin:0;">HM Dashboard</p>
 </div>
-
 <div class="logout-wrapper">
     <a href="#" class="logout-btn" onclick="confirmLogout(event)">
         <i class="fas fa-sign-out-alt"></i> Logout

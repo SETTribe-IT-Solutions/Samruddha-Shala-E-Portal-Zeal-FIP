@@ -17,7 +17,7 @@ function switchTab(tabId) {
 
     // Hide all tab containers
     document.querySelectorAll('.view-panel').forEach(div => div.classList.add('d-none'));
-    
+
     // Show selected container
     const activePanel = document.getElementById(`hm-${tabId}-view`);
     if (activePanel) activePanel.classList.remove('d-none');
@@ -120,10 +120,10 @@ function renderNotificationsBellDropdown() {
 function renderHMReportPortal() {
     const select = document.getElementById('hmSchoolSelect');
     if (!select) return;
-    
+
     // Save current selected value if any
     const prevSelected = select.value;
-    
+
     select.innerHTML = '';
 
     db.schools.forEach(school => {
@@ -158,7 +158,7 @@ function loadHMSchoolSpecificDetails(schoolId) {
             taskBox.textContent = 'No task assigned yet.';
         }
     }
-    
+
     // Set slider to current value
     const slider = document.getElementById('hmProgressRange');
     if (slider) {
@@ -218,9 +218,17 @@ function loadHMSchoolSpecificDetails(schoolId) {
                     <span class="fw-semibold">${school.work_type}</span>
                 </div>
                 <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Current Stage Progress:</span>
-                    <span class="fw-bold text-primary">${school.progress}%</span>
-                </div>
+    <span>Current Stage Progress:</span>
+    <span class="fw-bold text-primary">${school.progress}%</span>
+</div>
+
+<div class="progress mt-2" style="height:20px;">
+    <div class="progress-bar bg-success"
+         role="progressbar"
+         style="width:${school.progress}%">
+         ${school.progress}%
+    </div>
+</div>
             </div>
 
             <div class="mb-3">
@@ -238,13 +246,15 @@ function loadHMSchoolSpecificDetails(schoolId) {
             <div>
                 <strong>Active Blocker Status:</strong>
                 <div class="mt-2">
-                    ${school.blocker !== 'None' 
-                        ? `<span class="badge bg-danger p-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>${school.blocker}</span>`
-                        : '<span class="badge bg-success p-2"><i class="fa-solid fa-circle-check me-1"></i>No current blockers</span>'}
+                    ${school.blocker !== 'None'
+                ? `<span class="badge bg-danger p-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>${school.blocker}</span>`
+                : '<span class="badge bg-success p-2"><i class="fa-solid fa-circle-check me-1"></i>No current blockers</span>'}
                 </div>
             </div>
         `;
     }
+    console.log("Chart called", school.progress);
+    renderHMProgressChart(school.progress);
 }
 
 function updateHMProgressSliderText(val) {
@@ -272,7 +282,7 @@ function triggerPhotoUpload() {
 function previewHMUploadedPhoto(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const preview = document.getElementById('photoPreview');
             if (preview) {
                 preview.src = e.target.result;
@@ -382,9 +392,9 @@ function handleHMUpdateSubmit(e) {
     if (school.task_status === 'Pending HM Action') {
         school.task_status = 'Pending Sachiv Review';
     }
-    
+
     alert(`Completion report submitted! Waiting verification from Sachiv desk.\n\nOpen 'sachiv_dashboard.php' to review the geo-tagged proof.`);
-    
+
     saveDatabase();
     loadHMSchoolSpecificDetails(schoolId);
     switchTab('hm-history');
@@ -424,7 +434,7 @@ function renderHMHistoryTimeline() {
     });
 
     // Sort by Date descending
-    historyList.sort((a,b) => new Date(b.date) - new Date(a.date));
+    historyList.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     if (historyList.length === 0) {
         container.innerHTML = `<p class="text-muted">No update history logged yet.</p>`;
@@ -448,10 +458,33 @@ function renderHMHistoryTimeline() {
 }
 
 // Initial setup on page load
+function renderHMProgressChart(progress) {
+
+    const ctx = document.getElementById('hmProgressChart');
+
+    if (!ctx) return;
+
+    if (window.hmChart) {
+        window.hmChart.destroy();
+    }
+
+    window.hmChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Remaining'],
+            datasets: [{
+                data: [progress, 100 - progress]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
 window.addEventListener('DOMContentLoaded', () => {
     initDatabase();
     updateAlertBadges();
-    
+
     // Check if view parameter is passed
     const params = new URLSearchParams(window.location.search);
     const requestedView = params.get('view');

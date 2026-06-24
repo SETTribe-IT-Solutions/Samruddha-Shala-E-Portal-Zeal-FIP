@@ -5,6 +5,11 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     header("Location: ../login.php");
     exit();
 }
+
+if($_SESSION['role'] != 'HM'){
+    header("Location: ../login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,6 +33,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 
     <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/hm.js"></script>
 </head>
 
 <body class="hm-dashboard-page">
@@ -227,21 +233,37 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                     </div>
 
                     <!-- RIGHT SIDE SUMMARY -->
-                    <div class="col-lg-5">
+                    <!-- RIGHT SIDE SUMMARY -->
+<div class="col-lg-5">
 
-                        <div class="card p-4 bg-light">
+    <div class="card p-4 bg-light">
 
-                            <h5 class="fw-bold mb-3">
-                                Active School Summary
-                            </h5>
+        <h5 class="fw-bold mb-3">
+            Active School Summary
+        </h5>
 
-                            <div id="hmSchoolSummaryPanel">
-                                <!-- Dynamic Data -->
-                            </div>
+        <div id="hmSchoolSummaryPanel">
+            <!-- Dynamic Data -->
+        </div>
 
-                        </div>
+        <div class="mt-4">
+            <h6 class="fw-bold">Project Progress Visualization</h6>
 
-                    </div>
+            <div class="development-box">
+                <i class="fa-solid fa-person-digging development-icon"></i>
+
+                <h5 class="mt-3">Module Under Development</h5>
+
+                <p class="text-muted mb-0">
+                    HM Work Master, Utility Master, Notifications and
+                    additional analytics modules are currently under development.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 
                 </div>
 
