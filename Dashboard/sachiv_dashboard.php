@@ -190,9 +190,7 @@ $role     = $_SESSION['role'];
 
                         <tr>
 
-                                <span class="badge bg-success">
-                                    Completed
-                                </span>
+                                
                             </td>
                         </tr>
 
