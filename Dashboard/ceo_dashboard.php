@@ -4,6 +4,13 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     header("Location: ../login.php");
     exit();
 }
+
+// Restrict access to CEO only
+if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
+    // If not CEO, redirect them to login page or prevent access
+    header("Location: ../login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +29,8 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <link href="../css/sidebar.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
+    <link href="css/ceo_dashboard.css" rel="stylesheet">
+    <!-- <style>
         :root {
             --ceo-sidebar-width: 250px;
             --ceo-header-height: 64px;
@@ -244,7 +252,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                 border-radius: 18px;
             }
         }
-    </style>
+    </style> -->
 </head>
 <body class="ceo-dashboard-page">
 
@@ -265,25 +273,11 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 
                     <div class="ms-auto d-flex align-items-center">
                         <!-- Notifications Dropdown -->
-                        <div class="dropdown me-4 position-relative">
-                            <button class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="me-4 position-relative">
+                            <a href="ceo_alerts.php" class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" title="View Alerts & Notifications">
                                 <i class="fa-regular fa-bell fs-5"></i>
-                                <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
-                                    0
-                                </span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2" id="notifBellDropdown" style="width: 320px; border-radius: 12px;">
-                                <li class="dropdown-header font-weight-bold d-flex justify-content-between align-items-center border-bottom pb-2">
-                                    <span>Notifications Center</span>
-                                    <span class="badge bg-danger rounded-pill" id="notifBellCountText">0 Alerts</span>
-                                </li>
-                                <div id="notifBellList" class="my-2" style="max-height: 250px; overflow-y: auto;">
-                                    <!-- Dynamic notifications go here -->
-                                </div>
-                                <li class="text-center pt-2 border-top">
-                                    <a class="text-decoration-none text-primary fw-bold" href="javascript:void(0)" onclick="switchTab('ceo-alerts')" style="font-size: 0.8rem;">View All Critical Alerts</a>
-                                </li>
-                            </ul>
+                                <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                            </a>
                         </div>
 
                         <!-- Active User Indicator -->
@@ -788,6 +782,6 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <!-- Shared Database Layer -->
     <script src="js/db.js"></script>
     <!-- CEO Application Logic -->
-    <script src="js/ceo.js?v=4"></script>
+    <script src="js/ceo.js?v=5"></script>
 </body>
 </html>

@@ -28,7 +28,7 @@ function handleAssignTaskSubmit(event) {
         document.getElementById("ceoTaskDescription").value
     );
 
-   fetch("ceo_assign_task_db.php", {
+   fetch("ceo_create_work_db.php", {
     method: "POST",
     body: formData
 })

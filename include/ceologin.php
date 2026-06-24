@@ -19,6 +19,7 @@ if(mysqli_num_rows($result) > 0)
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['username'] = $row['username'];
         $_SESSION['role'] = 'CEO';
+        $_SESSION['name'] = $row['name'] ?? 'CEO';
 
         header("Location: ceo_dashboard.php");
         exit();

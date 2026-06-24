@@ -1,3 +1,10 @@
+<?php
+session_start();
+if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,67 +15,28 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="../css/sidebar.css" rel="stylesheet">
+    <link href="css/ceo_alerts.css" rel="stylesheet">   
 </head>
-<body>
+<body class="ceo-dashboard-page">
     <div id="wrapper">
-        <nav id="sidebar">
-            <div class="sidebar-header d-flex justify-content-between align-items-start">
-                <div>
-                    <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-                    <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
-                </div>
-                <button type="button" id="sidebarCollapse" class="btn btn-outline-light btn-sm sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-                    <i class="fas fa-align-left"></i>
-                </button>
-            </div>
-            <ul class="list-unstyled components">
-                <p>CEO Modules</p>
-                <li id="nav-ceo-overview">
-                    <a href="ceo_dashboard.php">
-                        <i class="fa-solid fa-chart-pie"></i>Overview Report
-                    </a>
-                </li>
-                <li class="active" id="nav-ceo-alerts">
-                    <a href="ceo_alerts.php">
-                        <i class="fa-solid fa-bell"></i>View Alerts & Notifications
-                        <span id="alertsSidebarBadge" class="badge bg-danger ms-auto rounded-pill d-none">0</span>
-                    </a>
-                </li>
-                <li id="nav-ceo-create-work">
-                    <a href="ceo_create_work.php">
-                        <i class="fa-solid fa-plus-circle"></i>Create Work
-                    </a>
-                </li>
-                <li id="nav-ceo-task">
-                    <a href="ceo_assign_task.php">
-                        <i class="fa-solid fa-file-signature"></i>Assign Work to HM
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <?php include '../include/sidebar.php'; ?>
 
         <div id="content">
+            <div class="ceo-fixed-header">
+                <?php include '../include/website_header.php'; ?>
+            </div>
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District Alerts</h5>
+                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Notifications </h5>
                     </div>
                     <div class="ms-auto d-flex align-items-center">
-                        <div class="dropdown me-4 position-relative">
-                            <button class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="me-4 position-relative">
+                            <a href="ceo_alerts.php" class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" title="View Alerts & Notifications">
                                 <i class="fa-regular fa-bell fs-5"></i>
                                 <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2" id="notifBellDropdown" style="width: 320px; border-radius: 12px;">
-                                <li class="dropdown-header font-weight-bold d-flex justify-content-between align-items-center border-bottom pb-2">
-                                    <span>Notifications Center</span>
-                                    <span class="badge bg-danger rounded-pill" id="notifBellCountText">0 Alerts</span>
-                                </li>
-                                <div id="notifBellList" class="my-2" style="max-height: 250px; overflow-y: auto;"></div>
-                                <li class="text-center pt-2 border-top">
-                                    <a class="text-decoration-none text-primary fw-bold" href="ceo_alerts.php" style="font-size: 0.8rem;">View All Critical Alerts</a>
-                                </li>
-                            </ul>
+                            </a>
                         </div>
                         <div class="d-flex align-items-center border-start ps-4">
                             <div class="text-end me-3 d-none d-md-block">
@@ -110,17 +78,14 @@
                 </div>
             </div>
 
-            <footer class="border-top bg-white mt-4">
-                <div class="container-fluid px-4 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center text-muted small">
-                    <span>© 2026 Samruddha Shala E-Portal</span>
-                    <span>Kolhapur District CEO Dashboard</span>
-                </div>
-            </footer>
+            <div class="ceo-fixed-footer">
+                <?php include '../include/website_footer.php'; ?>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/db.js"></script>
-    <script src="js/ceo.js"></script>
+    <script src="js/ceo.js?v=5"></script>
 </body>
 </html>
