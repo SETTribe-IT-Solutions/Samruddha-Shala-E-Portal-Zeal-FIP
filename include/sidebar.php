@@ -4,21 +4,22 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $role = $_SESSION['role'] ?? '';
-$username = $_SESSION['username'] ?? '';
+$sessionUsername = $_SESSION['username'] ?? '';
 $userFullName = '';
 $userRole = '';
 
 // Fetch user name and role from database
-if (!empty($username)) {
+if (!empty($sessionUsername)) {
     require_once __DIR__ . '/dbConfig.php';
     $stmt = $conn->prepare('SELECT name, role FROM users WHERE username = ? LIMIT 1');
     if ($stmt) {
-        $stmt->bind_param('s', $username);
+        $stmt->bind_param('s', $sessionUsername);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result && $row = $result->fetch_assoc()) {
-            $userFullName = !empty($row['name']) ? $row['name'] : $username;
-            $userRole = $row['role'] ?? $role;
+            $userFullName = $row['name'];
+            $userRole = $row['role'];
+            $role = strtoupper($userRole); // ensure sidebar menus use the DB role
         }
         $stmt->close();
     }
@@ -26,7 +27,7 @@ if (!empty($username)) {
 
 // Fallback if not found
 if (empty($userFullName)) {
-    $userFullName = $username ?: 'User';
+    $userFullName = $sessionUsername ?: 'User';
 }
 if (empty($userRole)) {
     $userRole = $role ?: 'Guest';
@@ -49,7 +50,7 @@ if (empty($userRole)) {
 
 <?php if($role == 'CEO') { ?>
 
-    <li><a href="ceo_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="ceo_dashboard.php"><i class="fa-solid fa-gauge"></i>CEO Dashboard</a></li>
     
     <li><a href="ceo_create_work.php"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
     <li><a href="ceo_task_management.php"><i class="fa-solid fa-plus"></i> Task Management </a></li>
@@ -79,17 +80,22 @@ if (empty($userRole)) {
 
 </ul>
 
-    <!-- Footer -->
- <div class="sidebar-footer">
-    <p><?php echo htmlspecialchars($userFullName); ?></p>
-    <p><?php echo htmlspecialchars($userRole); ?></p>
-</div>
-
-<div class="logout-wrapper">
-    <a href="#" class="logout-btn" onclick="confirmLogout(event)">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
-</div>
+    <!-- Footer Profile Area -->
+    <div class="sidebar-footer d-flex flex-column align-items-center" style="padding-bottom: 20px;">
+        <div class="user-profile mb-3 d-flex flex-column align-items-center w-100">
+            <div class="rounded-circle bg-white d-flex justify-content-center align-items-center mb-2 shadow-sm" style="width: 48px; height: 48px; color: #6a1b9a;">
+                <i class="fa-solid fa-user-tie fs-4"></i>
+            </div>
+            <p class="mb-1 text-white fw-bold text-center" style="font-size: 1.05rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"><?php echo htmlspecialchars($userFullName); ?></p>
+            <span class="badge bg-white text-dark fw-bold shadow-sm" style="letter-spacing: 0.5px; font-size: 0.75rem; padding: 5px 10px; border-radius: 12px;"><?php echo htmlspecialchars($userRole); ?></span>
+        </div>
+        
+        <div class="logout-wrapper w-100 p-0 m-0">
+            <a href="#" class="logout-btn" onclick="confirmLogout(event)">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </div>
+    </div>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
