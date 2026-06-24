@@ -297,3 +297,27 @@ body.hm-dashboard-page .btn-primary:hover {
         border-radius: 18px;
     }
 }
+
+/* Under Development Module Box */
+
+.development-box {
+    text-align: center;
+    padding: 40px 20px;
+    border: 2px dashed #d1d5db;
+    border-radius: 15px;
+    background: #f8fafc;
+    margin-top: 15px;
+}
+
+.development-icon {
+    font-size: 60px;
+    color: #f59e0b;
+}
+
+.development-box h5 {
+    font-weight: 600;
+}
+
+.development-box p {
+    font-size: 14px;
+}
