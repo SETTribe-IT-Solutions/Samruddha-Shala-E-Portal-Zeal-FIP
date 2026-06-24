@@ -70,7 +70,6 @@ if (empty($userRole)) {
     <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
     <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
     <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
-    <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
     <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
 
