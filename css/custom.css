@@ -372,13 +372,21 @@
     }
 
     .about-image-block {
-        max-width: 420px;
-        margin: 0 auto;
+        max-width: 550px;
+        width: 100%;
+        margin-left: 0;
+        margin-right: auto;
         display: flex;
         flex-direction: column;
         align-items: center;
         position: relative;
         isolation: isolate;
+    }
+
+    @media (max-width: 991.98px) {
+        .about-image-block {
+            margin: 0 auto 30px auto;
+        }
     }
 
     .about-image-block::before {
@@ -393,7 +401,7 @@
         animation: aboutAura 4s ease-in-out infinite;
     }
 
-    .about-image-block > img {
+    .about-image-block>img {
         width: 100%;
         border: 3px solid rgba(255, 255, 255, 0.95);
         border-radius: 0.78rem;
@@ -667,20 +675,37 @@
     }
 
     @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-12px); }
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-12px);
+        }
     }
 
     @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.02); }
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.02);
+        }
     }
 
     @keyframes heroPillGlow {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 8px 20px rgba(32, 14, 54, 0.25);
             transform: translateY(0);
         }
+
         50% {
             box-shadow: 0 14px 30px rgba(245, 197, 66, 0.35);
             transform: translateY(-2px);
@@ -692,6 +717,7 @@
             opacity: 0;
             transform: translateY(24px) scale(0.98);
         }
+
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -703,6 +729,7 @@
             opacity: 0;
             transform: translateY(18px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -714,6 +741,7 @@
             opacity: 0;
             transform: translateY(12px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -721,48 +749,79 @@
     }
 
     @keyframes floatSoft {
-        0%, 100% { transform: translateY(0px) scale(1); }
-        50% { transform: translateY(-14px) scale(1.04); }
+
+        0%,
+        100% {
+            transform: translateY(0px) scale(1);
+        }
+
+        50% {
+            transform: translateY(-14px) scale(1.04);
+        }
     }
 
     @keyframes imageFloat {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-8px) scale(1.01); }
+
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-8px) scale(1.01);
+        }
     }
 
     @keyframes meshGradient {
         0% {
             background-position: 0% 50%;
         }
+
         25% {
             background-position: 50% 0%;
         }
+
         50% {
             background-position: 100% 50%;
         }
+
         75% {
             background-position: 50% 100%;
         }
+
         100% {
             background-position: 0% 50%;
         }
     }
 
     @keyframes imageGlow {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 18px 34px rgba(29, 11, 47, 0.22);
         }
+
         50% {
             box-shadow: 0 24px 40px rgba(90, 24, 138, 0.28);
         }
     }
 
     @keyframes aboutAura {
-        0%, 100% { opacity: 0.65; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.02); }
+
+        0%,
+        100% {
+            opacity: 0.65;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.02);
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
+
         .hero-live-pill,
         .hero-title,
         .hero-subtitle,
