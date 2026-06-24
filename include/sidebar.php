@@ -32,6 +32,16 @@ if (empty($userFullName)) {
 if (empty($userRole)) {
     $userRole = $role ?: 'Guest';
 }
+
+// Dynamic routing prefix
+$current_dir = basename(getcwd());
+if ($current_dir === 'Dashboard') {
+    $dashboard_prefix = "";
+    $root_prefix = "../";
+} else {
+    $dashboard_prefix = "Dashboard/";
+    $root_prefix = "";
+}
 ?>
 <!-- Sidebar Navigation -->
 <nav id="sidebar">
@@ -50,31 +60,31 @@ if (empty($userRole)) {
 
 <?php if($role == 'CEO') { ?>
 
-    <li><a href="ceo_dashboard.php"><i class="fa-solid fa-gauge"></i>CEO Dashboard</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>ceo_dashboard.php"><i class="fa-solid fa-gauge"></i>CEO Dashboard</a></li>
     
-    <li><a href="ceo_create_work.php"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
-    <li><a href="ceo_task_management.php"><i class="fa-solid fa-plus"></i> Task Management </a></li>
-    <li><a href="update_work_master.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
-    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
-    <li><a href="sachiv_work_master.php"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
-    <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
-    <li><a href="ceo_alerts.php"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>ceo_create_work.php"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>ceo_task_management.php"><i class="fa-solid fa-plus"></i> Task Management </a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>update_work_master.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>hm_work_master.php"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>sachiv_work_master.php"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
+    <li><a href="<?php echo $root_prefix; ?>amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>ceo_alerts.php"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
 <?php } elseif($role == 'SACHIV') { ?>
 
-    <li><a href="sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="sachiv_work_master.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
-    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>sachiv_work_master.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
 
 <?php } elseif($role == 'HM') { ?>
 
-    <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
-    <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>hm_work_master.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
 
 <?php } ?>
 
@@ -114,8 +124,19 @@ function confirmLogout(event) {
         cancelButtonColor: '#dc3545'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = '../logout.php';
+            window.location.href = '<?php echo $root_prefix; ?>logout.php';
         }
+    });
+}
+
+function showWorkInProgress(event) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'Work Under Progress',
+        text: 'This feature is currently under development.',
+        icon: 'info',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#0b63b7'
     });
 }
 </script>
