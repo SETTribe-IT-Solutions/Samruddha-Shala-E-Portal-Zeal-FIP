@@ -53,8 +53,12 @@ document.addEventListener('DOMContentLoaded', function() {
             popup: 'rounded-4 shadow-lg border-0'
         }
     }).then(() => {
-        // Automatically close the tab when the user closes the alert
-        window.close();
+        // Automatically redirect back when the user closes the alert
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = 'ceo_dashboard.php';
+        }
     });
 });
 </script>

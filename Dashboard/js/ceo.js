@@ -679,7 +679,7 @@ function renderCEOAlerts() {
         if (alert.type === 'blocker') {
             borderClass = 'border-danger';
             iconHtml = '<i class="fa-solid fa-circle-xmark fs-4 text-danger"></i>';
-            actionBtnHtml = `<button class="btn btn-sm btn-outline-danger me-2" onclick="initiateIntervention('${alert.school_id}')"><i class="fa-solid fa-phone me-1"></i> Contact HM</button>`;
+            actionBtnHtml = `<button class="btn btn-sm btn-outline-danger" onclick="initiateIntervention('${alert.school_id}')"><i class="fa-solid fa-phone me-1"></i> Contact HM</button>`;
         } else if (alert.type === 'delay') {
             borderClass = 'border-warning';
             iconHtml = '<i class="fa-solid fa-triangle-exclamation fs-4 text-warning"></i>';
@@ -691,7 +691,7 @@ function renderCEOAlerts() {
             borderClass = 'border-info';
             iconHtml = '<i class="fa-solid fa-envelope-open-text fs-4 text-info"></i>';
             actionBtnHtml = `
-                <a href="sachiv_dashboard.php" class="btn btn-sm btn-outline-info text-decoration-none me-2">
+                <a href="sachiv_dashboard.php" class="btn btn-sm btn-outline-info text-decoration-none">
                     <i class="fa-solid fa-clipboard-check me-1"></i> Go to Sachiv Portal
                 </a>
             `;
@@ -713,7 +713,7 @@ function renderCEOAlerts() {
             </div>
             <div class="text-end ms-3">
                 <small class="text-muted d-block mb-2">${alert.date}</small>
-                <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-end gap-2">
                     ${actionBtnHtml}
                     <button class="btn btn-sm btn-light" onclick="openProjectModal('${alert.school_id}')">Details</button>
                 </div>
