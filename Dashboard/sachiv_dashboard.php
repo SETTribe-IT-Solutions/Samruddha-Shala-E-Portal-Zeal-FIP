@@ -190,7 +190,7 @@ $role     = $_SESSION['role'];
 
                         <tr>
 
-                                
+                            
                             </td>
                         </tr>
 
@@ -254,17 +254,21 @@ $role     = $_SESSION['role'];
 </body>
 </html>
 <script>
-function showWorkInProgress(event) {
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
 
-    Swal.fire({
-        title: '🚧 Work in Progress',
-        html: '<b>This feature is currently under development.</b><br>It will be available in the next update.',
-        icon: 'warning',
-        confirmButtonText: 'Got It',
-        confirmButtonColor: '#198754',
-        backdrop: true,
-        allowOutsideClick: false
+    const menuBtn = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    menuBtn.addEventListener("click", function () {
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
     });
-}
+
+    overlay.addEventListener("click", function () {
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+    });
+
+});
 </script>
