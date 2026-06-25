@@ -2,11 +2,15 @@
 
 session_start();
 
-require_once 'include/dbConfig.php';
+require_once '../include/dbConfig.php';
 
-if(!isset($_SESSION['user_id']))
-{
-    header("Location: login.php");
+if (empty($_SESSION['user_id']) || empty($_SESSION['username'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+if ($_SESSION['role'] !== 'CEO') {
+    header("Location: ceo_dashboard.php");
     exit();
 }
 

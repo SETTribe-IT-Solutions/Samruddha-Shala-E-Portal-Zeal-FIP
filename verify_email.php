@@ -2,58 +2,30 @@
 session_start();
 require_once 'include/dbConfig.php';
 
-if(!isset($_SESSION['verified_email']))
-{
-    header("Location: verify_email.php");
-    exit();
-}
-
-$email = $_SESSION['verified_email'];
 $message = '';
 
-if(isset($_POST['reset']))
+if(isset($_POST['verify']))
 {
-    $new_password     = trim($_POST['new_password']);
-    $confirm_password = trim($_POST['confirm_password']);
+    $email = trim($_POST['email']);
 
-    if(empty($new_password) || empty($confirm_password))
+    $stmt = $conn->prepare(
+        "SELECT id FROM users WHERE BINARY email = ?"
+    );
+
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0)
     {
-        $message = "Please fill all fields.";
-    }
-    elseif($new_password != $confirm_password)
-    {
-        $message = "Passwords do not match.";
-    }
-    elseif(strlen($new_password) < 6 || !preg_match('/[0-9]/', $new_password) || !preg_match('/[^A-Za-z0-9]/', $new_password))
-    {
-        $message = "Password must be at least 6 characters long, and contain at least one digit and one special symbol.";
+        $_SESSION['verified_email'] = $email;
+        header("Location: forgot_password.php");
+        exit();
     }
     else
     {
-        $check = $conn->prepare("SELECT id FROM users WHERE BINARY email=?");
-        $check->bind_param("s",$email);
-        $check->execute();
-        $result = $check->get_result();
-
-        if($result->num_rows > 0)
-        {
-            $update = $conn->prepare("UPDATE users SET password=? WHERE BINARY email=?");
-            $update->bind_param("ss",$new_password,$email);
-
-            if($update->execute())
-            {
-                unset($_SESSION['verified_email']);
-                $success = true;
-            }
-            else
-            {
-                $message = "Unable to update password.";
-            }
-        }
-        else
-        {
-            $message = "Email not found.";
-        }
+        $message = "Email ID not found.";
     }
 }
 ?>
@@ -63,13 +35,12 @@ if(isset($_POST['reset']))
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forgot Password - Samruddha Shala E-Portal</title>
+<title>Email Verification - Samruddha Shala E-Portal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <?php include 'include/landing_header.php'; ?>
 <?php include 'include/website_header.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 
@@ -262,63 +233,33 @@ body{
             <div class="form-container">
 
                 <div class="logo">
-                    <h2>Forgot Password</h2>
-                    <p>Samruddha Shala E-Portal</p>
-                    <p style="margin-top: 10px; font-size: 14px; color: #555;">
-                        Verified Email: <strong><?php echo htmlspecialchars($email); ?></strong>
-                    </p>
+                    <h2>Email Verification</h2>
+                    <p>Verify your registered email address to continue</p>
                 </div>
 
                 <form method="POST">
 
                     <div class="form-group">
-                        <label>New Password</label>
-                        <input type="password"
-                               name="new_password"
+                        <label>Registered Email ID / नोंदणीकृत ईमेल</label>
+                        <input type="email"
+                               name="email"
                                class="form-control"
-                               placeholder="Enter New Password"
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input type="password"
-                               name="confirm_password"
-                               class="form-control"
-                               placeholder="Confirm Password"
+                               placeholder="Enter Registered Email"
                                required>
                     </div>
 
                     <button type="submit"
-                            name="reset"
+                            name="verify"
                             class="btn-reset">
-                        Reset Password
+                        Verify Email
                     </button>
 
                 </form>
 
                 <?php if(!empty($message)) { ?>
-                    <script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: '<?php echo htmlspecialchars($message); ?>',
-                        confirmButtonColor: '#0b63b7'
-                    });
-                    </script>
-                <?php } ?>
-
-                <?php if(isset($success) && $success) { ?>
-                    <script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'password changed successfully',
-                        confirmButtonColor: '#0b63b7'
-                    }).then(() => {
-                        window.location = 'login.php';
-                    });
-                    </script>
+                    <div class="message">
+                        <?php echo htmlspecialchars($message); ?>
+                    </div>
                 <?php } ?>
 
                 <div class="back-link">
