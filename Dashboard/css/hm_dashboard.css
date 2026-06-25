@@ -1,0 +1,323 @@
+/* ==========================================================
+   HM DASHBOARD PREMIUM STYLING SHEET
+   Matches CEO Dashboard Design System & Layout Structure
+   ========================================================== */
+
+:root {
+    --hm-sidebar-width: 250px;
+    --hm-header-height: 64px;
+    --hm-footer-height: 60px;
+    --hm-shell-bg: #f4f8fb;
+}
+
+body.hm-dashboard-page {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: block;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at top left, rgba(123, 92, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, #eef6fb 0%, #f7fafc 100%);
+    font-family: 'Outfit', sans-serif;
+}
+
+body.hm-dashboard-page #wrapper {
+    min-height: 100vh;
+}
+
+/* Sidebar override to match CEO sidebar styling */
+body.hm-dashboard-page #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--hm-sidebar-width);
+    min-width: var(--hm-sidebar-width);
+    max-width: var(--hm-sidebar-width);
+    height: 100vh;
+    z-index: 1100;
+    overflow: hidden;
+    background: linear-gradient(180deg, #6420a5 0%, #8a45b8 54%, #efbc4d 100%);
+    box-shadow: 10px 0 32px rgba(91, 35, 140, 0.22);
+}
+
+body.hm-dashboard-page #sidebar .sidebar-header {
+    padding: 20px 16px 16px;
+}
+
+body.hm-dashboard-page #sidebar .sidebar-header h4 {
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+body.hm-dashboard-page #sidebar .sidebar-header small {
+    font-size: 11px !important;
+    letter-spacing: 0.8px !important;
+}
+
+body.hm-dashboard-page #sidebar .components {
+    padding: 10px 0 8px;
+}
+
+body.hm-dashboard-page #sidebar .components li {
+    margin: 4px 10px;
+}
+
+body.hm-dashboard-page #sidebar .components li a {
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body.hm-dashboard-page #sidebar .components li a i {
+    width: 18px;
+    font-size: 14px;
+}
+
+body.hm-dashboard-page #sidebar .sidebar-footer {
+    padding: 12px 14px 8px;
+}
+
+body.hm-dashboard-page #sidebar .sidebar-footer p {
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+body.hm-dashboard-page #sidebar .logout-wrapper {
+    padding: 10px 12px 14px;
+}
+
+body.hm-dashboard-page #sidebar .logout-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 12px;
+}
+
+/* Content Panel */
+body.hm-dashboard-page #content {
+    margin-left: var(--hm-sidebar-width);
+    width: calc(100vw - var(--hm-sidebar-width));
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: calc(var(--hm-header-height) + 16px) 18px calc(var(--hm-footer-height) + 22px);
+    background: transparent;
+}
+
+body.hm-dashboard-page .hm-fixed-header,
+body.hm-dashboard-page .hm-fixed-footer {
+    position: fixed;
+    left: var(--hm-sidebar-width);
+    right: 0;
+    z-index: 1050;
+}
+
+body.hm-dashboard-page .hm-fixed-header {
+    top: 0;
+}
+
+body.hm-dashboard-page .hm-fixed-footer {
+    bottom: 0;
+}
+
+body.hm-dashboard-page .hm-fixed-header .site-banner-wrapper,
+body.hm-dashboard-page .hm-fixed-footer .login-page-footer {
+    width: 100%;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+}
+
+body.hm-dashboard-page .hm-fixed-header .site-banner-wrapper {
+    box-shadow: 0 2px 12px rgba(17, 24, 39, 0.08);
+}
+
+body.hm-dashboard-page .hm-fixed-footer .login-page-footer {
+    box-shadow: 0 -2px 12px rgba(17, 24, 39, 0.06);
+}
+
+/* Top Navbar Style */
+body.hm-dashboard-page .navbar {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(228, 232, 239, 0.95);
+    border-radius: 22px;
+    padding: 18px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 18px 36px rgba(54, 78, 105, 0.08);
+}
+
+body.hm-dashboard-page .container-fluid.p-4 {
+    padding: 0 !important;
+}
+
+body.hm-dashboard-page .row {
+    --bs-gutter-x: 1.15rem;
+    --bs-gutter-y: 1.15rem;
+}
+
+/* Premium Card and Buttons design */
+body.hm-dashboard-page .card {
+    border: 1px solid rgba(232, 236, 242, 0.9) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 14px 32px rgba(54, 78, 105, 0.08);
+    background: rgba(255, 255, 255, 0.97);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.hm-dashboard-page .card.p-4.bg-light {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%) !important;
+}
+
+body.hm-dashboard-page .btn-outline-primary {
+    border: none;
+    color: #ffffff;
+    background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%);
+    border-radius: 16px;
+    padding: 10px 16px;
+    font-weight: 600;
+    box-shadow: 0 10px 20px rgba(127, 42, 179, 0.18);
+    transition: all 0.3s ease;
+}
+
+body.hm-dashboard-page .btn-outline-primary:hover,
+body.hm-dashboard-page .btn-outline-primary.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #6f239d 0%, #e2ad35 100%);
+    box-shadow: 0 10px 20px rgba(111, 35, 157, 0.28);
+}
+
+body.hm-dashboard-page .btn-primary {
+    background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%);
+    border: none;
+    border-radius: 16px;
+    padding: 12px 24px;
+    font-weight: 600;
+    box-shadow: 0 10px 20px rgba(127, 42, 179, 0.18);
+    transition: all 0.3s ease;
+}
+
+body.hm-dashboard-page .btn-primary:hover {
+    background: linear-gradient(135deg, #6f239d 0%, #e2ad35 100%);
+    box-shadow: 0 10px 20px rgba(111, 35, 157, 0.28);
+    transform: translateY(-1px);
+}
+
+/* Upload Proof Zone design */
+.upload-zone {
+    border: 2px dashed rgba(127, 42, 179, 0.25);
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
+    background: rgba(127, 42, 179, 0.02);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+    border-color: #7f2ab3;
+    background: rgba(127, 42, 179, 0.06);
+    transform: translateY(-2px);
+}
+
+.upload-preview {
+    max-width: 100%;
+    border-radius: 16px;
+    margin-top: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Timeline/History specific styling */
+.timeline-container {
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(232, 236, 242, 0.9);
+    box-shadow: 0 8px 24px rgba(54, 78, 105, 0.04);
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(54, 78, 105, 0.08);
+}
+
+.timeline-item.completed {
+    border-left: 5px solid #10b981 !important;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.04) 0%, #ffffff 100%) !important;
+}
+
+.timeline-item.pending {
+    border-left: 5px solid #06b6d4 !important;
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.04) 0%, #ffffff 100%) !important;
+}
+
+/* Responsive Overrides */
+@media (max-width: 991px) {
+    :root {
+        --hm-sidebar-width: 0px;
+    }
+
+    body.hm-dashboard-page {
+        overflow-y: auto;
+    }
+
+    body.hm-dashboard-page #sidebar {
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
+        left: -250px;
+        overflow-y: auto;
+    }
+
+    body.hm-dashboard-page #sidebar.active {
+        left: 0;
+    }
+
+    body.hm-dashboard-page #content {
+        margin-left: 0;
+        width: 100vw;
+        padding: calc(var(--hm-header-height) + 12px) 12px calc(var(--hm-footer-height) + 18px);
+    }
+
+    body.hm-dashboard-page .hm-fixed-header,
+    body.hm-dashboard-page .hm-fixed-footer {
+        left: 0;
+    }
+
+    body.hm-dashboard-page .navbar {
+        padding: 14px 16px;
+        border-radius: 18px;
+    }
+}
+
+/* Under Development Module Box */
+
+.development-box {
+    text-align: center;
+    padding: 40px 20px;
+    border: 2px dashed #d1d5db;
+    border-radius: 15px;
+    background: #f8fafc;
+    margin-top: 15px;
+}
+
+.development-icon {
+    font-size: 60px;
+    color: #f59e0b;
+}
+
+.development-box h5 {
+    font-weight: 600;
+}
+
+.development-box p {
+    font-size: 14px;
+}

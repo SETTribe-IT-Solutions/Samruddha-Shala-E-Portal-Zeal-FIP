@@ -4,6 +4,8 @@ session_start();
 require_once 'include/dbConfig.php';
 
 
+
+
 $message = '';
 
 if(isset($_POST['login']))
@@ -14,7 +16,7 @@ if(isset($_POST['login']))
     if (!empty($username) && !empty($password))
     {
         $sql = "SELECT * FROM users 
-                WHERE username = ? 
+                WHERE BINARY username = ? 
                 AND is_active = 1";
 
         $stmt = $conn->prepare($sql);
@@ -27,7 +29,7 @@ if(isset($_POST['login']))
         {
             $user = $result->fetch_assoc();
 
-            if($password == $user['password'])
+            if(strcmp($password, $user['password']) === 0)
             {
                 $normalizedRole = strtoupper(trim((string) ($user['role'] ?? '')));
                 if ($normalizedRole === '') {
@@ -36,7 +38,7 @@ if(isset($_POST['login']))
 
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = strtoupper($user['username']);
+                $_SESSION['role'] = $normalizedRole;
                 $_SESSION['name'] = $user['name'] ?? $user['username'];
 
 if($_SESSION['role'] == 'CEO')
@@ -57,12 +59,12 @@ elseif($_SESSION['role'] == 'HM')
             }
             else
             {
-                $message = "Invalid Password";
+                $message = "Wrong Password";
             }
         }
         else
         {
-            $message = "Invalid Username";
+            $message = "Wrong Username";
         }
     }
     else
@@ -75,6 +77,7 @@ elseif($_SESSION['role'] == 'HM')
 <?php include 'include/landing_header.php'; ?>
 <?php include 'include/website_header.php'; ?>
 <link rel="stylesheet" href="login.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -208,7 +211,7 @@ background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none
 
                         <div class="controls">
                             <label class="remember"><input type="checkbox" name="remember"> Remember me</label>
-                           <a href="forgot_password.php">Forgot Password?</a>
+                           <a href="verify_email.php">Forgot Password?</a>
                         </div>
 
                         <button type="submit" name="login" class="btn-login">Login</button>
@@ -216,11 +219,21 @@ background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none
                         <div class="social-row">
                           
                         </div>
-                       
+                         <div class="back-link" align="center">
+                    <a href="index.php">← Back to Home</a>
+                </div>
+
                     </form>
 
                     <?php if(!empty($message)) { ?>
-                        <div class="error"><?php echo $message; ?></div>
+                        <script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Authentication Failed',
+                            text: '<?php echo htmlspecialchars($message); ?>',
+                            confirmButtonColor: '#0b63b7'
+                        });
+                        </script>
                     <?php } ?>
                     
                 </div>
