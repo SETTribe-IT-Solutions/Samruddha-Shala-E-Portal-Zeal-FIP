@@ -58,12 +58,7 @@ if(isset($_POST['reset']))
             if($update->execute())
             {
                 unset($_SESSION['verified_email']);
-
-                echo "<script>
-                        alert('Password Updated Successfully');
-                        window.location='login.php';
-                      </script>";
-                exit();
+                $success = true;
             }
             else
             {
@@ -87,6 +82,7 @@ if(isset($_POST['reset']))
 
 <?php include 'include/landing_header.php'; ?>
 <?php include 'include/website_header.php'; ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 
@@ -213,9 +209,27 @@ input{
         </form>
 
         <?php if(!empty($message)) { ?>
-            <div class="message">
-                <?php echo $message; ?>
-            </div>
+            <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '<?php echo htmlspecialchars($message); ?>',
+                confirmButtonColor: '#0b63b7'
+            });
+            </script>
+        <?php } ?>
+
+        <?php if(isset($success) && $success) { ?>
+            <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'password changed successfully',
+                confirmButtonColor: '#0b63b7'
+            }).then(() => {
+                window.location = 'login.php';
+            });
+            </script>
         <?php } ?>
 
         <div class="back">

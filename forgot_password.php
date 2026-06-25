@@ -39,19 +39,7 @@ if(isset($_POST['reset']))
             if($update->execute())
             {
                 unset($_SESSION['verified_email']);
-                echo "<script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: 'Password Updated Successfully',
-                                confirmButtonColor: '#0b63b7'
-                            }).then(() => {
-                                window.location = 'login.php';
-                            });
-                        });
-                      </script>";
-                exit();
+                $success = true;
             }
             else
             {
@@ -312,6 +300,19 @@ body{
                         title: 'Error',
                         text: '<?php echo htmlspecialchars($message); ?>',
                         confirmButtonColor: '#0b63b7'
+                    });
+                    </script>
+                <?php } ?>
+
+                <?php if(isset($success) && $success) { ?>
+                    <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'password changed successfully',
+                        confirmButtonColor: '#0b63b7'
+                    }).then(() => {
+                        window.location = 'login.php';
                     });
                     </script>
                 <?php } ?>
