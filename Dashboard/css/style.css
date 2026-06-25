@@ -557,3 +557,13 @@ body {
 .worktype-animate-in {
     animation: fadeInUp 0.35s ease forwards;
 }
+
+.page-title, #pageMainHeader {
+    color: #3f2b67 !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    font-family: 'Outfit', sans-serif !important;
+    margin-bottom: 0.35rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: normal !important;
+}

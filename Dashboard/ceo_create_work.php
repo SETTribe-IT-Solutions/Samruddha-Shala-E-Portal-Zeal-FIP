@@ -30,7 +30,8 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Create Work</h5>
+                        <h4 class="fw-bold mb-1"id="pageMainHeader">Create Task </h4>
+                        
                     </div>
                     <div class="ms-auto d-flex align-items-center">
                         <div class="me-4 position-relative">

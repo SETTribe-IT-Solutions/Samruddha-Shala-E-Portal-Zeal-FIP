@@ -104,7 +104,7 @@ function toggleSidebar() {
 function switchTab(tabId) {
     // Hide all tab containers
     document.querySelectorAll('.view-panel').forEach(div => div.classList.add('d-none'));
-    
+
     // Show selected container
     const activePanel = document.getElementById(`${tabId}-view`);
     if (activePanel) activePanel.classList.remove('d-none');
@@ -142,7 +142,7 @@ function renderActiveViewData() {
 function renderCEOOverview() {
     const totalWorks = db.schools.length;
     const avgProgress = Math.round(db.schools.reduce((acc, curr) => acc + curr.progress, 0) / totalWorks);
-    
+
     const totalAllocated = db.schools.reduce((acc, curr) => acc + curr.budget, 0);
     const totalSpent = db.schools.reduce((acc, curr) => acc + curr.spent, 0);
     const utilizationRate = Math.round((totalSpent / totalAllocated) * 100);
@@ -152,13 +152,16 @@ function renderCEOOverview() {
     document.getElementById('kpi-overall-progress').textContent = `${avgProgress}%`;
     document.getElementById('kpi-progress-bar').style.width = `${avgProgress}%`;
     document.getElementById('kpi-progress-bar').setAttribute('aria-valuenow', avgProgress);
-    document.getElementById('kpi-funding').textContent = `₹${totalAllocated.toFixed(1)} L`;
+
+    // Format large numbers with Indian comma system
+    let formattedAllocated = totalAllocated.toLocaleString('en-IN', { maximumFractionDigits: 1 });
+    document.getElementById('kpi-funding').textContent = `₹${formattedAllocated} L`;
     document.getElementById('kpi-funding-utilization').textContent = `${utilizationRate}%`;
 
     // Alerts lists integration
     const alertsList = document.getElementById('overviewAlertsContainer');
     alertsList.innerHTML = '';
-    
+
     if (db.alerts.length === 0) {
         alertsList.innerHTML = `<div class="text-center py-4 text-muted">No pending alerts. System clear!</div>`;
     } else {
@@ -243,6 +246,27 @@ function setupOverviewCharts() {
         return matches.length ? Math.round(matches.reduce((sum, s) => sum + s.progress, 0) / matches.length) : 0;
     });
 
+    // Custom plugin to draw numbers on top of the bars
+    const physicalDataLabelsPlugin = {
+        id: 'physicalDataLabelsPlugin',
+        afterDatasetsDraw(chart, args, pluginOptions) {
+            const { ctx, data } = chart;
+            ctx.save();
+            data.datasets[0].data.forEach((datapoint, index) => {
+                if (datapoint > 0) {
+                    const meta = chart.getDatasetMeta(0);
+                    const x = meta.data[index].x;
+                    const y = meta.data[index].y;
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#2b3445';
+                    ctx.font = 'bold 14px "Outfit", sans-serif';
+                    ctx.fillText(datapoint + '%', x, y - 8);
+                }
+            });
+            ctx.restore();
+        }
+    };
+
     // Draw Physical Chart
     const ctx1 = document.getElementById('overviewPhysicalChart').getContext('2d');
     physicalProgressChartInstance = new Chart(ctx1, {
@@ -252,7 +276,8 @@ function setupOverviewCharts() {
             datasets: [{
                 label: 'Average Progress %',
                 data: averages,
-                backgroundColor: ['#0d6efd', '#10b981', '#f59e0b', '#06b6d4'],
+                // Using sidebar theme palette: Dark Purple, Med Purple, Orange-Gold, Yellow-Gold
+                backgroundColor: ['#6420a5', '#8a45b8', '#d38243', '#efbc4d'],
                 borderRadius: 6,
                 borderWidth: 0,
                 barThickness: 35
@@ -261,6 +286,11 @@ function setupOverviewCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 25 // add padding so labels don't get cut off at 100%
+                }
+            },
             plugins: {
                 legend: { display: false }
             },
@@ -271,7 +301,8 @@ function setupOverviewCharts() {
                     ticks: { callback: value => value + '%' }
                 }
             }
-        }
+        },
+        plugins: [physicalDataLabelsPlugin]
     });
 
     // Funding sources percentages
@@ -287,7 +318,8 @@ function setupOverviewCharts() {
             labels: sources,
             datasets: [{
                 data: fundingSums,
-                backgroundColor: ['#6366f1', '#f59e0b', '#3b82f6', '#10b981'],
+                // Using sidebar theme palette
+                backgroundColor: ['#6420a5', '#8a45b8', '#d38243', '#efbc4d'],
                 hoverOffset: 4
             }]
         },
@@ -320,28 +352,29 @@ function renderCEOTaskSummary() {
 
     let tableHTML = `
         <div class="table-responsive" style="max-height: 500px;">
-            <table class="table table-sm table-hover align-middle bg-white border mb-0" style="font-size: 0.85rem;">
+            <table class="table table-sm table-hover align-middle bg-white border mb-0" style="font-size: 1.05rem;">
                 <thead class="table-light sticky-top">
                     <tr>
                         <th scope="col" style="width: 40%">School</th>
-                        <th scope="col" style="width: 20%">Task</th>
-                        <th scope="col" style="width: 15%">Budget</th>
-                        <th scope="col" style="width: 25%">Status</th>
+                        <th scope="col" class="text-center" style="width: 20%">Task</th>
+                        <th scope="col" class="text-center" style="width: 15%">Budget</th>
+                        <th scope="col" class="text-center" style="width: 25%">Status</th>
                     </tr>
                 </thead>
                 <tbody>
     `;
 
     pendingTasks.forEach(school => {
+        let budgetFormatted = parseFloat(school.task_budget).toLocaleString('en-IN');
         tableHTML += `
             <tr>
                 <td>
-                    <div class="fw-semibold text-dark text-wrap text-break">${school.name}</div>
-                    <div class="small text-muted">${school.block}</div>
+                    <div class="fw-bold text-dark text-wrap text-break" style="font-size: 1.1rem;">${school.name}</div>
+                    <div class="text-muted" style="font-size: 1rem;">${school.block}</div>
                 </td>
-                <td><span class="badge bg-primary-soft text-primary text-wrap">${school.task_title || school.work_type}</span></td>
-                <td>₹${school.task_budget}L</td>
-                <td><span class="badge bg-warning text-dark text-wrap lh-base">${school.task_status}</span></td>
+                <td class="text-center"><span class="badge bg-primary-soft text-primary text-wrap px-3 py-2" style="font-size: 1.05rem;">${school.task_title || school.work_type}</span></td>
+                <td class="text-center fw-bold text-dark" style="font-size: 1.05rem;">₹${budgetFormatted} L</td>
+                <td class="text-center"><span class="badge bg-warning text-dark text-wrap lh-base px-3 py-2" style="font-size: 1.05rem;">${school.task_status}</span></td>
             </tr>
         `;
     });
@@ -357,7 +390,7 @@ function renderCEOTaskSummary() {
 function populateCEOAssignTaskSchools() {
     const select = document.getElementById('ceoTaskSchoolSelect');
     if (!select) return;
-    
+
     select.innerHTML = '';
 
     db.schools.forEach(school => {
@@ -405,47 +438,47 @@ function handleAssignTaskSubmit(e) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Assign Task';
-        }
-        
-        if (data.status) {
-            school.work_type = workType;
-            school.budget = budget;
-            school.funding_source = fundingSource;
-            school.task_title = workType;
-            school.task_description = description;
-            school.task_budget = budget;
-            school.task_funding_source = fundingSource;
-            school.task_status = 'Pending HM Action';
-            school.task_assigned_at = new Date().toISOString().split('T')[0];
-            school.progress = 0;
-            school.blocker = 'None';
-            school.blocker_details = '';
-            school.geo_tag = 'Missing';
-            school.latitude = '';
-            school.longitude = '';
-            school.remarks = 'Task assigned by CEO. HM to review and start execution.';
+        .then(response => response.json())
+        .then(data => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Assign Task';
+            }
 
-            saveDatabase();
-            document.getElementById('ceoAssignTaskForm').reset();
-            showSuccessPopup('Task assign successfully.');
-            renderCEOTaskSummary();
-        } else {
-            alert('Failed to save to database: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Assign Task';
-        }
-        alert('An error occurred while saving. Please try again.');
-    });
+            if (data.status) {
+                school.work_type = workType;
+                school.budget = budget;
+                school.funding_source = fundingSource;
+                school.task_title = workType;
+                school.task_description = description;
+                school.task_budget = budget;
+                school.task_funding_source = fundingSource;
+                school.task_status = 'Pending HM Action';
+                school.task_assigned_at = new Date().toISOString().split('T')[0];
+                school.progress = 0;
+                school.blocker = 'None';
+                school.blocker_details = '';
+                school.geo_tag = 'Missing';
+                school.latitude = '';
+                school.longitude = '';
+                school.remarks = 'Task assigned by CEO. HM to review and start execution.';
+
+                saveDatabase();
+                document.getElementById('ceoAssignTaskForm').reset();
+                showSuccessPopup('Task assign successfully.');
+                renderCEOTaskSummary();
+            } else {
+                alert('Failed to save to database: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Assign Task';
+            }
+            alert('An error occurred while saving. Please try again.');
+        });
 }
 
 function showSuccessPopup(message) {
@@ -462,14 +495,14 @@ function showSuccessPopup(message) {
             </div>
         </div>
     </div>`;
-    
+
     let modalEl = document.getElementById('successModal');
     if (modalEl) {
         modalEl.remove();
     }
     document.body.insertAdjacentHTML('beforeend', modalHtml);
     modalEl = document.getElementById('successModal');
-    
+
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
 }
@@ -477,12 +510,12 @@ function showSuccessPopup(message) {
 // --- CEO PHYSICAL PROGRESS DETAIL ---
 function renderCEOPhysical() {
     const categories = ["Classrooms", "Toilets", "Fencing", "Water Facilities"];
-    
+
     categories.forEach(cat => {
         const list = db.schools.filter(s => s.work_type === cat);
         const count = list.length;
         const avg = count ? Math.round(list.reduce((sum, s) => sum + s.progress, 0) / count) : 0;
-        
+
         const catLower = cat.toLowerCase().replace(" ", "");
         document.getElementById(`phys-cnt-${catLower}`).textContent = `${count} Works`;
         document.getElementById(`phys-avg-${catLower}`).textContent = `${avg}%`;
@@ -537,7 +570,7 @@ function renderCEOFunding() {
     const tableBody = document.getElementById('detailedFundingTable');
     tableBody.innerHTML = '';
 
-    const colors = ['#6366f1', '#f59e0b', '#3b82f6', '#10b981'];
+    const colors = ['#6420a5', '#8a45b8', '#d38243', '#efbc4d'];
     const fundingSums = [];
 
     sources.forEach((src, idx) => {
@@ -591,10 +624,10 @@ function renderCEOFunding() {
             datasets: [{
                 data: fundingSums,
                 backgroundColor: [
-                    'rgba(99, 102, 241, 0.7)',
-                    'rgba(245, 158, 11, 0.7)',
-                    'rgba(59, 130, 246, 0.7)',
-                    'rgba(16, 185, 129, 0.7)'
+                    'rgba(100, 32, 165, 0.7)',
+                    'rgba(138, 69, 184, 0.7)',
+                    'rgba(211, 130, 67, 0.7)',
+                    'rgba(239, 188, 77, 0.7)'
                 ],
                 borderColor: colors,
                 borderWidth: 1
@@ -623,8 +656,8 @@ function renderCEOAlerts() {
     document.getElementById('alerts-cnt-geotag').textContent = db.alerts.filter(a => a.type === 'geotag').length;
     document.getElementById('alerts-cnt-pending').textContent = db.alerts.filter(a => a.type === 'pending').length;
 
-    const filteredAlerts = currentAlertFilter === 'all' 
-        ? db.alerts 
+    const filteredAlerts = currentAlertFilter === 'all'
+        ? db.alerts
         : db.alerts.filter(a => a.type === currentAlertFilter);
 
     if (filteredAlerts.length === 0) {
@@ -692,7 +725,7 @@ function renderCEOAlerts() {
 
 function filterAlerts(type) {
     currentAlertFilter = type;
-    
+
     // Highlight button active state
     const buttons = document.querySelectorAll('#alertsNavPills button');
     buttons.forEach(btn => {
@@ -739,7 +772,7 @@ function renderCEOMonitorTable() {
         }
 
         // Geo-tag coordinate string
-        const coordStr = school.geo_tag === 'Tagged' 
+        const coordStr = school.geo_tag === 'Tagged'
             ? `<span class="badge bg-light text-dark"><i class="fa-solid fa-circle-check text-success me-1"></i>${school.latitude}, ${school.longitude}</span>`
             : '<span class="badge bg-danger-soft text-danger"><i class="fa-solid fa-location-pin-lock me-1"></i>Missing</span>';
 
@@ -781,7 +814,7 @@ function filterSchoolsTable() {
 
         // Match search query
         const matchesQuery = school.name.toLowerCase().includes(query) || school.block.toLowerCase().includes(query);
-        
+
         // Match Work Type
         const matchesWorkType = !workType || school.work_type === workType;
 
@@ -845,7 +878,7 @@ function openProjectModal(schoolId) {
     if (!school) return;
 
     const modalBody = document.getElementById('projectModalBody');
-    
+
     let blockerHtml = `<span class="badge bg-success">No Blockers Reported</span>`;
     if (school.blocker !== 'None') {
         blockerHtml = `
@@ -856,7 +889,7 @@ function openProjectModal(schoolId) {
         `;
     }
 
-    const imgHtml = school.photo 
+    const imgHtml = school.photo
         ? `<img src="${school.photo}" class="img-fluid rounded shadow-sm border mb-3 w-100" style="max-height: 280px; object-fit: cover;" alt="Site Photograph">`
         : `<div class="bg-light text-muted py-5 rounded text-center mb-3"><i class="fa-regular fa-image fs-1 mb-2"></i><br>No Photo uploaded</div>`;
 
@@ -913,9 +946,9 @@ function openProjectModal(schoolId) {
                 <div class="mb-3">
                     <strong>Geo-Tag Mapping:</strong>
                     <div class="mt-1">
-                        ${school.geo_tag === 'Tagged' 
-                            ? `<span class="badge bg-success-soft text-success p-2"><i class="fa-solid fa-circle-check me-1"></i>Tagged: Lat ${school.latitude}, Lng ${school.longitude}</span>`
-                            : `<span class="badge bg-danger-soft text-danger p-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>Missing Geo-Coordinates</span>`}
+                        ${school.geo_tag === 'Tagged'
+            ? `<span class="badge bg-success-soft text-success p-2"><i class="fa-solid fa-circle-check me-1"></i>Tagged: Lat ${school.latitude}, Lng ${school.longitude}</span>`
+            : `<span class="badge bg-danger-soft text-danger p-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>Missing Geo-Coordinates</span>`}
                     </div>
                 </div>
 
