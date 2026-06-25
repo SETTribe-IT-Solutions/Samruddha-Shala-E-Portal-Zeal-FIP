@@ -32,6 +32,16 @@ if (empty($userFullName)) {
 if (empty($userRole)) {
     $userRole = $role ?: 'Guest';
 }
+
+// Dynamic routing prefix
+$current_dir = basename(getcwd());
+if ($current_dir === 'Dashboard') {
+    $dashboard_prefix = "";
+    $root_prefix = "../";
+} else {
+    $dashboard_prefix = "Dashboard/";
+    $root_prefix = "";
+}
 ?>
 <!-- Sidebar Navigation -->
 <nav id="sidebar">
@@ -114,8 +124,19 @@ function confirmLogout(event) {
         cancelButtonColor: '#dc3545'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = '../logout.php';
+            window.location.href = '<?php echo $root_prefix; ?>logout.php';
         }
+    });
+}
+
+function showWorkInProgress(event) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'Work Under Progress',
+        text: 'This feature is currently under development.',
+        icon: 'info',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#0b63b7'
     });
 }
 </script>
