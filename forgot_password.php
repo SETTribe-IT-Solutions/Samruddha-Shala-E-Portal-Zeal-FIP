@@ -16,10 +16,15 @@ if(isset($_POST['reset']))
     $new_password     = trim($_POST['new_password']);
     $confirm_password = trim($_POST['confirm_password']);
 
+
     if(empty($new_password) || empty($confirm_password))
     {
         $message = "Please fill all fields.";
     }
+
+
+
+
     elseif($new_password != $confirm_password)
     {
         $message = "Passwords do not match.";
@@ -72,7 +77,11 @@ if(isset($_POST['reset']))
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
+<input type="password" name="password" id="password">
+<span onclick="togglePassword('password')">👁️</span>
 
+<input type="password" name="confirm_password" id="confirm_password">
+<span onclick="togglePassword('confirm_password')">👁️</span>
 *{
     margin:0;
     padding:0;
@@ -332,8 +341,19 @@ body{
     </div>
 
 </div>
+<script>
+function togglePassword(fieldId) {
+    var field = document.getElementById(fieldId);
 
+    if (field.type === "password") {
+        field.type = "text";
+    } else {
+        field.type = "password";
+    }
+}
+</script>
 <?php include 'include/website_footer.php'; ?>
 
 </body>
 </html>
+
