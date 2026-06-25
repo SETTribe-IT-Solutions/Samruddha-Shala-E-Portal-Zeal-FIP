@@ -30,6 +30,16 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="css/ceo_dashboard.css?v=2" rel="stylesheet">
+    <style>
+        .ceo-dashboard-page .card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out !important;
+        }
+        .ceo-dashboard-page .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 193, 7, 0.3), 0 5px 15px rgba(255, 193, 7, 0.2) !important;
+            border-color: rgba(255, 193, 7, 0.4) !important;
+        }
+    </style>
     <!-- <style>
         :root {
             --ceo-sidebar-width: 250px;
@@ -268,9 +278,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District CEO Overview</h5>
+                        <h4 class="fw-bold mb-1"id="pageMainHeader">Kolhapur District CEO Overview</h4>
                     </div>
-
                     <div class="ms-auto d-flex align-items-center">
                         <!-- Notifications Dropdown -->
                         <div class="me-4 position-relative">
@@ -297,8 +306,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                     <div class="row mb-4 align-items-stretch">
                         <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
                             <div class="card kpi-card h-100 d-flex flex-column">
-                                <div class="kpi-icon bg-primary-soft mb-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
-                                    <i class="fa-solid fa-list-check text-primary"></i>
+                                <div class="kpi-icon bg-primary-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-list-check text-primary" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
                                 <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Works Active</h6>
                                 <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-total-works">0</h2>
@@ -310,8 +319,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                         </div>
                         <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
                             <div class="card kpi-card h-100 d-flex flex-column">
-                                <div class="kpi-icon bg-success-soft mb-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
-                                    <i class="fa-solid fa-chart-line text-success"></i>
+                                <div class="kpi-icon bg-success-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-chart-line text-success" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
                                 <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Overall Progress</h6>
                                 <h2 class="fw-bold mb-2 text-dark" id="kpi-overall-progress">0%</h2>
@@ -325,8 +334,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                         </div>
                         <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
                             <div class="card kpi-card h-100 d-flex flex-column">
-                                <div class="kpi-icon bg-warning-soft mb-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
-                                    <i class="fa-solid fa-indian-rupee-sign text-warning"></i>
+                                <div class="kpi-icon bg-warning-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-indian-rupee-sign text-warning" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
                                 <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Funding Allocation</h6>
                                 <!-- Added word-break to prevent long numbers from overflowing -->
@@ -338,8 +347,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                         </div>
                         <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
                             <div class="card kpi-card h-100 d-flex flex-column" style="cursor: pointer; transition: transform 0.3s ease;" onclick="switchTab('ceo-alerts')" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
-                                <div class="kpi-icon bg-danger-soft mb-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
-                                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                                <div class="kpi-icon bg-danger-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-triangle-exclamation text-danger" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
                                 <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Critical Alerts</h6>
                                 <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-alerts">0</h2>
