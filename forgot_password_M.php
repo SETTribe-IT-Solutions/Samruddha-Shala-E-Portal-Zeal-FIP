@@ -25,6 +25,10 @@ if(isset($_POST['reset']))
     {
         $message = "Passwords do not match.";
     }
+    elseif(strlen($new_password) < 6 || !preg_match('/[0-9]/', $new_password) || !preg_match('/[^A-Za-z0-9]/', $new_password))
+    {
+        $message = "Password must be at least 6 characters long, and contain at least one digit and one special symbol.";
+    }
     else
     {
         $check = $conn->prepare(
