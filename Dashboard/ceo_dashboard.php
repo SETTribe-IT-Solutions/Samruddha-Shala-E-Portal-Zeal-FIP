@@ -347,7 +347,7 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
-                            <div class="card kpi-card h-100 d-flex flex-column" style="cursor: pointer; transition: transform 0.3s ease;" onclick="switchTab('ceo-alerts')" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                            <div class="card kpi-card h-100 d-flex flex-column" style="cursor: default;">
                                 <div class="kpi-icon bg-danger-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
                                     <i class="fa-solid fa-triangle-exclamation text-danger" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
