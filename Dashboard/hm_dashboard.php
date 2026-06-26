@@ -116,158 +116,137 @@ if($_SESSION['role'] != 'HM'){
             </ul>
 
             <!-- HM REPORT VIEW -->
-            <div id="hm-report-view" class="view-panel">
+<div id="hm-report-view" class="view-panel">
 
-                <div class="row">
+    <!-- DASHBOARD CARDS -->
+    <div class="row g-4 mb-4">
 
-                    <!-- LEFT SIDE FORM -->
-                    <div class="col-lg-7">
-
-                        <div class="card p-4">
-
-                            <h4 class="fw-bold mb-1">
-                                <i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>
-                                Submit Progress Update
-                            </h4>
-
-                            <p class="text-muted mb-4">
-                                Use this form to submit actual physical construction logs, report blockers, geo-tags and photographs.
-                            </p>
-
-                            <!-- CEO Task Notification Box -->
-                            <div class="alert alert-info mb-3">
-                                <strong><i class="fa-solid fa-bell me-2"></i>CEO Task Notification</strong>
-                                <div id="hmTaskNotificationText" class="small mt-1">
-                                    No task assigned yet.
-                                </div>
-                            </div>
-
-                            <!-- REPORT SUBMISSION FORM -->
-                            <form id="hmUpdateForm" onsubmit="handleHMUpdateSubmit(event)">
-                                <div class="mb-3">
-                                    <label for="hmSchoolSelect" class="form-label fw-semibold">Select School</label>
-                                    <select id="hmSchoolSelect" class="form-select" onchange="loadHMSchoolSpecificDetails(this.value)"></select>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="hmWorkType" class="form-label fw-semibold">Work Category</label>
-                                        <input type="text" id="hmWorkType" class="form-control" readonly>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="hmFundingSource" class="form-label fw-semibold">Funding Source</label>
-                                        <input type="text" id="hmFundingSource" class="form-control" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label for="hmProgressRange" class="form-label fw-semibold mb-0">Current Stage Progress</label>
-                                        <span id="hmProgressValueText" class="fw-bold text-primary">0%</span>
-                                    </div>
-                                    <input type="range" id="hmProgressRange" class="form-range" min="0" max="100" value="0" oninput="updateHMProgressSliderText(this.value)">
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="hmSpentAmount" class="form-label fw-semibold">Amount Spent (Lakhs)</label>
-                                        <input type="number" id="hmSpentAmount" class="form-control" placeholder="e.g. 1.5" min="0" step="0.01">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="hmBudgetNotes" class="form-label fw-semibold">Financial / Budget Notes</label>
-                                        <input type="text" id="hmBudgetNotes" class="form-control" placeholder="e.g. Materials purchased, labor paid">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="hmBlockerSelector" class="form-label fw-semibold">Report Blocker Status</label>
-                                    <select id="hmBlockerSelector" class="form-select" onchange="toggleHMBlockerDetailsInput(this.value)">
-                                        <option value="None">None</option>
-                                        <option value="Material Shortage">Material Shortage</option>
-                                        <option value="Labor Shortage">Labor Shortage</option>
-                                        <option value="Fund Delay">Fund Delay</option>
-                                        <option value="Weather Delays">Weather Delays</option>
-                                        <option value="Land Boundary Dispute">Land Boundary Dispute</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-
-                                <div id="hmBlockerDetailsContainer" class="mb-3 d-none">
-                                    <label for="hmBlockerDetails" class="form-label fw-semibold">Blocker Description</label>
-                                    <textarea id="hmBlockerDetails" class="form-control" rows="2" placeholder="Describe the blocker details..."></textarea>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Geo-Tagging Coordinates</label>
-                                    <div class="input-group">
-                                        <input type="text" id="hmGeoCoordinates" class="form-control" placeholder="Coordinates will show here" readonly required>
-                                        <button type="button" class="btn btn-outline-secondary" onclick="captureGeoTaggedPhoto()">
-                                            <i class="fa-solid fa-location-dot me-1"></i> Capture GPS
-                                        </button>
-                                    </div>
-                                    <input type="hidden" id="hmGeotagInput" value="Missing">
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label fw-semibold">Photo Proof Upload</label>
-                                    <div class="upload-zone" onclick="triggerPhotoUpload()">
-                                        <i class="fa-solid fa-cloud-arrow-up fs-2 mb-2 text-muted"></i>
-                                        <p class="mb-0 text-muted small">Click to upload site photograph proof</p>
-                                        <img id="photoPreview" class="upload-preview d-none" src="#" alt="Preview">
-                                    </div>
-                                    <input type="file" id="hmPhotoFile" class="d-none" accept="image/*" onchange="previewHMUploadedPhoto(this)" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="hmRemarks" class="form-label fw-semibold">Progress Remarks / Logs</label>
-                                    <textarea id="hmRemarks" class="form-control" rows="3" placeholder="Enter details of work completed..." required></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
-                                    <i class="fa-solid fa-paper-plane me-2"></i>Submit Progress Report
-                                </button>
-                            </form>
-
-                        </div>
-
-                    </div>
-
-                    <!-- RIGHT SIDE SUMMARY -->
-                    <!-- RIGHT SIDE SUMMARY -->
-<div class="col-lg-5">
-
-    <div class="card p-4 bg-light">
-
-        <h5 class="fw-bold mb-3">
-            Active School Summary
-        </h5>
-
-        <div id="hmSchoolSummaryPanel">
-            <!-- Dynamic Data -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fa-solid fa-school fa-3x text-primary mb-3"></i>
+                    <h2>12</h2>
+                    <p class="mb-0">Assigned Works</p>
+                </div>
+            </div>
         </div>
 
-        <div class="mt-4">
-            <h6 class="fw-bold">Project Progress Visualization</h6>
+        <div class="col-lg-3 col-md-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fa-solid fa-chart-line fa-3x text-success mb-3"></i>
+                    <h2>68%</h2>
+                    <p class="mb-0">Work Progress</p>
+                </div>
+            </div>
+        </div>
 
-            <div class="development-box">
-                <i class="fa-solid fa-person-digging development-icon"></i>
+        <div class="col-lg-3 col-md-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fa-solid fa-indian-rupee-sign fa-3x text-warning mb-3"></i>
+                    <h2>₹18.5L</h2>
+                    <p class="mb-0">Fund Utilized</p>
+                </div>
+            </div>
+        </div>
 
-                <h5 class="mt-3">Module Under Development</h5>
-
-                <p class="text-muted mb-0">
-                    HM Work Master, Utility Master, Notifications and
-                    additional analytics modules are currently under development.
-                </p>
+        <div class="col-lg-3 col-md-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fa-solid fa-bell fa-3x text-danger mb-3"></i>
+                    <h2>4</h2>
+                    <p class="mb-0">Notifications</p>
+                </div>
             </div>
         </div>
 
     </div>
 
-</div>
+    <!-- CHARTS -->
+    <div class="row g-4 mb-4">
 
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Work Progress Chart</h5>
                 </div>
-
+                <div class="card-body">
+                    <canvas id="progressChart"></canvas>
+                </div>
             </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Fund Utilization Chart</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="fundChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RECENT WORK STATUS -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Recent Work Status</h5>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Work Name</th>
+                        <th>Stage</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Classroom Construction</td>
+                        <td>Foundation</td>
+                        <td>40%</td>
+                        <td><span class="badge bg-warning">Pending</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Toilet Repair</td>
+                        <td>Finishing</td>
+                        <td>90%</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Boundary Wall</td>
+                        <td>Structure</td>
+                        <td>65%</td>
+                        <td><span class="badge bg-info">In Progress</span></td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="row g-4">
+
+        <div class="col
+        </div>
+
+    </div>
+
+</div>
 
             <!-- HISTORY VIEW -->
             <div id="hm-history-view" class="view-panel d-none">
@@ -310,6 +289,28 @@ if($_SESSION['role'] != 'HM'){
 
 <!-- HM Logic -->
 <script src="js/hm.js"></script>
+<script>
+new Chart(document.getElementById('progressChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Foundation', 'Structure', 'Finishing'],
+        datasets: [{
+            label: 'Completion %',
+            data: [80, 60, 35]
+        }]
+    }
+});
+
+new Chart(document.getElementById('fundChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Utilized', 'Remaining'],
+        datasets: [{
+            data: [18.5, 6.5]
+        }]
+    }
+});
+</script>
 
 </body>
 </html>

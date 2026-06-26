@@ -1,6 +1,10 @@
 <?php 
 // Links the backend validation and logic rules cleanly
 require_once 'amount_utilization.php'; 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$role = $_SESSION['role'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,6 +17,9 @@ require_once 'amount_utilization.php';
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/amount_utilization.css">
+    <?php if ($role === 'HM'): ?>
+        <link rel="stylesheet" href="Dashboard/css/hm_dashboard.css">
+    <?php endif; ?>
     
     <style>
         .form-label, label {
@@ -35,8 +42,14 @@ require_once 'amount_utilization.php';
         }
     </style>
 </head>
-<body style="background: #f4f2fb; font-family: 'Poppins', sans-serif;">
-    <?php include 'include/website_header.php'; ?>
+<body <?php echo ($role === 'HM' ? 'class="hm-dashboard-page"' : 'style="background: #f4f2fb; font-family: \'Poppins\', sans-serif;"'); ?>>
+    <?php if ($role === 'HM'): ?>
+        <div class="hm-fixed-header">
+            <?php include 'include/website_header.php'; ?>
+        </div>
+    <?php else: ?>
+        <?php include 'include/website_header.php'; ?>
+    <?php endif; ?>
     
     <div id="wrapper">
         <?php include 'include/sidebar.php'; ?>
@@ -53,8 +66,8 @@ require_once 'amount_utilization.php';
                 </div>
             </nav>
             
-            <div class="container py-5">
-                <div class="utilization-card mx-auto p-4" style="max-width: 900px;">
+            <div class="container-fluid py-4">
+                <div class="utilization-card mx-auto p-4" style="max-width: 100%;">
                     <div class="row g-4">
                         <div class="col-12">
                             <h1 class="mb-3 text-center border-bottom pb-2">Fund Details</h1>
@@ -206,7 +219,13 @@ require_once 'amount_utilization.php';
         </div>
     </div>
 
-    <?php include 'include/website_footer.php'; ?>
+    <?php if ($role === 'HM'): ?>
+        <div class="hm-fixed-footer">
+            <?php include 'include/website_footer.php'; ?>
+        </div>
+    <?php else: ?>
+        <?php include 'include/website_footer.php'; ?>
+    <?php endif; ?>
 
     <script>
         document.getElementById('expense-rows').addEventListener('click', function(e){
