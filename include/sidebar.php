@@ -180,6 +180,6 @@ function showMaintenanceModal(event) {
 }
 </script>
 <head>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="<?php echo $root_prefix; ?>css/style.css?v=1.0.1">
+    <link rel="stylesheet" href="<?php echo $root_prefix; ?>css/sidebar.css?v=1.0.1">
 </head>

@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="../css/sidebar.css" rel="stylesheet">
-    <link href="css/hm_dashboard.css" rel="stylesheet">
+    <link href="css/hm_dashboard.css?v=1.0.1" rel="stylesheet">
     
     <style>
         body {
