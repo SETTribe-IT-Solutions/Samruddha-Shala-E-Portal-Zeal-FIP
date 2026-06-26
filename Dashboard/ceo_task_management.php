@@ -32,7 +32,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Task Management</h5>
+                        <h4 class="fw-bold mb-1"id="pageMainHeader">Task Management </h4>
                     </div>
                     <div class="ms-auto d-flex align-items-center">
                         <div class="me-4 position-relative">
@@ -42,11 +42,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                             </a>
                         </div>
                         <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Shri. R. K. Patil, IAS</p>
-                                <small class="text-muted">District CEO</small>
-                            </div>
-                            <span class="role-badge badge-ceo">CEO</span>
+                            <h4 class="fw-bold mb-1"><span class="role-badge badge-ceo">CEO</span></h4>
                         </div>
                     </div>
                 </div>
@@ -78,9 +74,6 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                                     <div class="mb-4">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <label class="form-label fw-semibold mb-0">Stage Details <span class="text-danger">*</span></label>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" id="addStageBtn">
-                                                <i class="fa-solid fa-plus me-1"></i> Add Stage
-                                            </button>
                                         </div>
                                         <div class="table-responsive border rounded">
                                             <table class="table table-hover align-middle mb-0" id="stagesTable">
@@ -131,7 +124,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/db.js"></script>
     <script src="js/ceo.js?v=5"></script>
-    <script src="js/create_work.js"></script>
+    <script src="js/create_work.js?v=2"></script>
 </body>
 </html>
 

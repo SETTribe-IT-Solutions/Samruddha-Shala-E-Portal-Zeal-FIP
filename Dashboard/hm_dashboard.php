@@ -100,6 +100,10 @@ if($_SESSION['role'] != 'HM'){
                     Submit progress reports, monitor project activities and manage school updates.
                 </p>
             </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="container-fluid p-4">
 
             <!-- Sub-navigation Tabs -->
             <ul class="nav nav-pills mb-4 gap-2 bg-light p-2 rounded" id="hmDashboardTabs" role="tablist" style="width: fit-content; border: 1px solid rgba(228, 232, 239, 0.95); border-radius: 16px !important;">

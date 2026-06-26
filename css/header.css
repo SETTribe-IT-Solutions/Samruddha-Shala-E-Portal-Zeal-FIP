@@ -70,6 +70,7 @@
     color: #1f2d5a;
     font-family: 'Poppins', sans-serif;
     line-height: 1.1;
+    margin-top: 6px; /* Prevents text from touching/overlapping the yellow line */
 }
 
 @media(max-width:768px){

@@ -16,7 +16,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="../css/sidebar.css" rel="stylesheet">
-    <link href="css/ceo_alerts.css" rel="stylesheet">   
+    <link href="css/ceo_alerts.css?v=3" rel="stylesheet">
 </head>
 <body class="ceo-dashboard-page">
     <div id="wrapper">
@@ -39,11 +39,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                             </a>
                         </div>
                         <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Shri. R. K. Patil, IAS</p>
-                                <small class="text-muted">District CEO</small>
-                            </div>
-                            <span class="role-badge badge-ceo">CEO</span>
+                            <h4 class="fw-bold mb-1"><span class="role-badge badge-ceo">CEO</span></h4>
                         </div>
                     </div>
                 </div>
@@ -57,7 +53,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                             <p class="text-muted mb-0">Review urgent reports, missing details, delayed work stages, and active blockers for schools across Kolhapur District</p>
                         </div>
                     </div>
-                    <ul class="nav nav-pills mb-4 gap-2 bg-light p-2 rounded" id="alertsNavPills" role="tablist">
+                    <ul class="nav nav-pills mb-4 gap-4 bg-light p-3 rounded" id="alertsNavPills" role="tablist">
                         <li class="nav-item">
                             <button class="btn btn-sm btn-outline-dark active" onclick="filterAlerts('all')">All Alerts <span class="badge bg-secondary ms-1" id="alerts-cnt-all">0</span></button>
                         </li>
@@ -86,6 +82,6 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/db.js"></script>
-    <script src="js/ceo.js?v=5"></script>
+    <script src="js/ceo.js?v=6"></script>
 </body>
 </html>
