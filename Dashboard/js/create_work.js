@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const workTypeSelect = document.getElementById("workTypeSelect");
     const workNameSelect = document.getElementById("workNameSelect");
     const stagesTableBody = document.getElementById("stagesTableBody");
-    const addStageBtn = document.getElementById("addStageBtn");
     const totalPercentageDisplay = document.getElementById("totalPercentageDisplay");
     const createWorkForm = document.getElementById("createWorkForm");
     const submitBtn = document.getElementById("submitWorkBtn");
@@ -45,10 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Handle Add Stage
-    addStageBtn.addEventListener("click", () => {
-        addStageRow("", "");
-    });
 
     function addStageRow(nameValue, pctValue) {
         const tr = document.createElement("tr");
@@ -60,15 +55,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 <input type="number" class="form-control stage-percentage" placeholder="0 - 100" min="0.1" max="100" step="0.1" value="${pctValue}" required>
             </td>
             <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-success add-stage-btn"><i class="fa-solid fa-plus"></i></button>
                 <button type="button" class="btn btn-sm btn-outline-danger remove-stage-btn"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
         stagesTableBody.appendChild(tr);
 
         // Attach events to new elements
+        tr.querySelector(".add-stage-btn").addEventListener("click", () => {
+            addStageRow("", "");
+        });
+
         tr.querySelector(".remove-stage-btn").addEventListener("click", () => {
-            tr.remove();
-            calculateTotalPercentage();
+            const rows = document.querySelectorAll("#stagesTableBody tr");
+            if (rows.length > 1) {
+                tr.remove();
+                calculateTotalPercentage();
+            } else {
+                showError("You must have at least one stage.");
+            }
         });
 
         tr.querySelector(".stage-percentage").addEventListener("input", calculateTotalPercentage);

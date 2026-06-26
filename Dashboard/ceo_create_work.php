@@ -41,11 +41,7 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                             </a>
                         </div>
                         <div class="d-flex align-items-center border-start ps-4">
-                            <div class="text-end me-3 d-none d-md-block">
-                                <p class="mb-0 fw-bold fs-6">Shri. R. K. Patil, IAS</p>
-                                <small class="text-muted">District CEO</small>
-                            </div>
-                            <span class="role-badge badge-ceo">CEO</span>
+                            <h4 class="fw-bold mb-1"><span class="role-badge badge-ceo">CEO</span></h4>
                         </div>
                     </div>
                 </div>
