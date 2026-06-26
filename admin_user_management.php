@@ -1,0 +1,555 @@
+<?php
+session_start();
+require_once __DIR__ . '/include/dbConfig.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
+$currentUsername = $_SESSION['username'] ?? '';
+$currentRole = $_SESSION['role'] ?? '';
+$isAdmin = in_array($currentUsername, ['CEO', 'Admin'], true) || in_array($currentRole, ['CEO', 'Admin'], true);
+
+if (!$isAdmin) {
+    http_response_code(403);
+}
+
+$errors = [];
+$success = '';
+$userColumns = [];
+$userRows = [];
+
+$columnsResult = $conn->query("SHOW COLUMNS FROM users");
+if ($columnsResult) {
+    while ($col = $columnsResult->fetch_assoc()) {
+        $userColumns[] = $col['Field'];
+    }
+} else {
+    $errors[] = 'Unable to read users table schema.';
+}
+
+// Ensure role column exists so role can be stored and listed.
+if (!in_array('role', $userColumns, true)) {
+    if ($conn->query("ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'HM'")) {
+        $userColumns[] = 'role';
+    } else {
+        $errors[] = 'Unable to add role column to users table.';
+    }
+}
+
+// Ensure name column exists
+if (!in_array('name', $userColumns, true)) {
+    if ($conn->query("ALTER TABLE users ADD COLUMN name VARCHAR(100) NOT NULL DEFAULT ''")) {
+        $userColumns[] = 'name';
+    } else {
+        $errors[] = 'Unable to add name column to users table.';
+    }
+}
+
+$hasUsername = in_array('username', $userColumns, true);
+$hasPassword = in_array('password', $userColumns, true);
+$hasRole = in_array('role', $userColumns, true);
+$hasName = in_array('name', $userColumns, true);
+$hasIsActive = in_array('is_active', $userColumns, true);
+
+if ($hasRole && $hasUsername) {
+    $conn->query("UPDATE users SET role = 'Sachiv' WHERE username = 'Sachiv' AND role <> 'Sachiv'");
+    $conn->query("UPDATE users SET role = 'HM' WHERE username = 'HM' AND role <> 'HM'");
+}
+
+$displayColumns = $userColumns;
+if ($hasRole && $hasUsername) {
+    $roleIndex = array_search('role', $displayColumns, true);
+    $usernameIndex = array_search('username', $displayColumns, true);
+    if ($roleIndex !== false && $usernameIndex !== false && $roleIndex > $usernameIndex) {
+        unset($displayColumns[$roleIndex]);
+        $displayColumns = array_values($displayColumns);
+        $usernameIndex = array_search('username', $displayColumns, true);
+        array_splice($displayColumns, $usernameIndex, 0, ['role']);
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $isAdmin) {
+    $newUsername = trim($_POST['username'] ?? '');
+    $newPassword = trim($_POST['password'] ?? '');
+    $newRole = trim($_POST['role'] ?? '');
+    $newName = trim($_POST['name'] ?? '');
+    $isActive = isset($_POST['is_active']) ? 1 : 0;
+
+    if (!$hasUsername || !$hasPassword) {
+        $errors[] = 'The users table does not support username/password based creation.';
+    }
+
+    if ($newUsername === '') {
+        $errors[] = 'Username is required.';
+    }
+
+    if ($newPassword === '') {
+        $errors[] = 'Password is required.';
+    }
+
+    if ($hasName && $newName === '') {
+        $errors[] = 'Full name is required.';
+    }
+
+    if ($hasRole && $newRole === '') {
+        $errors[] = 'Please select a role.';
+    }
+
+    if ($hasRole && $newRole !== '' && !in_array($newRole, ['HM', 'Sachiv', 'CEO'], true)) {
+        $errors[] = 'Please choose a valid role.';
+    }
+
+    if (empty($errors)) {
+        $checkStmt = $conn->prepare('SELECT COUNT(*) AS cnt FROM users WHERE username = ?');
+        if ($checkStmt) {
+            $checkStmt->bind_param('s', $newUsername);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+            $existing = $checkResult ? (int) ($checkResult->fetch_assoc()['cnt'] ?? 0) : 0;
+            $checkStmt->close();
+
+            if ($existing > 0) {
+                $errors[] = 'Username already exists. Please choose another username.';
+            }
+        } else {
+            $errors[] = 'Unable to validate username uniqueness.';
+        }
+    }
+
+    if (empty($errors)) {
+        if ($hasRole && $hasName && $hasIsActive) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name, is_active) VALUES (?, ?, ?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('ssssi', $newUsername, $newPassword, $newRole, $newName, $isActive);
+            }
+        } elseif ($hasRole && $hasName) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('ssss', $newUsername, $newPassword, $newRole, $newName);
+            }
+        } elseif ($hasRole && $hasIsActive) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, role, is_active) VALUES (?, ?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('sssi', $newUsername, $newPassword, $newRole, $isActive);
+            }
+        } elseif ($hasRole) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('sss', $newUsername, $newPassword, $newRole);
+            }
+        } elseif ($hasIsActive) {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password, is_active) VALUES (?, ?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('ssi', $newUsername, $newPassword, $isActive);
+            }
+        } else {
+            $insertStmt = $conn->prepare('INSERT INTO users (username, password) VALUES (?, ?)');
+            if ($insertStmt) {
+                $insertStmt->bind_param('ss', $newUsername, $newPassword);
+            }
+        }
+
+        if (!isset($insertStmt) || !$insertStmt) {
+            $errors[] = 'Unable to prepare user creation query.';
+        } elseif ($insertStmt->execute()) {
+            $success = 'User created successfully.';
+            $insertStmt->close();
+        } else {
+            $errors[] = 'Failed to create user: ' . $conn->error;
+            $insertStmt->close();
+        }
+    }
+}
+
+if (in_array('id', $userColumns, true)) {
+    $usersResult = $conn->query('SELECT * FROM users ORDER BY id ASC');
+} else {
+    $usersResult = $conn->query('SELECT * FROM users');
+}
+
+if ($usersResult) {
+    while ($row = $usersResult->fetch_assoc()) {
+        $userRows[] = $row;
+    }
+} else {
+    $errors[] = 'Unable to fetch users list.';
+}
+?>
+<?php include 'include/landing_header.php'; ?>
+<?php include 'include/website_header.php'; ?>
+<link rel="stylesheet" href="css/sidebar.css">
+
+<style>
+.admin-wrapper {
+    display: flex;
+    min-height: calc(100vh - 120px);
+    align-items: stretch;
+}
+
+.site-banner-wrapper {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+}
+
+.admin-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-page {
+    background: var(--page-bg);
+    flex: 1;
+    padding: 24px 0 40px;
+}
+
+.admin-content footer.login-page-footer {
+    margin-top: auto;
+}
+
+.admin-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(47, 28, 82, 0.12);
+}
+
+.admin-card .card-header {
+    background: linear-gradient(90deg, var(--primary-color), #7c3aed);
+    color: #fff;
+    border: none;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    padding: 0.95rem 1.15rem;
+}
+
+.create-user-card {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.create-user-card .card-header {
+    padding: 0.8rem 1rem;
+}
+
+.create-user-card .card-header h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.create-user-card .card-body {
+    padding: 0.9rem 1rem 1.1rem;
+}
+
+.create-user-form .form-label {
+    font-size: 0.92rem;
+    margin-bottom: 0.45rem;
+}
+
+.create-user-form .form-control,
+.create-user-form .form-select {
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #d8deea;
+    box-shadow: none;
+}
+
+.create-user-form .form-control:focus,
+.create-user-form .form-select:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 0.15rem rgba(124, 58, 237, 0.12);
+}
+
+.create-user-form .form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 40px;
+    margin-bottom: 0;
+}
+
+.create-user-form .form-check-input {
+    margin-top: 0;
+}
+
+.create-user-form .form-check-label {
+    font-weight: 500;
+    color: #263041;
+}
+
+.create-user-form .create-user-actions {
+    margin-top: 0.8rem;
+}
+
+.create-user-form .btn-admin {
+    padding: 0.45rem 0.95rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.page-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+    color: #5b4b77;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #efe8ff;
+    color: #3f2b67;
+    font-weight: 600;
+    border-bottom-width: 1px;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.status-pill {
+    border-radius: 999px;
+    padding: 0.22rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #3f2b67;
+}
+
+.btn-admin {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+.btn-admin:hover {
+    background: #4c1475;
+    border-color: #4c1475;
+    color: #fff;
+}
+
+.admin-topbar {
+    background: #fff;
+    border-bottom: 1px solid #ede7ff;
+    box-shadow: 0 2px 10px rgba(47, 28, 82, 0.06);
+}
+
+.admin-topbar .topbar-title {
+    color: #3f2b67;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+#sidebar.active {
+    margin-left: -270px;
+}
+
+@media (max-width: 768px) {
+    .admin-wrapper {
+        flex-direction: column;
+    }
+
+    .site-banner-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+
+
+    #sidebar.active {
+        margin-left: 0;
+    }
+
+    .admin-page {
+        padding: 16px 0 24px;
+    }
+}
+</style>
+
+<div class="admin-wrapper">
+    <?php include 'include/sidebar.php'; ?>
+
+    <div id="content" class="admin-content">
+    <nav class="navbar admin-topbar py-2 px-3">
+        <div class="container-fluid px-0">
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h5 class="topbar-title">Admin User Management</h5>
+            </div>
+        </div>
+    </nav>
+
+<div class="admin-page">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+            <div>
+                <h2 class="page-title">Admin User Management</h2>
+                <p class="page-subtitle">Create user accounts and manage the master users list.</p>
+            </div>
+        </div>
+
+        <?php if (!$isAdmin): ?>
+            <div class="alert alert-warning">Limited access mode: you can view existing users. Creating users requires administrator access.</div>
+        <?php endif; ?>
+
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+            <?php endif; ?>
+
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger mb-4">
+                    <ul class="mb-0">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?php echo htmlspecialchars($error); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+            <div class="card admin-card create-user-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Create New User</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="create-user-form">
+                        <div class="row g-3">
+                            <?php if ($hasRole): ?>
+                                <div class="col-md-3">
+                                    <label class="form-label" for="role">Role</label>
+                                    <select id="role" name="role" class="form-select" required>
+                                        <option value="" selected disabled>Select</option>
+                                        <option value="HM">HM</option>
+                                        <option value="Sachiv">Sachiv</option>
+                                        <option value="CEO">CEO</option>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($hasName): ?>
+                                <div class="col-md-3">
+                                    <label class="form-label" for="name">Full Name</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
+                                </div>
+                            <?php endif; ?>
+                            <div class="col-md-2">
+                                <label class="form-label" for="username">Username</label>
+                                <input type="text" id="username" name="username" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="password">Password</label>
+                                <input type="text" id="password" name="password" class="form-control" required>
+                            </div>
+                            <?php if ($hasIsActive): ?>
+                                <div class="col-md-1 d-flex align-items-end justify-content-md-end">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                        <label class="form-check-label" for="is_active">Active</label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="create-user-actions">
+                            <button type="submit" name="create_user" class="btn btn-admin" <?php echo $isAdmin ? '' : 'disabled'; ?>>Create User</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card admin-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Users Master Table</h5>
+                    <span class="badge text-bg-light"><?php echo count($userRows); ?> users</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <?php foreach ($displayColumns as $column): ?>
+                                        <th><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $column))); ?></th>
+                                    <?php endforeach; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($userRows)): ?>
+                                    <tr>
+                                        <td colspan="<?php echo max(1, count($displayColumns)); ?>" class="text-center py-4 text-muted">
+                                            No users found.
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($userRows as $userRow): ?>
+                                        <tr>
+                                            <?php foreach ($displayColumns as $column): ?>
+                                                <?php $cellValue = $userRow[$column] ?? ''; ?>
+                                                <td>
+                                                    <?php if ($column === 'password'): ?>
+                                                        <span class="text-muted">********</span>
+                                                    <?php elseif ($column === 'is_active'): ?>
+                                                        <?php if ((string) $cellValue === '1'): ?>
+                                                            <span class="status-pill status-active">Active</span>
+                                                        <?php else: ?>
+                                                            <span class="status-pill status-inactive">Inactive</span>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <?php echo htmlspecialchars((string) $cellValue); ?>
+                                                    <?php endif; ?>
+                                                </td>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+<?php include 'include/website_footer.php'; ?>
+</div>
+</div>
+
+<script>
+function switchTab() {
+    window.location.href = 'Dashboard/ceo_dashboard.php';
+}
+
+function confirmLogout(event) {
+    event.preventDefault();
+    window.location.href = 'logout.php';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const updatesLink = document.querySelector('#nav-ceo-updates a');
+    if (updatesLink) {
+        updatesLink.setAttribute('href', 'CEO_updates.php');
+    }
+});
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
+}
+</script>
+<?php include 'include/script.php'; ?>
