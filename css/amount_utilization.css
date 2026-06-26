@@ -23,6 +23,8 @@
     margin-bottom: 0.75rem;
     display: block;
     line-height: 1.4;
+    position: static !important;
+    transform: none !important;
 }
 
 .form-control,
