@@ -142,6 +142,17 @@ function showWorkInProgress(event, moduleName) {
     });
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    const currentLocation = window.location.pathname.split("/").pop();
+    const sidebarLinks = document.querySelectorAll("#sidebar .components li a");
+    sidebarLinks.forEach(function(link) {
+        const href = link.getAttribute("href");
+        if(href && href !== '#' && currentLocation.includes(href)) {
+            link.parentElement.classList.add("active");
+        }
+    });
+});
+
 function showMaintenanceModal(event) {
     event.preventDefault();
     Swal.fire({
