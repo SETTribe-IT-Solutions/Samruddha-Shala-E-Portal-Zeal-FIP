@@ -1,7 +1,10 @@
+<?php
+$local_prefix = isset($root_prefix) ? $root_prefix : ((basename(getcwd()) === 'Dashboard') ? '../' : '');
+?>
 <nav class="navbar navbar-expand-lg navbar-light shadow-sm">
     <div class="container-fluid px-lg-5 px-4">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="#home">
-            <img src="images/demo.jpg"
+            <img src="<?php echo $local_prefix; ?>images/demo.jpg"
                  alt="ZP Kolhapur Logo"
                  class="me-2"
                  style="height: 40px; width: auto;">
