@@ -534,3 +534,15 @@ body.hm-dashboard-page .card:hover {
         border-radius: 16px;
     }
 }
+
+/* Fix for active school selection label overlap / override issues */
+body.hm-dashboard-page .form-label,
+.hm-dashboard-page .form-label {
+    position: static !important;
+    transform: none !important;
+    display: block !important;
+    margin-bottom: 6px !important;
+    opacity: 1 !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+}

@@ -29,7 +29,7 @@ if($_SESSION['role'] != 'HM'){
 
     <!-- CSS -->
     <link href="../css/sidebar.css" rel="stylesheet">
-    <link href="css/hm_dashboard.css" rel="stylesheet">
+    <link href="css/hm_dashboard.css?v=1.0.1" rel="stylesheet">
 
     <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
