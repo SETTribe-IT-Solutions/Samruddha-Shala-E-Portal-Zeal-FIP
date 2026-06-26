@@ -407,6 +407,9 @@ if ($usersResult) {
 			appearance: none;
 			-webkit-appearance: none;
 			-moz-appearance: none;
+			padding-top: 0;
+			padding-bottom: 0;
+			padding-left: 0.75rem;
 			padding-right: 2.5rem;
 			background-color: #ffffff;
 			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
@@ -604,7 +607,7 @@ if ($usersResult) {
 										<div class="col-md-3">
 											<label class="form-label" for="role">Role</label>
 											<select id="role" name="role" class="form-select" required>
-												<option value="" selected disabled>Select role</option>
+												<option value="" selected hidden>Select</option>
 												<option value="HM">HM</option>
 												<option value="Sachiv">Sachiv</option>
 												<option value="CEO">CEO</option>

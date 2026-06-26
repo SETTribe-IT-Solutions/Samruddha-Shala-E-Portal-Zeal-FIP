@@ -436,7 +436,7 @@ if ($usersResult) {
                                 <div class="col-md-3">
                                     <label class="form-label" for="role">Role</label>
                                     <select id="role" name="role" class="form-select" required>
-                                        <option value="" selected disabled>Select</option>
+                                        <option value="" selected hidden>Select</option>
                                         <option value="HM">HM</option>
                                         <option value="Sachiv">Sachiv</option>
                                         <option value="CEO">CEO</option>
