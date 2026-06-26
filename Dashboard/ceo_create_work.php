@@ -27,21 +27,24 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
             <div class="ceo-fixed-header">
                 <?php include '../include/website_header.php'; ?>
             </div>
-            <nav class="navbar navbar-expand-lg navbar-light">
-                <div class="container-fluid">
-                    <div class="ms-3 d-flex align-items-center">
-                        <h4 class="fw-bold mb-1"id="pageMainHeader">Create Task </h4>
-                        
+            <nav class="navbar navbar-expand-lg navbar-light p-3" style="position: relative;">
+                <div class="container-fluid d-flex flex-nowrap align-items-center px-1">
+                    <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="btn btn-light d-lg-none me-2 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%); color: white;" type="button" id="mobileSidebarToggle" aria-label="Toggle Sidebar">
+                            <i class="fa-solid fa-bars fs-6"></i>
+                        </button>
+                        <h4 class="fw-bold mb-0 text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;">Create Task</h4>
                     </div>
-                    <div class="ms-auto d-flex align-items-center">
-                        <div class="me-4 position-relative">
+                    <div class="ms-2 d-flex align-items-center flex-shrink-0">
+                        <div class="position-relative me-3">
                             <a href="ceo_alerts.php" class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" title="View Alerts & Notifications">
                                 <i class="fa-regular fa-bell fs-5"></i>
-                                <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                                <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">0</span>
                             </a>
                         </div>
-                        <div class="d-flex align-items-center border-start ps-4">
-                            <h4 class="fw-bold mb-1"><span class="role-badge badge-ceo">CEO</span></h4>
+                        <div class="d-flex align-items-center border-start ps-2">
+                            <h4 class="fw-bold mb-0"><span class="role-badge badge-ceo" style="font-size: 0.85rem; padding: 4px 8px;">CEO</span></h4>
                         </div>
                     </div>
                 </div>
@@ -113,6 +116,29 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/db.js"></script>
     <script src="js/ceo.js?v=5"></script>
+    <script>
+        // Mobile sidebar toggle logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileSidebarToggle && sidebar) {
+                mobileSidebarToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 991 && sidebar.classList.contains('active')) {
+                        if (!sidebar.contains(e.target) && e.target !== mobileSidebarToggle) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 

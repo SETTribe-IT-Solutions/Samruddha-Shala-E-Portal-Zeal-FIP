@@ -407,6 +407,9 @@ if ($usersResult) {
 			appearance: none;
 			-webkit-appearance: none;
 			-moz-appearance: none;
+			padding-top: 0;
+			padding-bottom: 0;
+			padding-left: 0.75rem;
 			padding-right: 2.5rem;
 			background-color: #ffffff;
 			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
@@ -561,10 +564,7 @@ if ($usersResult) {
 			<nav class="navbar create-user-topbar">
 				<div class="container-fluid px-0">
 					<div class="d-flex align-items-center gap-2">
-						<button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-							<i class="fa-solid fa-bars"></i>
-						</button>
-						<h5 class="topbar-title">Admin User Management</h5>
+						<h4 class="fw-bold mb-0 text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;">Admin User Management</h4>
 					</div>
 				</div>
 			</nav>
@@ -573,7 +573,7 @@ if ($usersResult) {
 				<div class="container-fluid">
 					<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
 						<div>
-							<h2 class="page-title">Admin User Management</h2>
+							<h4 class="page-title">Admin User Management</h4>
 							<p class="page-subtitle">Create user accounts and manage the master users list.</p>
 						</div>
 					</div>
@@ -607,7 +607,7 @@ if ($usersResult) {
 										<div class="col-md-3">
 											<label class="form-label" for="role">Role</label>
 											<select id="role" name="role" class="form-select" required>
-												<option value="" selected disabled>Select role</option>
+												<option value="" selected hidden>Select</option>
 												<option value="HM">HM</option>
 												<option value="Sachiv">Sachiv</option>
 												<option value="CEO">CEO</option>

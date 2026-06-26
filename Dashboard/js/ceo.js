@@ -679,11 +679,11 @@ function renderCEOAlerts() {
         if (alert.type === 'blocker') {
             borderClass = 'border-danger';
             iconHtml = '<i class="fa-solid fa-circle-xmark fs-4 text-danger"></i>';
-            actionBtnHtml = `<button class="btn btn-sm btn-outline-danger" onclick="initiateIntervention('${alert.school_id}')"><i class="fa-solid fa-phone me-1"></i> Contact HM</button>`;
+            actionBtnHtml = `<button class="btn btn-sm btn-danger shadow-sm text-white" onclick="initiateIntervention('${alert.school_id}')"><i class="fa-solid fa-phone me-1"></i> Contact HM</button>`;
         } else if (alert.type === 'delay') {
             borderClass = 'border-warning';
             iconHtml = '<i class="fa-solid fa-triangle-exclamation fs-4 text-warning"></i>';
-            actionBtnHtml = `<button class="btn btn-sm btn-outline-warning" onclick="sendWarningNotification('${alert.school_id}')"><i class="fa-solid fa-envelope me-1"></i> Send Push Warning</button>`;
+            actionBtnHtml = `<button class="btn btn-sm btn-warning shadow-sm text-white" onclick="sendWarningNotification('${alert.school_id}')"><i class="fa-solid fa-envelope me-1"></i> Send Push Warning</button>`;
         } else if (alert.type === 'geotag') {
             borderClass = 'border-secondary';
             iconHtml = '<i class="fa-solid fa-location-dot fs-4 text-secondary"></i>';
@@ -691,7 +691,7 @@ function renderCEOAlerts() {
             borderClass = 'border-info';
             iconHtml = '<i class="fa-solid fa-envelope-open-text fs-4 text-info"></i>';
             actionBtnHtml = `
-                <a href="sachiv_dashboard.php" class="btn btn-sm btn-outline-info text-decoration-none">
+                <a href="sachiv_dashboard.php" class="btn btn-sm btn-info shadow-sm text-white text-decoration-none">
                     <i class="fa-solid fa-clipboard-check me-1"></i> Go to Sachiv Portal
                 </a>
             `;
@@ -701,7 +701,7 @@ function renderCEOAlerts() {
         }
 
         const card = document.createElement('div');
-        card.className = `alert-item bg-white shadow-sm border-start border-4 ${borderClass} mb-3 p-3`;
+        card.className = `alert-item bg-white border-start border-4 ${borderClass} mb-3 p-3`;
         card.innerHTML = `
             <div class="d-flex align-items-start flex-grow-1">
                 <div class="me-3 mt-1">${iconHtml}</div>
