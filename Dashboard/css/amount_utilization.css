@@ -197,7 +197,7 @@ label {
     transform: translate(-50%, -50%) !important;
     width: 380px !important;
     height: 380px !important;
-    background: url('../images/demo.jpg') no-repeat center/contain !important;
+    background: url('../../images/demo.jpg') no-repeat center/contain !important;
     opacity: 0.035 !important;
     filter: grayscale(100%) !important;
     pointer-events: none !important;
