@@ -54,9 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>
                 <input type="number" class="form-control stage-percentage" placeholder="0 - 100" min="0.1" max="100" step="0.1" value="${pctValue}" required>
             </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-outline-success add-stage-btn"><i class="fa-solid fa-plus"></i></button>
-                <button type="button" class="btn btn-sm btn-outline-danger remove-stage-btn"><i class="fa-solid fa-trash"></i></button>
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-sm btn-outline-success add-stage-btn m-1" style="width: 32px; height: 32px; padding: 0;"><i class="fa-solid fa-plus"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-stage-btn m-1" style="width: 32px; height: 32px; padding: 0;"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
         stagesTableBody.appendChild(tr);

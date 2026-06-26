@@ -64,26 +64,26 @@ if ($current_dir === 'Dashboard') {
     
     <li><a href="ceo_create_work.php"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
     <li><a href="ceo_task_management.php"><i class="fa-solid fa-plus"></i> Task Management </a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
     <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
     <li><a href="ceo_alerts.php"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
 <?php } elseif($role == 'SACHIV') { ?>
 
     <li><a href="sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
 
 <?php } elseif($role == 'HM') { ?>
 
     <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
     <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
     <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
 
 <?php } ?>
@@ -137,6 +137,43 @@ function showWorkInProgress(event) {
         icon: 'info',
         confirmButtonText: 'OK',
         confirmButtonColor: '#0b63b7'
+    });
+}
+
+function showMaintenanceModal(event) {
+    event.preventDefault();
+    Swal.fire({
+        html: `
+            <div style="text-align: center; padding: 10px 0;">
+                <img src="../images/maintenance_boy.png?v=2" alt="Maintenance Boy" style="width: 250px; margin-bottom: 20px; border-radius: 15px;">
+                <h2 style="color: #1e293b; font-weight: 800; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">
+                    We're Under <span style="color: #2563eb;">Maintenance!</span>
+                </h2>
+                <p style="color: #475569; font-size: 1.05rem; line-height: 1.5; margin-bottom: 30px;">
+                    We're currently working on making things better.<br>
+                    Please check back again soon!
+                </p>
+                <div style="background-color: #f0f4ff; color: #1e3a8a; padding: 12px 25px; border-radius: 50px; display: inline-block; font-weight: 600; font-size: 0.95rem;">
+                    <i class="fa-regular fa-face-smile text-primary me-2"></i> 
+                    Thank you for your patience and support! 
+                    <i class="fa-solid fa-heart text-primary ms-1"></i>
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: '550px',
+        padding: '2em',
+        background: '#fff',
+        backdrop: `
+            rgba(0,0,0,0.4)
+            backdrop-filter: blur(8px)
+            left top
+            no-repeat
+        `,
+        customClass: {
+            popup: 'rounded-4 shadow-lg border-0'
+        }
     });
 }
 </script>

@@ -107,244 +107,8 @@ if ($grandRemaining < 0) {
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <style>
-        :root {
-            --ceo-sidebar-width: 250px;
-            --ceo-header-height: 64px;
-            --ceo-footer-height: 60px;
-            --ceo-shell-bg: #f4f8fb;
-        }
-
-        body.ceo-dashboard-page {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: block;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at top left, rgba(123, 92, 255, 0.08), transparent 28%),
-                linear-gradient(180deg, #eef6fb 0%, #f7fafc 100%);
-            font-family: 'Outfit', sans-serif !important;
-        }
-
-        body.ceo-dashboard-page #wrapper {
-            min-height: 100vh;
-        }
-
-        body.ceo-dashboard-page #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--ceo-sidebar-width);
-            min-width: var(--ceo-sidebar-width);
-            max-width: var(--ceo-sidebar-width);
-            height: 100vh;
-            z-index: 1100;
-            overflow: hidden;
-            background: linear-gradient(180deg, #6420a5 0%, #8a45b8 54%, #efbc4d 100%);
-            box-shadow: 10px 0 32px rgba(91, 35, 140, 0.22);
-        }
-
-        body.ceo-dashboard-page #sidebar .sidebar-header {
-            padding: 20px 16px 16px;
-        }
-
-        body.ceo-dashboard-page #sidebar .sidebar-header h4 {
-            font-size: 18px;
-            line-height: 1.2;
-        }
-
-        body.ceo-dashboard-page #sidebar .sidebar-header small {
-            font-size: 11px !important;
-            letter-spacing: 0.8px !important;
-        }
-
-        body.ceo-dashboard-page #sidebar .components {
-            padding: 10px 0 8px;
-        }
-
-        body.ceo-dashboard-page #sidebar .components li {
-            margin: 4px 10px;
-        }
-
-        body.ceo-dashboard-page #sidebar .components li a {
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        body.ceo-dashboard-page #sidebar .components li a i {
-            width: 18px;
-            font-size: 14px;
-        }
-
-        body.ceo-dashboard-page #sidebar .sidebar-footer {
-            padding: 12px 14px 8px;
-        }
-
-        body.ceo-dashboard-page #sidebar .sidebar-footer p {
-            margin-bottom: 4px;
-            font-size: 11px;
-        }
-
-        body.ceo-dashboard-page #sidebar .logout-wrapper {
-            padding: 10px 12px 14px;
-        }
-
-        body.ceo-dashboard-page #sidebar .logout-btn {
-            padding: 10px 14px;
-            font-size: 13px;
-            border-radius: 12px;
-        }
-
-        body.ceo-dashboard-page #content {
-            margin-left: var(--ceo-sidebar-width);
-            width: calc(100vw - var(--ceo-sidebar-width));
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: calc(var(--ceo-header-height) + 16px) 18px calc(var(--ceo-footer-height) + 22px);
-            background: transparent;
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-header,
-        body.ceo-dashboard-page .ceo-fixed-footer {
-            position: fixed !important;
-            left: var(--ceo-sidebar-width) !important;
-            right: 0 !important;
-            z-index: 1050 !important;
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-header {
-            top: 0 !important;
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-footer {
-            bottom: 0 !important;
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-header .site-banner-wrapper,
-        body.ceo-dashboard-page .ceo-fixed-footer .login-page-footer {
-            width: 100%;
-            margin: 0;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-header .site-banner-wrapper {
-            box-shadow: 0 2px 12px rgba(17, 24, 39, 0.08);
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-footer .login-page-footer {
-            box-shadow: 0 -2px 12px rgba(17, 24, 39, 0.06);
-        }
-
-        body.ceo-dashboard-page .navbar {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(228, 232, 239, 0.95);
-            border-radius: 22px;
-            padding: 18px 24px;
-            margin-bottom: 18px;
-            box-shadow: 0 18px 36px rgba(54, 78, 105, 0.08);
-        }
-
-        @media (max-width: 991px) {
-            body.ceo-dashboard-page {
-                overflow-y: auto;
-            }
-
-            body.ceo-dashboard-page .navbar {
-                padding: 14px 16px;
-                border-radius: 18px;
-            }
-        }
-
-        /* Specific form styles */
-        .form-label, label {
-            transform: none !important;
-            position: static !important;
-            display: block !important;
-            margin-bottom: 6px !important;
-            opacity: 1 !important;
-            color: #212529 !important;
-            font-weight: 600 !important;
-        }
-        .form-group {
-            margin-bottom: 15px !important;
-        }
-        .action-btns .btn {
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Dashboard card style matching */
-        .utilization-card,
-        #amount-utilization-form .card {
-            border: 1px solid rgba(232, 236, 242, 0.9) !important;
-            border-radius: 24px !important;
-            box-shadow: 0 14px 32px rgba(54, 78, 105, 0.08) !important;
-            background: rgba(255, 255, 255, 0.97) !important;
-        }
-
-        /* Watermark background */
-        .utilization-card {
-            position: relative !important;
-            overflow: hidden !important;
-        }
-
-        .utilization-card::before {
-            content: "" !important;
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 380px !important;
-            height: 380px !important;
-            background: url('../images/demo.jpg') no-repeat center/contain !important;
-            opacity: 0.035 !important;
-            filter: grayscale(100%) !important;
-            pointer-events: none !important;
-            z-index: 0 !important;
-        }
-
-        /* Ensure card contents stay on top of the watermark */
-        .utilization-card > * {
-            position: relative !important;
-            z-index: 1 !important;
-        }
-
-        /* Distinct input and select buttons */
-        .form-select, .form-control {
-            background-color: #ffffff !important;
-            border: 1px solid #ced4da !important;
-            border-radius: 8px !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
-            color: #212529 !important;
-            height: 38px !important;
-            padding: 6px 12px !important;
-        }
-
-        /* Custom Theme Colors for Card Titles */
-        .theme-title {
-            color: #2d064d !important;
-        }
-        .theme-title i {
-            color: #2d064d !important;
-        }
-
-        /* Hover shadow for cards */
-        .kpi-card, .utilization-card {
-            transition: all 0.3s ease !important;
-        }
-        .kpi-card:hover, .utilization-card:hover {
-            box-shadow: 0 12px 28px rgba(218, 165, 32, 0.45) !important;
-            transform: translateY(-4px) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="css/ceo_dashboard.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/amount_utilization.css?v=<?php echo time(); ?>">
 </head>
 <body class="ceo-dashboard-page">
     
@@ -356,10 +120,14 @@ if ($grandRemaining < 0) {
                 <?php include '../include/website_header.php'; ?>
             </div>
             
-            <nav class="navbar navbar-expand-lg navbar-light" style="position: relative;">
-                <div class="container-fluid d-flex align-items-center">
-                    <div class="w-100 text-start">
-                        <h5 class="mb-0 fw-bold" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800 !important;">Amount Utilization Portal</h5>
+            <nav class="navbar navbar-expand-lg navbar-light p-3" style="position: relative;">
+                <div class="container-fluid d-flex flex-nowrap align-items-center px-1">
+                    <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="btn btn-light d-lg-none me-2 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%); color: white;" type="button" id="mobileSidebarToggle" aria-label="Toggle Sidebar">
+                            <i class="fa-solid fa-bars fs-6"></i>
+                        </button>
+                        <h5 class="mb-0 fw-bold text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;">Amount Utilization Portal</h5>
                     </div>
                 </div>
             </nav>
@@ -372,7 +140,7 @@ if ($grandRemaining < 0) {
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Sanctioned Budget</h6>
-                                    <h3 class="fw-bold mb-0 text-primary" style="font-family: 'Outfit';">₹<?php echo number_format($grandSanctioned, 2); ?></h3>
+                                    <h3 class="fw-bold mb-0 text-primary" style="font-family: 'Outfit'; font-size: clamp(1.4rem, 4vw, 1.8rem);">₹<?php echo number_format($grandSanctioned, 2); ?></h3>
                                 </div>
                                 <div class="bg-primary-light p-3 rounded-3 text-primary">
                                     <i class="fa-solid fa-indian-rupee-sign fs-4"></i>
@@ -385,7 +153,7 @@ if ($grandRemaining < 0) {
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Fund Expenditure</h6>
-                                    <h3 class="fw-bold mb-0 text-warning" style="font-family: 'Outfit';">₹<?php echo number_format($grandSpent, 2); ?></h3>
+                                    <h3 class="fw-bold mb-0 text-warning" style="font-family: 'Outfit'; font-size: clamp(1.4rem, 4vw, 1.8rem);">₹<?php echo number_format($grandSpent, 2); ?></h3>
                                 </div>
                                 <div class="bg-warning-light p-3 rounded-3 text-warning">
                                     <i class="fa-solid fa-receipt fs-4"></i>
@@ -398,7 +166,7 @@ if ($grandRemaining < 0) {
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Remaining Balance</h6>
-                                    <h3 class="fw-bold mb-0 text-success" style="font-family: 'Outfit';">₹<?php echo number_format($grandRemaining, 2); ?></h3>
+                                    <h3 class="fw-bold mb-0 text-success" style="font-family: 'Outfit'; font-size: clamp(1.4rem, 4vw, 1.8rem);">₹<?php echo number_format($grandRemaining, 2); ?></h3>
                                 </div>
                                 <div class="bg-success-light p-3 rounded-3 text-success">
                                     <i class="fa-solid fa-wallet fs-4"></i>
@@ -661,6 +429,28 @@ if ($grandRemaining < 0) {
         }
         
         updateSummary();
+
+        // Mobile sidebar toggle logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileSidebarToggle && sidebar) {
+                mobileSidebarToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 991 && sidebar.classList.contains('active')) {
+                        if (!sidebar.contains(e.target) && e.target !== mobileSidebarToggle) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
