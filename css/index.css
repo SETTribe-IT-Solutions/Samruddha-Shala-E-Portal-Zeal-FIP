@@ -455,17 +455,6 @@ body {
     font-size: 18px;
 }
 
-@media (max-width:768px) {
-    .about-heading {
-        font-size: 2.1rem;
-    }
-
-    .about-kicker {
-        font-size: 1.0rem;
-        margin-bottom: 15px;
-    }
-}
-
 .about-image-block img {
     border-radius: 28px;
     transition: transform 0.3s ease;
@@ -496,7 +485,7 @@ body {
 
 .about-highlights {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 16px;
     margin-top: 28px;
 }
@@ -624,18 +613,257 @@ body {
     transition-delay: .4s;
 }
 
-@media(max-width:768px) {
+/* KNOW KOLHAPUR SECTION - PREMIUM LOOK */
+#kolhapur {
+    background: linear-gradient(180deg, #faf8ff 0%, #fffbf2 100%);
+    border-top: 1px solid rgba(215, 169, 75, 0.15);
+    border-bottom: 1px solid rgba(91, 22, 143, 0.08);
+}
+
+.kolhapur-card {
+    background: #ffffff;
+    border: 1px solid rgba(91, 22, 143, 0.08);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(45, 6, 77, 0.03);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.kolhapur-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--purple-soft), var(--gold));
+    opacity: 0.7;
+    transition: width 0.3s ease;
+}
+
+.kolhapur-card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: rgba(91, 22, 143, 0.06);
+    color: var(--purple);
+    font-size: 24px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.kolhapur-card-title {
+    color: var(--purple-dark);
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    transition: color 0.3s ease;
+}
+
+.kolhapur-card-text {
+    font-size: 0.95rem;
+    color: #4a4556;
+    line-height: 1.6;
+}
+
+/* Hover effects */
+.kolhapur-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(91, 22, 143, 0.08);
+    border-color: rgba(91, 22, 143, 0.15);
+}
+
+.kolhapur-card:hover::before {
+    width: 8px;
+}
+
+.kolhapur-card:hover .kolhapur-card-icon {
+    background: var(--purple);
+    color: #ffffff;
+    transform: rotateY(360deg);
+}
+
+.kolhapur-card:hover .kolhapur-card-title {
+    color: var(--purple-soft);
+}
+
+/* Image styles for Kolhapur Cards */
+.kolhapur-card-img-wrapper {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+    border: 1px solid rgba(91, 22, 143, 0.05);
+}
+
+.kolhapur-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.kolhapur-card:hover .kolhapur-card-img {
+    transform: scale(1.08);
+}
+
+.kolhapur-card-img.align-top {
+    object-position: center 33%;
+}
+
+/* ==========================================================================
+   RESPONSIVENESS & BREAKPOINTS (MOBILE TO DESKTOP)
+   ========================================================================== */
+
+/* Prevent horizontal overflow globally */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* --- Breakpoint: 1200px (Extra Large Devices / Large Desktop) --- */
+@media (max-width: 1200px) {
+    .container-fluid {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+}
+
+/* --- Breakpoint: 992px (Large Devices / Tablets Landscape) --- */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 16px;
+        margin-top: 15px;
+        border: 1px solid rgba(91, 22, 143, 0.08);
+        box-shadow: 0 12px 30px rgba(45, 6, 77, 0.12);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .navbar-nav {
+        gap: 6px;
+    }
+    .navbar .nav-link {
+        width: 100%;
+        text-align: center;
+        margin: 3px 0 !important;
+        padding: 10px 18px !important;
+    }
+    .nav-right-actions {
+        margin: 15px 0 0 0 !important;
+        justify-content: center;
+        width: 100%;
+        flex-direction: column;
+        gap: 12px !important;
+    }
+    .language-switcher {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 8px 16px;
+    }
+    .nav-login-btn {
+        width: 100%;
+        text-align: center;
+        padding: 10px 20px !important;
+    }
+    .about-image-block {
+        max-width: 480px;
+        margin: 0 auto 30px auto;
+        text-align: center;
+    }
+}
+
+/* --- Breakpoint: 768px (Medium Devices / Tablets Portrait) --- */
+@media (max-width: 767.98px) {
+    .floating-dot {
+        display: none !important;
+    }
+    .hero-section::before, 
+    .hero-section::after {
+        display: none !important;
+    }
+    .hero-section {
+        min-height: auto;
+        padding: 80px 0;
+    }
+    .hero-title {
+        font-size: clamp(1.8rem, 6.5vw, 2.8rem) !important;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem !important;
+    }
+    .about-heading {
+        font-size: clamp(1.8rem, 5.5vw, 2.3rem) !important;
+        text-align: center;
+    }
+    .about-kicker {
+        justify-content: center;
+        font-size: 0.95rem !important;
+    }
+    .about-points {
+        padding-left: 0;
+    }
+    .about-points li {
+        font-size: 0.95rem;
+    }
     .update-wrap {
         flex-direction: column;
         align-items: flex-start;
     }
+}
 
-    .about-highlights {
-        grid-template-columns: 1fr;
+/* --- Breakpoint: 480px (Small Devices / Mobile Landscape) --- */
+@media (max-width: 479.98px) {
+    .container-fluid {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
     }
+    .navbar-brand span {
+        font-size: 15px !important;
+    }
+    .navbar-brand img {
+        height: 32px !important;
+    }
+    .update-badge {
+        padding: 8px 18px;
+        font-size: 13px;
+    }
+    .update-scroll {
+        font-size: 13px;
+    }
+    .stat-card {
+        padding: 16px !important;
+        border-radius: 16px !important;
+    }
+    .stat-value {
+        font-size: 24px !important;
+    }
+    .stat-icon {
+        font-size: 24px !important;
+    }
+    .map-card iframe {
+        height: 280px !important;
+    }
+}
 
-    .hero-section {
-        text-align: center;
-        min-height: 82vh;
+/* --- Breakpoint: 320px (Extra Small Devices / Compact Mobile) --- */
+@media (max-width: 320px) {
+    .navbar-brand span {
+        font-size: 13px !important;
+    }
+    .hero-title {
+        font-size: 1.5rem !important;
+    }
+    .hero-cta {
+        padding: 10px 24px !important;
+        font-size: 14px;
     }
 }

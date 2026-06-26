@@ -129,6 +129,7 @@ if ($grandRemaining < 0) {
                         </button>
                         <h5 class="mb-0 fw-bold text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;">Amount Utilization Portal</h5>
                     </div>
+                    <div style="width: 32px; z-index: 10;"></div>
                 </div>
             </nav>
             
@@ -136,7 +137,7 @@ if ($grandRemaining < 0) {
                 <!-- Tier 1: KPI Summary Cards -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-4">
-                        <div class="card p-3 shadow-sm border-0 border-start border-primary border-4 h-100 kpi-card" style="background: rgba(255,255,255,0.97); border-radius: 16px;">
+                        <div class="card p-3 shadow-sm border-0 border-start border-primary border-4" style="background: rgba(255,255,255,0.97); border-radius: 16px;">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Sanctioned Budget</h6>
@@ -149,7 +150,7 @@ if ($grandRemaining < 0) {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card p-3 shadow-sm border-0 border-start border-warning border-4 h-100 kpi-card" style="background: rgba(255,255,255,0.97); border-radius: 16px;">
+                        <div class="card p-3 shadow-sm border-0 border-start border-warning border-4" style="background: rgba(255,255,255,0.97); border-radius: 16px;">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Fund Expenditure</h6>
@@ -162,7 +163,7 @@ if ($grandRemaining < 0) {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card p-3 shadow-sm border-0 border-start border-success border-4 h-100 kpi-card" style="background: rgba(255,255,255,0.97); border-radius: 16px;">
+                        <div class="card p-3 shadow-sm border-0 border-start border-success border-4" style="background: rgba(255,255,255,0.97); border-radius: 16px;">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Remaining Balance</h6>
@@ -176,12 +177,12 @@ if ($grandRemaining < 0) {
                     </div>
                 </div>
 
-                <!-- Tier 2: Form Entry -->
+                <!-- Tier 2: Form Entry & Live Doughnut Preview (50/50 Split) -->
                 <div class="row g-4 mb-4">
-                    <!-- Form Entry -->
-                    <div class="col-12">
+                    <!-- Left: Form Entry -->
+                    <div class="col-lg-6">
                         <div class="utilization-card p-4 h-100 shadow-sm" style="border-radius: 24px; border: 1px solid rgba(232, 236, 242, 0.9); background: rgba(255,255,255,0.97);">
-                            <h4 class="mb-3 theme-title fw-bold text-center border-bottom pb-2" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-pen-to-square me-2"></i>Fund Allocation & Expenditure Tracker</h4>
+                            <h4 class="mb-3 text-primary fw-bold text-center border-bottom pb-2" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-pen-to-square me-2"></i>Fund Allocation & Expenditure Tracker</h4>
                             
                             <?php if (!empty($error)): ?>
                                 <div class="alert alert-danger mb-3 py-2" role="alert"><?php echo htmlspecialchars($error); ?></div>
@@ -313,14 +314,35 @@ if ($grandRemaining < 0) {
                         </div>
                     </div>
 
+                    <!-- Right: Live Doughnut Preview -->
+                    <div class="col-lg-6">
+                        <div class="card p-4 shadow-sm h-100 utilization-card" style="border-radius: 24px; border: 1px solid rgba(232, 236, 242, 0.9); background: rgba(255,255,255,0.97);">
+                            <h4 class="fw-bold mb-3 text-primary border-bottom pb-2" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-chart-pie me-2"></i>Live Fund Utilization Preview</h4>
+                            <p class="text-muted small mb-4">Real-time visualization of your current form's entry (Sanctioned vs Spent).</p>
+                            <div style="height: 380px; position: relative;" class="d-flex justify-content-center align-items-center">
+                                <canvas id="livePreviewChart" style="max-width: 320px; max-height: 320px;"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tier 3: Detailed Transaction Log Table -->
+                <!-- Tier 3: Stacked Bar Chart & Detailed Transaction Log (50/50 Split) -->
                 <div class="row g-4">
-                    <div class="col-12">
+                    <!-- Left: Cumulative Stacked Bar Chart -->
+                    <div class="col-lg-6">
                         <div class="card p-4 shadow-sm h-100 utilization-card" style="border-radius: 24px; border: 1px solid rgba(232, 236, 242, 0.9); background: rgba(255,255,255,0.97);">
-                            <h4 class="fw-bold mb-3 theme-title border-bottom pb-2" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-file-invoice-dollar me-2"></i>Fund Utilization Summary Report</h4>
+                            <h4 class="fw-bold mb-3 text-primary border-bottom pb-2" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-chart-bar me-2"></i>Cumulative Allocation vs Expenditure</h4>
+                            <p class="text-muted small mb-4">Total budget vs. expenditure breakdown grouped across all school project categories in the district.</p>
+                            <div style="height: 340px; position: relative;">
+                                <canvas id="cumulativeWorkTypeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Detailed Transaction Log Table -->
+                    <div class="col-lg-6">
+                        <div class="card p-4 shadow-sm h-100 utilization-card" style="border-radius: 24px; border: 1px solid rgba(232, 236, 242, 0.9); background: rgba(255,255,255,0.97);">
+                            <h4 class="fw-bold mb-3 text-primary border-bottom pb-2" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-file-invoice-dollar me-2"></i>Fund Utilization Summary Report</h4>
                             <p class="text-muted small mb-3">Comprehensive tracking logs with dynamic project balances.</p>
                             
                             <div class="table-responsive" style="max-height: 340px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px;">
@@ -408,6 +430,97 @@ if ($grandRemaining < 0) {
         sanctionedInput.addEventListener('input', updateSummary);
         document.getElementById('expense-rows').addEventListener('input', updateSummary);
 
+        // Initialize Live Preview Doughnut Chart
+        const liveChartCtx = document.getElementById('livePreviewChart').getContext('2d');
+        const liveChart = new Chart(liveChartCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Spent', 'Remaining'],
+                datasets: [{
+                    data: [0, 0],
+                    backgroundColor: ['rgba(245, 124, 0, 0.85)', 'rgba(56, 142, 60, 0.85)'],
+                    borderColor: ['#f57c00', '#388e3c'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: 'Outfit',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initialize Cumulative Expenditure Stacked Bar Chart
+        const cumChartCtx = document.getElementById('cumulativeWorkTypeChart').getContext('2d');
+        const cumulativeLabels = <?php echo $workTypeLabelsJson; ?>;
+        const cumulativeSanctioned = <?php echo $workTypeSanctionedJson; ?>;
+        const cumulativeSpent = <?php echo $workTypeSpentJson; ?>;
+        const cumulativeRemaining = cumulativeSanctioned.map((val, idx) => {
+            let rem = val - (cumulativeSpent[idx] || 0);
+            return rem < 0 ? 0 : rem;
+        });
+
+        new Chart(cumChartCtx, {
+            type: 'bar',
+            data: {
+                labels: cumulativeLabels.length > 0 ? cumulativeLabels : ['No Data'],
+                datasets: [
+                    {
+                        label: 'Spent (₹)',
+                        data: cumulativeSpent.length > 0 ? cumulativeSpent : [0],
+                        backgroundColor: 'rgba(91, 22, 143, 0.8)', // deep purple/violet
+                        borderColor: '#5b168f',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Remaining (₹)',
+                        data: cumulativeRemaining.length > 0 ? cumulativeRemaining : [0],
+                        backgroundColor: 'rgba(46, 125, 50, 0.8)', // professional dark green
+                        borderColor: '#2e7d32',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: { font: { family: 'Outfit' } }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { font: { family: 'Outfit' } }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { family: 'Outfit', size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+
         function updateSummary() {
             const ceo = parseFloat(sanctionedInput.value || 0);
             const rows = document.querySelectorAll('#expense-rows .expense-row');
@@ -426,6 +539,15 @@ if ($grandRemaining < 0) {
             let remaining = ceo - totalSpent;
             if (remaining < 0) remaining = 0;
             document.getElementById('summary-remain').textContent = '₹ ' + (remaining % 1 === 0 ? remaining : remaining.toFixed(2));
+
+            // Update live preview chart
+            liveChart.data.datasets[0].data = [totalSpent, remaining];
+            liveChart.update();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
         }
         
         updateSummary();

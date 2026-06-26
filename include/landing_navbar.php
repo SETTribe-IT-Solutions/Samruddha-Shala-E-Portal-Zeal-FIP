@@ -19,6 +19,7 @@
                 <a class="nav-link" href="#home" data-en="Home" data-mr="मुख्यपृष्ठ">Home</a>
                 <a class="nav-link" href="#about" data-en="School Info" data-mr="शाळा माहिती">School Info</a>
                 <a class="nav-link" href="#features" data-en="Reports" data-mr="अहवाल">Reports</a>
+                <a class="nav-link" href="#kolhapur" data-en="Know Kolhapur" data-mr="कोल्हापूर विशेष">Know Kolhapur</a>
                 <a class="nav-link" href="#contact" data-en="Contact" data-mr="संपर्क">Contact</a>
             </div>
 

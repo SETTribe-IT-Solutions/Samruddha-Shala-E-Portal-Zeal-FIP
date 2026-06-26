@@ -129,11 +129,13 @@ function confirmLogout(event) {
     });
 }
 
-function showWorkInProgress(event) {
+function showWorkInProgress(event, moduleName) {
     event.preventDefault();
+    const titleText = moduleName ? `${moduleName} Under Development` : 'Work Under Progress';
+    const textMsg = moduleName ? `The ${moduleName} module is currently under development.` : 'This feature is currently under development.';
     Swal.fire({
-        title: 'Work Under Progress',
-        text: 'This feature is currently under development.',
+        title: titleText,
+        text: textMsg,
         icon: 'info',
         confirmButtonText: 'OK',
         confirmButtonColor: '#0b63b7'
