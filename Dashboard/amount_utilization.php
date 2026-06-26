@@ -356,12 +356,12 @@ if ($grandRemaining < 0) {
             </div>
             
             <nav class="navbar navbar-expand-lg navbar-light" style="position: relative;">
-                <div class="container-fluid d-flex align-items-center justify-content-between">
+                <div class="container-fluid d-flex align-items-center justify-content-between position-relative">
                     <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()" style="border: 1px solid #ddd; background: #f8f9fa; z-index: 10;">
                         <i class="fas fa-align-left text-dark"></i>
                     </button>
-                    <div class="w-100 text-center" style="position: absolute; left: 0; right: 0; pointer-events: none;">
-                        <h5 class="mb-0 fw-bold" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800 !important; pointer-events: auto; display: inline-block;">Amount Utilization Portal</h5>
+                    <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none; z-index: 5; width: auto; max-width: 70%;">
+                        <h5 class="mb-0 fw-bold" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 900 !important; pointer-events: auto; display: inline-block;">Amount Utilization Portal</h5>
                     </div>
                     <div style="width: 32px; z-index: 10;"></div>
                 </div>

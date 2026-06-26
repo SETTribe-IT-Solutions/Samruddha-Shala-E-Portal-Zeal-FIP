@@ -60,8 +60,9 @@ if ($current_dir === 'Dashboard') {
 
 <?php if($role == 'CEO') { ?>
 
-    <li><a href="<?php echo $dashboard_prefix; ?>ceo_dashboard.php"><i class="fa-solid fa-gauge"></i>CEO Dashboard</a></li>
+    <li><a href="ceo_dashboard.php" target="_blank"><i class="fa-solid fa-gauge"></i>CEO Dashboard</a></li>
     
+<<<<<<< HEAD
     <li><a href="<?php echo $dashboard_prefix; ?>ceo_create_work.php"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>ceo_task_management.php"><i class="fa-solid fa-plus"></i> Task Management </a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>update_work_master.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
@@ -71,20 +72,40 @@ if ($current_dir === 'Dashboard') {
     <li><a href="<?php echo $dashboard_prefix; ?>utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>ceo_alerts.php"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
+=======
+    <li><a href="ceo_create_work.php" target="_blank"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
+    <li><a href="ceo_task_management.php" target="_blank"><i class="fa-solid fa-plus"></i> Task Management </a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
+    <li><a href="amount_utilization.php" target="_blank"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="create_user.php" target="_blank"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
+    <li><a href="ceo_alerts.php" target="_blank"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
+>>>>>>> 726bff63eac2ef60ca7c182f85a46e6fc299d425
 <?php } elseif($role == 'SACHIV') { ?>
 
-    <li><a href="<?php echo $dashboard_prefix; ?>sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="<?php echo $dashboard_prefix; ?>sachiv_work_master.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
-    <li><a href="<?php echo $dashboard_prefix; ?>utility_master.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="sachiv_dashboard.php" target="_blank"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
 
 <?php } elseif($role == 'HM') { ?>
 
+<<<<<<< HEAD
     <li><a href="<?php echo $dashboard_prefix; ?>hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>hm_update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>hm_workmaster.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>hm_utilitymaster.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="<?php echo $dashboard_prefix; ?>hm_notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
+=======
+    <li><a href="hm_dashboard.php" target="_blank"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="update_work_progress.php" target="_blank"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="hm_utilization.php" target="_blank"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="notification.php" target="_blank"><i class="fa-solid fa-bell"></i> Notification</a></li>
+>>>>>>> 726bff63eac2ef60ca7c182f85a46e6fc299d425
 
 <?php } ?>
 

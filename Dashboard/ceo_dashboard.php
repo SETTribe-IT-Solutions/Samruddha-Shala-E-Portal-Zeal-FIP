@@ -29,7 +29,17 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
     <link href="../css/sidebar.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="css/ceo_dashboard.css" rel="stylesheet">
+    <link href="css/ceo_dashboard.css?v=2" rel="stylesheet">
+    <style>
+        .ceo-dashboard-page .card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out !important;
+        }
+        .ceo-dashboard-page .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 193, 7, 0.3), 0 5px 15px rgba(255, 193, 7, 0.2) !important;
+            border-color: rgba(255, 193, 7, 0.4) !important;
+        }
+    </style>
     <!-- <style>
         :root {
             --ceo-sidebar-width: 250px;
@@ -268,9 +278,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
-                        <h5 class="mb-0 font-weight-bold" id="pageMainHeader">Kolhapur District CEO Overview</h5>
+                        <h4 class="fw-bold mb-1"id="pageMainHeader">Kolhapur District CEO Overview</h4>
                     </div>
-
                     <div class="ms-auto d-flex align-items-center">
                         <!-- Notifications Dropdown -->
                         <div class="me-4 position-relative">
@@ -294,82 +303,83 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                 <!-- ============================================== -->
                 <div id="ceo-overview-view" class="view-panel">
                     <!-- Statistics Summary Row -->
-                    <div class="row">
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card kpi-card">
-                                <div class="kpi-icon bg-primary-soft">
-                                    <i class="fa-solid fa-list-check"></i>
+                    <div class="row mb-4 align-items-stretch">
+                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <div class="card kpi-card h-100 d-flex flex-column">
+                                <div class="kpi-icon bg-primary-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-list-check text-primary" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
-                                <h6 class="text-muted mb-1">Total Works Active</h6>
-                                <h2 class="fw-bold mb-2" id="kpi-total-works">0</h2>
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="text-success small fw-semibold"><i class="fa-solid fa-arrow-up-right me-1"></i>12% vs Last Month</span>
-                                    <span class="text-muted small">Active works</span>
+                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Works Active</h6>
+                                <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-total-works">0</h2>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
+                                    <span class="text-success small fw-bold"><i class="fa-solid fa-arrow-up-right me-1"></i>12% vs Last Month</span>
+                                    <span class="text-muted small fw-medium">Active works</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card kpi-card">
-                                <div class="kpi-icon bg-success-soft">
-                                    <i class="fa-solid fa-chart-line"></i>
+                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <div class="card kpi-card h-100 d-flex flex-column">
+                                <div class="kpi-icon bg-success-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-chart-line text-success" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
-                                <h6 class="text-muted mb-1">Overall Progress</h6>
-                                <h2 class="fw-bold mb-2" id="kpi-overall-progress">0%</h2>
-                                <div class="progress progress-bar-thin mb-1">
+                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Overall Progress</h6>
+                                <h2 class="fw-bold mb-2 text-dark" id="kpi-overall-progress">0%</h2>
+                                <div class="progress progress-bar-thin mb-1 flex-grow-1" style="height: 8px; border-radius: 4px;">
                                     <div id="kpi-progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <span class="text-muted small">Avg Completion</span>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
+                                    <span class="text-muted small fw-medium">Avg Completion</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card kpi-card">
-                                <div class="kpi-icon bg-warning-soft">
-                                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <div class="card kpi-card h-100 d-flex flex-column">
+                                <div class="kpi-icon bg-warning-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-indian-rupee-sign text-warning" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
-                                <h6 class="text-muted mb-1">Funding Allocation</h6>
-                                <h2 class="fw-bold mb-2" id="kpi-funding">₹0.0 Cr</h2>
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="text-muted small">Utilized: <strong id="kpi-funding-utilization">0%</strong></span>
+                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Funding Allocation</h6>
+                                <!-- Added word-break to prevent long numbers from overflowing -->
+                                <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-funding" style="word-break: break-word; line-height: 1.1; font-size: clamp(1.5rem, 2vw, 2rem);">₹0.0 Cr</h2>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
+                                    <span class="text-muted small fw-medium">Utilized: <strong class="text-dark" id="kpi-funding-utilization">0%</strong></span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card kpi-card" style="cursor: pointer;" onclick="switchTab('ceo-alerts')">
-                                <div class="kpi-icon bg-danger-soft">
-                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <div class="card kpi-card h-100 d-flex flex-column" style="cursor: pointer; transition: transform 0.3s ease;" onclick="switchTab('ceo-alerts')" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                                <div class="kpi-icon bg-danger-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
+                                    <i class="fa-solid fa-triangle-exclamation text-danger" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
                                 </div>
-                                <h6 class="text-muted mb-1">Critical Alerts</h6>
-                                <h2 class="fw-bold mb-2" id="kpi-alerts">0</h2>
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="text-danger small fw-semibold" id="kpi-blocker-count-badge">0 Blockers Active</span>
-                                    <span class="pulse-dot" id="kpi-pulse-dot"></span>
+                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Critical Alerts</h6>
+                                <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-alerts">0</h2>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
+                                    <span class="text-danger small fw-bold" id="kpi-blocker-count-badge">0 Blockers Active</span>
+                                    <span class="pulse-dot" id="kpi-pulse-dot" style="width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); animation: pulse-red 2s infinite;"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Charts Summary Preview Section -->
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card p-4">
+                    <div class="row mb-4 align-items-stretch">
+                        <div class="col-lg-6 mb-3 mb-lg-0">
+                            <div class="card p-4 h-100 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="fw-bold mb-0">Physical Progress Analytics</h5>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="switchTab('ceo-physical')">Detailed Analytics</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" style="pointer-events: none;">Detailed Analytics</button>
                                 </div>
-                                <div style="height: 300px; position: relative;">
+                                <div class="flex-grow-1" style="min-height: 300px; position: relative;">
                                     <canvas id="overviewPhysicalChart"></canvas>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="card p-4">
+                        <div class="col-lg-6 mb-3 mb-lg-0">
+                            <div class="card p-4 h-100 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="fw-bold mb-0">Funding Distribution</h5>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="switchTab('ceo-funding')">Funding Dashboard</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" style="pointer-events: none;">Funding Dashboard</button>
                                 </div>
-                                <div style="height: 300px; position: relative;">
+                                <div class="flex-grow-1" style="min-height: 300px; position: relative;">
                                     <canvas id="overviewFundingChart"></canvas>
                                 </div>
                             </div>
@@ -377,25 +387,25 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                     </div>
 
                     <!-- Alerts Overview & Recent Blockers -->
-                    <div class="row">
-                        <div class="col-lg-5">
-                            <div class="card p-4">
+                    <div class="row mb-4 align-items-stretch">
+                        <div class="col-lg-5 mb-3 mb-lg-0">
+                            <div class="card p-4 h-100 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h5 class="fw-bold mb-0">Live Alert Summary</h5>
                                     <span class="badge bg-danger rounded-pill" id="ceo-overview-alerts-pill">0 Alerts</span>
                                 </div>
-                                <div id="overviewAlertsContainer" style="max-height: 300px; overflow-y: auto;">
+                                <div id="overviewAlertsContainer" class="flex-grow-1" style="max-height: 300px; overflow-y: auto;">
                                     <!-- Dynamic notifications/alerts summary -->
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-7">
-                            <div class="card p-4">
+                        <div class="col-lg-7 mb-3 mb-lg-0">
+                            <div class="card p-4 h-100 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h5 class="fw-bold mb-0">High-Priority Interventions</h5>
-                                    <span class="text-muted small">Action Required</span>
+                                    <span class="badge bg-danger rounded-pill">Action Required</span>
                                 </div>
-                                <div class="table-responsive">
+                                <div class="table-responsive flex-grow-1" style="max-height: 300px; overflow-y: auto;">
                                     <table class="table align-middle">
                                         <thead>
                                             <tr>
@@ -415,16 +425,6 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
                         </div>
                     </div>
 
-                    <!-- Active CEO Task Queue -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="card p-4 bg-light border-0">
-                                <h5 class="fw-bold mb-3">Active CEO Task Queue</h5>
-                                <div id="ceoTaskSummary"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- ============================================== -->
                 <!-- CEO VIEW: ASSIGN TASK -->
@@ -780,8 +780,8 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Shared Database Layer -->
-    <script src="js/db.js"></script>
+    <script src="js/db.js?v=2"></script>
     <!-- CEO Application Logic -->
-    <script src="js/ceo.js?v=5"></script>
+    <script src="js/ceo.js?v=9"></script>
 </body>
 </html>
