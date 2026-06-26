@@ -23,41 +23,27 @@
     </style>
 </head>
 <body>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    Swal.fire({
-        html: `
-            <div style="text-align: center; padding: 10px 0;">
-                <img src="../images/maintenance_boy.png?v=2" alt="Maintenance Boy" style="width: 250px; margin-bottom: 20px; border-radius: 15px;">
-                <h2 style="color: #1e293b; font-weight: 800; margin-bottom: 15px;">
-                    We're Under <span style="color: #2563eb;">Maintenance!</span>
-                </h2>
-                <p style="color: #475569; font-size: 1.05rem; line-height: 1.5; margin-bottom: 30px;">
-                    We're currently working on making things better.<br>
-                    Please check back again soon!
-                </p>
-                <div style="background-color: #f0f4ff; color: #1e3a8a; padding: 12px 25px; border-radius: 50px; display: inline-block; font-weight: 600; font-size: 0.95rem;">
-                    <i class="fa-regular fa-face-smile text-primary me-2"></i> 
-                    Thank you for your patience and support! 
-                    <i class="fa-solid fa-heart text-primary ms-1"></i>
-                </div>
-            </div>
-        `,
-        showConfirmButton: false,
-        showCloseButton: true,
-        allowOutsideClick: false,
-        width: '550px',
-        padding: '2em',
-        customClass: {
-            popup: 'rounded-4 shadow-lg border-0'
-        }
-    }).then(() => {
-        // Automatically close the tab when the user closes the alert
-        window.close();
-    });
-});
-</script>
-
+    <div class="card border-0 shadow-lg p-5 text-center" style="max-width: 550px; border-radius: 20px;">
+        <div class="mb-4">
+            <img src="../images/maintenance_boy.png?v=2" alt="Maintenance Boy" style="width: 250px; border-radius: 15px;">
+        </div>
+        <h2 style="color: #1e293b; font-weight: 800; margin-bottom: 15px;">
+            We're Under <span class="text-primary">Maintenance!</span>
+        </h2>
+        <p style="color: #475569; font-size: 1.05rem; line-height: 1.5; margin-bottom: 30px;">
+            We're currently working on making things better.<br>
+            Please check back again soon!
+        </p>
+        <div class="d-inline-block bg-light text-primary px-4 py-2 mb-4" style="border-radius: 50px; font-weight: 600; font-size: 0.95rem;">
+            <i class="fa-regular fa-face-smile me-2"></i> 
+            Thank you for your patience and support! 
+            <i class="fa-solid fa-heart ms-1"></i>
+        </div>
+        <div>
+            <button onclick="window.history.back()" class="btn btn-primary px-4 py-2" style="border-radius: 10px; font-weight: 600;">
+                <i class="fa-solid fa-arrow-left me-2"></i> Go Back
+            </button>
+        </div>
+    </div>
 </body>
 </html>
