@@ -201,31 +201,147 @@
         <h2 class="text-center mb-4 section-title reveal" data-en="Gallery" data-mr="चित्रदालन">चित्रदालन</h2>
 
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3 reveal delay-1">
+            <div class="col-sm-6 col-lg-3 reveal delay-1">
                 <div class="gallery-card">
                     <img src="images/zp-building.jpg" class="gallery-img" alt="ZP Building">
                     <span class="image-caption" data-en="# Zilla Parishad, Kolhapur" data-mr="# जिल्हा परिषद, कोल्हापूर"># जिल्हा परिषद, कोल्हापूर</span>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-3 reveal delay-2">
+            <div class="col-sm-6 col-lg-3 reveal delay-2">
                 <div class="gallery-card">
                     <img src="images/Building.png" class="gallery-img" alt="School Building">
                     <span class="image-caption" data-en="# School Building View" data-mr="# शाळेच्या इमारतीचे दृश्य"># शाळेच्या इमारतीचे दृश्य</span>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-3 reveal delay-3">
+            <div class="col-sm-6 col-lg-3 reveal delay-3">
                 <div class="gallery-card">
                     <img src="images/demo.jpg" class="gallery-img" alt="Campus Activity">
                     <span class="image-caption" data-en="# Campus Activity" data-mr="# कॅम्पस उपक्रम"># कॅम्पस उपक्रम</span>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-3 reveal delay-4">
+            <div class="col-sm-6 col-lg-3 reveal delay-4">
                 <div class="gallery-card">
                     <img src="images/LoginImage_SamruddhaShala.png" class="gallery-img" alt="Portal Visual">
                     <span class="image-caption" data-en="# Samruddha Shala Portal" data-mr="# समृद्ध शाळा पोर्टल"># समृद्ध शाळा पोर्टल</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="kolhapur" class="py-5 reveal">
+    <div class="container-fluid px-lg-5 px-4">
+        <div class="text-center mb-5">
+            <span class="kolhapur-kicker text-uppercase fw-bold" data-en="Zilla Parishad Heritage" data-mr="जिल्हा परिषद वारसा" style="color: var(--gold); letter-spacing: 2px; font-size: 14px;">जिल्हा परिषद वारसा</span>
+            <h2 class="section-title fw-bold" data-en="Know Kolhapur" data-mr="कोल्हापूर विशेष" style="color: var(--purple-dark); font-size: 2.5rem; margin-top: 5px;">कोल्हापूर विशेष</h2>
+            <p class="text-muted col-lg-8 mx-auto mt-2" 
+               data-en="Discover the rich cultural heritage, historic landmarks, and educational legacy of Kolhapur."
+               data-mr="कोल्हापूरचा समृद्ध सांस्कृतिक वारसा, ऐतिहासिक स्थळे आणि शैक्षणिक परंपरा जाणून घ्या.">
+               कोल्हापूरचा समृद्ध सांस्कृतिक वारसा, ऐतिहासिक स्थळे आणि शैक्षणिक परंपरा जाणून घ्या.
+            </p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Education Card -->
+            <div class="col-xl-4 col-md-6">
+                <div class="kolhapur-card h-100">
+                    <div class="kolhapur-card-img-wrapper">
+                        <img src="images/kolhapur_education.png" class="kolhapur-card-img" alt="Educational Pioneer">
+                    </div>
+                    <div class="kolhapur-card-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="kolhapur-card-content">
+                        <h4 class="kolhapur-card-title fw-bold" data-en="Educational Pioneer" data-mr="शैक्षणिक वारसा">शैक्षणिक वारसा</h4>
+                        <p class="kolhapur-card-text" 
+                           data-en="In 1917, Rajarshi Chhatrapati Shahu Maharaj made primary education free and compulsory in Kolhapur, establishing student hostels to democratize learning."
+                           data-mr="राजर्षी शाहू महाराजांनी १९१७ मध्ये प्राथमिक शिक्षण मोफत आणि सक्तीचे केले, तसेच मागासवर्गीय विद्यार्थ्यांसाठी वसतिगृहे स्थापन करून शिक्षणाची दारे खुली केली.">
+                           राजर्षी शाहू महाराजांनी १९१७ मध्ये प्राथमिक शिक्षण मोफत आणि सक्तीचे केले, तसेच मागासवर्गीय विद्यार्थ्यांसाठी वसतिगृहे स्थापन करून शिक्षणाची दारे खुली केली.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spiritual Card -->
+            <div class="col-xl-4 col-md-6">
+                <div class="kolhapur-card h-100">
+                    <div class="kolhapur-card-img-wrapper">
+                        <img src="images/kolhapur_temple.png" class="kolhapur-card-img align-top" alt="Spiritual Heart">
+                    </div>
+                    <div class="kolhapur-card-icon">
+                        <i class="fas fa-place-of-worship"></i>
+                    </div>
+                    <div class="kolhapur-card-content">
+                        <h4 class="kolhapur-card-title fw-bold" data-en="Spiritual Heart" data-mr="आध्यात्मिक केंद्र">आध्यात्मिक केंद्र</h4>
+                        <p class="kolhapur-card-text" 
+                           data-en="The historic Mahalaxmi (Ambabai) Temple built in Hemadpanti architecture. Famous for its biannual 'Kiranotsav' where sun rays directly illuminate the deity's idol."
+                           data-mr="हेमाडपंती स्थापत्यशैलीत बांधलेले हे मंदिर महाराष्ट्रातील साडेतीन शक्तीपीठांपैकी एक आहे. येथे सूर्यकिरण मूर्तीला स्पर्श करतात तो 'किरणोत्सव' प्रसिद्ध आहे.">
+                           हेमाडपंती स्थापत्यशैलीत बांधलेले हे मंदिर महाराष्ट्रातील साडेतीन शक्तीपीठांपैकी एक आहे. येथे सूर्यकिरण मूर्तीला स्पर्श करतात तो 'किरणोत्सव' प्रसिद्ध आहे.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forts Card -->
+            <div class="col-xl-4 col-md-6">
+                <div class="kolhapur-card h-100">
+                    <div class="kolhapur-card-img-wrapper">
+                        <img src="images/kolhapur_places.png" class="kolhapur-card-img" alt="Forts & Lakes">
+                    </div>
+                    <div class="kolhapur-card-icon">
+                        <i class="fas fa-fort-awesome"></i>
+                    </div>
+                    <div class="kolhapur-card-content">
+                        <h4 class="kolhapur-card-title fw-bold" data-en="Forts & Lakes" data-mr="किल्ले आणि तलाव">किल्ले आणि तलाव</h4>
+                        <p class="kolhapur-card-text" 
+                           data-en="Rankala Lake is a historic quarry turned into a beautiful lake by Shahu Maharaj. Nearby Panhala Fort stands as a witness to Shivaji Maharaj’s bravery."
+                           data-mr="शाहू महाराजांनी विकसित केलेले रंकाळा तलाव आणि जवळच असलेला पन्हाळा किल्ला हा छत्रपती शिवाजी महाराजांच्या पराक्रमाचा साक्षीदार आहे.">
+                           शाहू महाराजांनी विकसित केलेले रंकाळा तलाव आणि जवळच असलेला पन्हाळा किल्ला हा छत्रपती शिवाजी महाराजांच्या पराक्रमाचा साक्षीदार आहे.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crafts Card -->
+            <div class="col-xl-4 col-md-6">
+                <div class="kolhapur-card h-100">
+                    <div class="kolhapur-card-img-wrapper">
+                        <img src="images/kolhapur_crafts.png" class="kolhapur-card-img" alt="Heritage Crafts">
+                    </div>
+                    <div class="kolhapur-card-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="kolhapur-card-content">
+                        <h4 class="kolhapur-card-title fw-bold" data-en="Heritage Crafts" data-mr="कला व हस्तकला">कला व हस्तकला</h4>
+                        <p class="kolhapur-card-text" 
+                           data-en="Globally famous handcrafted leather Kolhapuri Chappals (GI-tagged) and the unique traditional golden necklace 'Kolhapuri Saaz'."
+                           data-mr="जगप्रसिद्ध हस्तनिर्मित कोल्हापुरी चप्पल (जीआय मानांकन) आणि पारंपारिक सोन्याचा दागिना 'कोल्हापुरी साझ' येथील अद्वितीय कलाकुसर दर्शवतात.">
+                           जगप्रसिद्ध हस्तनिर्मित कोल्हापुरी चप्पल (जीआय मानांकन) आणि पारंपारिक सोन्याचा दागिना 'कोल्हापुरी साझ' येथील अद्वितीय कलाकुसर दर्शवतात.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kusti & Cuisine Card -->
+            <div class="col-xl-4 col-md-6">
+                <div class="kolhapur-card h-100">
+                    <div class="kolhapur-card-img-wrapper">
+                        <img src="images/kolhapur_wrestling.png" class="kolhapur-card-img" alt="Wrestling & Cuisine">
+                    </div>
+                    <div class="kolhapur-card-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="kolhapur-card-content">
+                        <h4 class="kolhapur-card-title fw-bold" data-en="Wrestling & Cuisine" data-mr="कुस्ती आणि खाद्यसंस्कृती">कुस्ती आणि खाद्यसंस्कृती</h4>
+                        <p class="kolhapur-card-text" 
+                           data-en="Kolhapur is the wrestling capital of India, with red-clay gyms (Talims). It is also legendary for Tambda-Pandhra Rassa and Misal Pav."
+                           data-mr="कोल्हापूर ही कुस्तीची पंढरी असून येथील लाल मातीच्या तालीम प्रसिद्ध आहेत. तसेच तांबडा-पांढरा रस्सा आणि झणझणीत कोल्हापुरी मिसळ यासाठी हे ओळखले जाते.">
+                           कोल्हापूर ही कुस्तीची पंढरी असून येथील लाल मातीच्या तालीम प्रसिद्ध आहेत. तसेच तांबडा-पांढरा रस्सा आणि झणझणीत कोल्हापुरी मिसळ यासाठी हे ओळखले जाते.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -302,6 +418,8 @@
             'शाळा माहिती': '#about',
             'reports': '#features',
             'अहवाल': '#features',
+            'know kolhapur': '#kolhapur',
+            'कोल्हापूर विशेष': '#kolhapur',
             'contact': '#contact',
             'संपर्क': '#contact'
         };

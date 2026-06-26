@@ -33,7 +33,6 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                 <div class="container-fluid">
                     <div class="ms-3 d-flex align-items-center">
                         <h4 class="fw-bold mb-1"id="pageMainHeader">Task Management </h4>
-                        
                     </div>
                     <div class="ms-auto d-flex align-items-center">
                         <div class="me-4 position-relative">
