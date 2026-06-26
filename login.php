@@ -182,11 +182,11 @@ background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none
 
                     <form method="POST">
                         <div class="form-group">
-    <label>Username / उपयोगकर्ता नाव</label>
-    <div class="input-with-icon">
-                            
-                            <span class="form-icon">👤</span>
-                            <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+                            <label>Username / उपयोगकर्ता नाव</label>
+                            <div class="input-with-icon">
+                                <span class="form-icon">👤</span>
+                                <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+                            </div>
                         </div>
                         <div class="form-group">
     <label>Password / पासवर्ड</label>
@@ -235,23 +235,8 @@ background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none
                         });
                         </script>
                     <?php } ?>
-                    
                 </div>
-
             </div>
-               
-        </div>
-      
-    </div>
-
-<body>
-
-
-
-<div class="login-main">
-    <div class="container">
-        <div class="login-panel">
-            
         </div>
     </div>
 </div>
@@ -259,7 +244,7 @@ background: linear-gradient(90deg, #0b63b7, #053a8a); color: white; border: none
 <?php include 'include/website_footer.php'; ?>
 
 </body>
-</div>
+</html>
 
 <script>
 function togglePassword(){

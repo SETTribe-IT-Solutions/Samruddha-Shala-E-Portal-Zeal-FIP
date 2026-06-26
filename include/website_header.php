@@ -1,4 +1,7 @@
-<link rel="stylesheet" href="/Samruddha-Shala-E-Portal-Zeal-FIP/css/header.css?v=<?php echo time(); ?>">
+<?php
+$local_prefix = isset($root_prefix) ? $root_prefix : ((basename(getcwd()) === 'Dashboard') ? '../' : '');
+?>
+<link rel="stylesheet" href="<?php echo $local_prefix; ?>css/header.css?v=<?php echo time(); ?>">
 
 <div class="site-banner-wrapper">
 
@@ -7,7 +10,7 @@
         <!-- Left Logo -->
         <div class="site-banner-left">
             <div class="site-logo-box">
-                <img src="/Samruddha-Shala-E-Portal-Zeal-FIP/images/THREELIONS__1_-removebg-preview.png"
+                <img src="<?php echo $local_prefix; ?>images/THREELIONS__1_-removebg-preview.png"
                      alt="Satyamev Jayate"
                      class="site-banner-logo">
             </div>
@@ -29,7 +32,7 @@
         <!-- Right Logo -->
         <div class="site-banner-right">
             <div class="site-logo-box">
-                <img src="/Samruddha-Shala-E-Portal-Zeal-FIP/images/demo.jpg"
+                <img src="<?php echo $local_prefix; ?>images/demo.jpg"
                      alt="ZP Kolhapur"
                      class="site-banner-logo">
             </div>

@@ -1,8 +1,10 @@
-<?php if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); } ?>
+<?php if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+$local_prefix = isset($root_prefix) ? $root_prefix : ((basename(getcwd()) === 'Dashboard') ? '../' : '');
+?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="index.php">
-            <img src="images/demo.jpg"
+            <img src="<?php echo $local_prefix; ?>images/demo.jpg"
                  alt="ZP Kolhapur Logo"
                  class="me-2"
                  style="height: 40px; width: auto;">
