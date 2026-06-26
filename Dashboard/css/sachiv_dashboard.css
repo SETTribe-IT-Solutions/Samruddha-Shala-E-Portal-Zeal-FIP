@@ -148,6 +148,20 @@ body.sachiv-dashboard-page .sachiv-fixed-footer .login-page-footer {
     color: #fff;
 }
 
+.btn-sidebar-gradient {
+    background: linear-gradient(135deg, #6420a5 0%, #8a45b8 54%, #efbc4d 100%);
+    color: #ffffff;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-sidebar-gradient:hover {
+    background: linear-gradient(135deg, #571b93 0%, #7a3ca2 54%, #dba83d 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(100, 32, 165, 0.3);
+}
+
 /* Content Area */
 .content-area {
     padding: 25px;

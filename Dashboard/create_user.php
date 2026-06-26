@@ -564,10 +564,7 @@ if ($usersResult) {
 			<nav class="navbar create-user-topbar">
 				<div class="container-fluid px-0">
 					<div class="d-flex align-items-center gap-2">
-						<button type="button" id="sidebarCollapse" class="btn btn-outline-secondary btn-sm" onclick="toggleSidebar()">
-							<i class="fa-solid fa-bars"></i>
-						</button>
-						<h5 class="topbar-title">Admin User Management</h5>
+						<h4 class="fw-bold mb-0 text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;">Admin User Management</h4>
 					</div>
 				</div>
 			</nav>
@@ -576,7 +573,7 @@ if ($usersResult) {
 				<div class="container-fluid">
 					<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
 						<div>
-							<h2 class="page-title">Admin User Management</h2>
+							<h4 class="page-title">Admin User Management</h4>
 							<p class="page-subtitle">Create user accounts and manage the master users list.</p>
 						</div>
 					</div>
