@@ -77,38 +77,12 @@ if ($current_dir === 'Dashboard') {
 
 <?php } elseif($role == 'HM') { ?>
 
-    <li><a href="hm_dashboard.php" target="_blank"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="update_work_progress.php" target="_blank"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
-    <li><a href="hm_utilization.php" target="_blank"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="maintenance.php" target="_blank"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="notification.php" target="_blank"><i class="fa-solid fa-bell"></i> Notification</a></li>
-
-    <li><a href="ceo_dashboard.php"><i class="fa-solid fa-gauge"></i>CEO Dashboard</a></li>
-    
-    <li><a href="ceo_create_work.php"><i class="fa-solid fa-briefcase"></i> Create Task</a></li>
-    <li><a href="ceo_task_management.php"><i class="fa-solid fa-plus"></i> Task Management </a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
-    <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
-    <li><a href="ceo_alerts.php"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
-<?php } elseif($role == 'SACHIV') { ?>
-
-    <li><a href="sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-
-<?php } elseif($role == 'HM') { ?>
-
     <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="#" onclick="showWorkInProgress(event, 'Update Work Progress')"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
+    <li><a href="#" onclick="showWorkInProgress(event, 'HM Work Master')"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
     <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="maintenance.php"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
+    <li><a href="#" onclick="showWorkInProgress(event, 'Utility Master')"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="#" onclick="showWorkInProgress(event, 'Notification')"><i class="fa-solid fa-bell"></i> Notification</a></li>
 
 
 <?php } ?>
@@ -154,11 +128,13 @@ function confirmLogout(event) {
     });
 }
 
-function showWorkInProgress(event) {
+function showWorkInProgress(event, moduleName) {
     event.preventDefault();
+    const titleText = moduleName ? `${moduleName} Under Development` : 'Work Under Progress';
+    const textMsg = moduleName ? `The ${moduleName} module is currently under development.` : 'This feature is currently under development.';
     Swal.fire({
-        title: 'Work Under Progress',
-        text: 'This feature is currently under development.',
+        title: titleText,
+        text: textMsg,
         icon: 'info',
         confirmButtonText: 'OK',
         confirmButtonColor: '#0b63b7'

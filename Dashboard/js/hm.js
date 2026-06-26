@@ -7,7 +7,6 @@ function toggleSidebar() {
 
 // Switching Sub-tabs/Views
 function switchTab(tabId) {
-    // Normalize tabId (strip -view or suffix if any)
     if (tabId.endsWith('-view')) {
         tabId = tabId.replace('-view', '');
     }
@@ -42,6 +41,7 @@ function renderActiveViewData() {
 
     if (id === 'hm-report-view') {
         renderHMReportPortal();
+        renderRecentNotifications();
     } else if (id === 'hm-history-view') {
         renderHMHistoryTimeline();
     }
@@ -116,7 +116,7 @@ function renderNotificationsBellDropdown() {
     });
 }
 
-// --- HM REPORT PORTAL ---
+// Populate the active school dropdown selector on dashboard
 function renderHMReportPortal() {
     const select = document.getElementById('hmSchoolSelect');
     if (!select) return;
@@ -141,263 +141,68 @@ function renderHMReportPortal() {
     }
 }
 
+// Load Details for Selected School
 function loadHMSchoolSpecificDetails(schoolId) {
     const school = db.schools.find(s => s.id === schoolId);
     if (!school) return;
 
-    const workTypeEl = document.getElementById('hmWorkType');
-    const fundingSourceEl = document.getElementById('hmFundingSource');
-    if (workTypeEl) workTypeEl.value = school.work_type;
-    if (fundingSourceEl) fundingSourceEl.value = school.funding_source;
+    // Sync select dropdown in background
+    const select = document.getElementById('hmSchoolSelect');
+    if (select) select.value = schoolId;
 
-    const taskBox = document.getElementById('hmTaskNotificationText');
-    if (taskBox) {
-        if (school.task_status === 'Pending HM Action' && school.task_description) {
-            taskBox.innerHTML = `<span class="fw-semibold">Task:</span> ${school.task_description}<br><span class="text-muted">Budget: ₹${school.task_budget || school.budget} Lakhs | Source: ${school.task_funding_source || school.funding_source}</span>`;
-        } else {
-            taskBox.textContent = 'No task assigned yet.';
-        }
-    }
+    // Update top KPI cards
+    const kpiAllocatedBudget = document.getElementById('kpiAllocatedBudget');
+    const kpiAmountSpent = document.getElementById('kpiAmountSpent');
+    const kpiCompletionProgress = document.getElementById('kpiCompletionProgress');
+    const kpiCompletionBar = document.getElementById('kpiCompletionBar');
+    const kpiBlockerText = document.getElementById('kpiBlockerText');
+    const kpiBlockerDetailsText = document.getElementById('kpiBlockerDetailsText');
+    const kpiBlockerCard = document.getElementById('kpiBlockerCard');
+    const chartPercentText = document.getElementById('chartPercentText');
 
-    // Set slider to current value
-    const slider = document.getElementById('hmProgressRange');
-    if (slider) {
-        slider.value = school.progress;
-        updateHMProgressSliderText(school.progress);
-    }
+    if (kpiAllocatedBudget) kpiAllocatedBudget.textContent = school.budget.toFixed(2);
+    if (kpiAmountSpent) kpiAmountSpent.textContent = school.spent.toFixed(2);
+    if (kpiCompletionProgress) kpiCompletionProgress.textContent = school.progress;
+    if (kpiCompletionBar) kpiCompletionBar.style.width = school.progress + '%';
+    if (chartPercentText) chartPercentText.textContent = `${school.progress}%`;
 
-    // Blocker selector
-    const blockerSel = document.getElementById('hmBlockerSelector');
-    if (blockerSel) {
-        blockerSel.value = school.blocker || 'None';
-        toggleHMBlockerDetailsInput(blockerSel.value);
-    }
-    const blockerDetailsEl = document.getElementById('hmBlockerDetails');
-    if (blockerDetailsEl) blockerDetailsEl.value = school.blocker_details || '';
-
-    // Remarks
-    const remarksEl = document.getElementById('hmRemarks');
-    if (remarksEl) remarksEl.value = '';
-
-    // Pre-fill coordinate tag selection
-    const geotagEl = document.getElementById('hmGeotagInput');
-    if (geotagEl) geotagEl.value = school.geo_tag || 'Missing';
-
-    const coordinatesEl = document.getElementById('hmGeoCoordinates');
-    if (coordinatesEl) {
-        if (school.geo_tag === 'Tagged' && school.latitude && school.longitude) {
-            coordinatesEl.value = `${school.latitude}, ${school.longitude}`;
-        } else {
-            coordinatesEl.value = '';
-        }
-    }
-
-    // Reset image preview
-    const preview = document.getElementById('photoPreview');
-    if (preview) {
-        preview.className = "upload-preview d-none";
-        preview.src = "#";
-    }
-    const photoFileEl = document.getElementById('hmPhotoFile');
-    if (photoFileEl) photoFileEl.value = '';
-
-    // Update Right Side Detail Panel
-    const summary = document.getElementById('hmSchoolSummaryPanel');
-    if (summary) {
-        summary.innerHTML = `
-            <div class="mb-4">
-                <h6 class="text-muted uppercase">Active Target</h6>
-                <h5 class="fw-bold text-primary">${school.name}</h5>
-                <span class="badge bg-secondary">${school.block} Block</span>
-            </div>
-
-            <div class="mb-3">
-                <strong>Work Details:</strong>
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Work Category:</span>
-                    <span class="fw-semibold">${school.work_type}</span>
-                </div>
-                <div class="d-flex justify-content-between border-bottom py-2">
-    <span>Current Stage Progress:</span>
-    <span class="fw-bold text-primary">${school.progress}%</span>
-</div>
-
-<div class="progress mt-2" style="height:20px;">
-    <div class="progress-bar bg-success"
-         role="progressbar"
-         style="width:${school.progress}%">
-         ${school.progress}%
-    </div>
-</div>
-            </div>
-
-            <div class="mb-3">
-                <strong>Financials:</strong>
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Budget Allotted:</span>
-                    <span class="fw-semibold">₹${school.budget} Lakhs</span>
-                </div>
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Utilized / Released:</span>
-                    <span class="fw-semibold text-success">₹${school.spent} Lakhs</span>
-                </div>
-            </div>
-
-            <div>
-                <strong>Active Blocker Status:</strong>
-                <div class="mt-2">
-                    ${school.blocker !== 'None'
-                ? `<span class="badge bg-danger p-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>${school.blocker}</span>`
-                : '<span class="badge bg-success p-2"><i class="fa-solid fa-circle-check me-1"></i>No current blockers</span>'}
-                </div>
-            </div>
-        `;
-    }
-    console.log("Chart called", school.progress);
-    renderHMProgressChart(school.progress);
-}
-
-function updateHMProgressSliderText(val) {
-    const label = document.getElementById('hmProgressValueText');
-    if (label) label.textContent = `${val}%`;
-}
-
-function toggleHMBlockerDetailsInput(val) {
-    const container = document.getElementById('hmBlockerDetailsContainer');
-    if (container) {
-        if (val !== 'None') {
-            container.classList.remove('d-none');
-        } else {
-            container.classList.add('d-none');
-        }
-    }
-}
-
-// Simulating the Photo upload drag and drop trigger
-function triggerPhotoUpload() {
-    const photoFileEl = document.getElementById('hmPhotoFile');
-    if (photoFileEl) photoFileEl.click();
-}
-
-function previewHMUploadedPhoto(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const preview = document.getElementById('photoPreview');
-            if (preview) {
-                preview.src = e.target.result;
-                preview.classList.remove('d-none');
+    if (kpiBlockerText && kpiBlockerCard) {
+        const kpiBlockerIcon = document.getElementById('kpiBlockerIcon');
+        if (school.blocker && school.blocker !== 'None') {
+            kpiBlockerText.textContent = school.blocker;
+            kpiBlockerText.style.fontSize = '1.1rem';
+            if (kpiBlockerDetailsText) kpiBlockerDetailsText.textContent = school.blocker_details || 'Blocker reported';
+            kpiBlockerCard.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            kpiBlockerCard.style.background = 'linear-gradient(180deg, #ffffff 0%, #fef2f2 100%)';
+            if (kpiBlockerIcon) {
+                kpiBlockerIcon.className = 'hm-kpi-icon bg-danger-soft text-danger';
             }
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function captureGeoTaggedPhoto() {
-    const coordInput = document.getElementById('hmGeoCoordinates');
-    if (!coordInput) return;
-
-    if (!navigator.geolocation) {
-        coordInput.value = '16.7050, 74.2433';
-        document.getElementById('hmGeotagInput').value = 'Tagged';
-        alert('Geolocation is not supported by this browser. Using Kolhapur fallback coordinates.');
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const lat = position.coords.latitude.toFixed(4);
-            const lng = position.coords.longitude.toFixed(4);
-            coordInput.value = `${lat}, ${lng}`;
-            document.getElementById('hmGeotagInput').value = 'Tagged';
-        },
-        () => {
-            coordInput.value = '16.7050, 74.2433';
-            document.getElementById('hmGeotagInput').value = 'Tagged';
-            alert('Location permission was denied. Using Kolhapur fallback coordinates.');
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-    );
-}
-
-// Submit HM Report form
-function handleHMUpdateSubmit(e) {
-    e.preventDefault();
-
-    const schoolId = document.getElementById('hmSchoolSelect').value;
-    const school = db.schools.find(s => s.id === schoolId);
-    if (!school) return;
-
-    const oldProgress = school.progress;
-    const newProgress = parseInt(document.getElementById('hmProgressRange').value);
-    const remarks = document.getElementById('hmRemarks').value;
-    const blocker = document.getElementById('hmBlockerSelector').value;
-    const blocker_details = document.getElementById('hmBlockerDetails').value;
-    const geo_tag = document.getElementById('hmGeotagInput').value;
-    const spentAmount = parseFloat(document.getElementById('hmSpentAmount').value || 0);
-    const budgetNotes = document.getElementById('hmBudgetNotes').value.trim();
-    const coordText = document.getElementById('hmGeoCoordinates').value.trim();
-
-    // Photo preview checking
-    const preview = document.getElementById('photoPreview');
-    const photoSrc = preview ? preview.src : '';
-    if (!photoSrc || photoSrc === '#' || photoSrc.endsWith('#')) {
-        alert('Please upload or capture a photo proof before submitting the completion report.');
-        return;
-    }
-
-    // Coordinates requirement check
-    if (!coordText) {
-        alert('Please capture GPS Geo-Tagging Coordinates before submitting.');
-        return;
-    }
-
-    // Geotag generation
-    let lat = "";
-    let lng = "";
-    if (geo_tag === 'Tagged') {
-        const parts = coordText.split(',');
-        lat = parts[0] ? parts[0].trim() : '16.7050';
-        lng = parts[1] ? parts[1].trim() : '74.2433';
-    }
-
-    if (spentAmount > 0) {
-        if (spentAmount > school.budget) {
-            alert(`Spent amount (₹${spentAmount}L) cannot exceed school budget (₹${school.budget}L).`);
-            return;
+        } else {
+            kpiBlockerText.textContent = 'None';
+            kpiBlockerText.style.fontSize = '1.4rem';
+            if (kpiBlockerDetailsText) kpiBlockerDetailsText.textContent = 'No project blockers reported';
+            kpiBlockerCard.style.borderColor = 'rgba(228, 230, 239, 0.8)';
+            kpiBlockerCard.style.background = '#ffffff';
+            if (kpiBlockerIcon) {
+                kpiBlockerIcon.className = 'hm-kpi-icon bg-success-soft text-success';
+            }
         }
-        school.spent = Math.max(school.spent, spentAmount);
-        school.remarks = budgetNotes || remarks || school.remarks;
     }
 
-    // Create Pending approval log entry
-    const newPending = {
-        id: "PEND-" + Date.now(),
-        school_id: schoolId,
-        school_name: school.name,
-        work_type: school.work_type,
-        old_progress: oldProgress,
-        new_progress: newProgress,
-        remarks: remarks,
-        blocker: blocker,
-        blocker_details: blocker_details,
-        geo_tag: geo_tag,
-        latitude: lat,
-        longitude: lng,
-        photo: photoSrc,
-        submitted_at: new Date().toISOString().split('T')[0]
-    };
+    // Re-render Visualizations
+    renderHMProgressChart(school.progress);
+    renderHMFundChart(school.budget, school.spent);
+}
 
-    db.pending.unshift(newPending);
-    if (school.task_status === 'Pending HM Action') {
-        school.task_status = 'Pending Sachiv Review';
-    }
-
-    alert(`Completion report submitted! Waiting verification from Sachiv desk.\n\nOpen 'sachiv_dashboard.php' to review the geo-tagged proof.`);
-
-    saveDatabase();
-    loadHMSchoolSpecificDetails(schoolId);
-    switchTab('hm-history');
+// Redirect helper to open the reporting form with the currently selected school
+function redirectToUpdateProgress() {
+    Swal.fire({
+        title: 'Update Work Progress Under Development',
+        text: 'The Update Work Progress module is currently under development.',
+        icon: 'info',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#0b63b7'
+    });
 }
 
 // --- HM HISTORY TIMELINE ---
@@ -406,7 +211,6 @@ function renderHMHistoryTimeline() {
     if (!container) return;
     container.innerHTML = '';
 
-    // Combine school logs history and pending entries
     const historyList = [];
 
     // Add pending items
@@ -457,11 +261,9 @@ function renderHMHistoryTimeline() {
     });
 }
 
-// Initial setup on page load
+// Render dynamic doughnut chart ring for progress
 function renderHMProgressChart(progress) {
-
     const ctx = document.getElementById('hmProgressChart');
-
     if (!ctx) return;
 
     if (window.hmChart) {
@@ -473,17 +275,134 @@ function renderHMProgressChart(progress) {
         data: {
             labels: ['Completed', 'Remaining'],
             datasets: [{
-                data: [progress, 100 - progress]
+                data: [progress, 100 - progress],
+                backgroundColor: ['#06b6d4', '#e2e8f0'],
+                hoverBackgroundColor: ['#0891b2', '#cbd5e1'],
+                borderWidth: 0,
+                cutout: '78%'
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
         }
     });
 }
+
+// Render dynamic comparison chart for budget vs spent
+function renderHMFundChart(allocated, spent) {
+    const ctx = document.getElementById('hmFundChart');
+    if (!ctx) return;
+
+    if (window.hmFundChartInstance) {
+        window.hmFundChartInstance.destroy();
+    }
+
+    window.hmFundChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Allotted Budget', 'Amount Utilized'],
+            datasets: [{
+                data: [allocated, spent],
+                backgroundColor: ['#6420a5', '#10b981'],
+                hoverBackgroundColor: ['#4c1482', '#059669'],
+                borderRadius: 8,
+                barThickness: 20,
+                maxBarThickness: 24
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ₹${context.raw.toFixed(2)} Lakhs`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { display: false },
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value + 'L';
+                        }
+                    }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// Render recent alerts timeline feed
+function renderRecentNotifications() {
+    const feed = document.getElementById('hmAlertsFeed');
+    if (!feed) return;
+    feed.innerHTML = '';
+
+    if (db.alerts.length === 0) {
+        feed.innerHTML = `<div class="text-center py-4 text-muted"><i class="fa-regular fa-circle-check fs-3 mb-2 text-success"></i><br>No active alerts reported.</div>`;
+        return;
+    }
+
+    db.alerts.forEach(alert => {
+        let icon = 'fa-bell';
+        let bg = 'bg-primary-soft text-primary border border-primary';
+        if (alert.type === 'blocker') { icon = 'fa-triangle-exclamation'; bg = 'bg-danger-soft text-danger border border-danger'; }
+        else if (alert.type === 'delay') { icon = 'fa-clock'; bg = 'bg-warning-soft text-warning border border-warning'; }
+        else if (alert.type === 'geotag') { icon = 'fa-location-dot'; bg = 'bg-info-soft text-info border border-info'; }
+        else if (alert.type === 'task') { icon = 'fa-file-signature'; bg = 'bg-success-soft text-success border border-success'; }
+
+        const item = document.createElement('div');
+        item.className = 'alert-timeline-item';
+        item.innerHTML = `
+            <div class="alert-timeline-icon ${bg}">
+                <i class="fa-solid ${icon}"></i>
+            </div>
+            <div class="small">
+                <div class="d-flex justify-content-between mb-0.5">
+                    <strong class="text-dark" style="font-size: 0.82rem;">${alert.school_name}</strong>
+                    <span class="text-muted" style="font-size: 0.72rem;">${alert.date}</span>
+                </div>
+                <span class="d-block fw-semibold text-primary" style="font-size: 0.78rem;">${alert.title}</span>
+                <p class="text-muted mb-0" style="font-size: 0.75rem; line-height: 1.35;">${alert.title} alert was triggered under district rules.</p>
+            </div>
+        `;
+        feed.appendChild(item);
+    });
+}
+
+// Initial setup on page load
 window.addEventListener('DOMContentLoaded', () => {
     initDatabase();
     updateAlertBadges();
+
+    // Language selector initialization
+    const langSelector = document.getElementById('langSelector');
+    if (langSelector) {
+        const savedLang = localStorage.getItem('hmLang') || 'en';
+        langSelector.value = savedLang;
+        setHMLanguage(savedLang);
+    }
 
     // Check if view parameter is passed
     const params = new URLSearchParams(window.location.search);
@@ -517,3 +436,12 @@ window.addEventListener('storage', (e) => {
         renderActiveViewData();
     }
 });
+
+// --- LANGUAGE TRANSLATION ENGINE ---
+function setHMLanguage(lang) {
+    const elements = document.querySelectorAll('[data-en][data-mr]');
+    elements.forEach(el => {
+        el.textContent = lang === 'mr' ? el.getAttribute('data-mr') : el.getAttribute('data-en');
+    });
+    localStorage.setItem('hmLang', lang);
+}

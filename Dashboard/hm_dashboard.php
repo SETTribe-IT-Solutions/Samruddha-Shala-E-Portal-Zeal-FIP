@@ -33,7 +33,6 @@ if($_SESSION['role'] != 'HM'){
 
     <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../js/hm.js"></script>
 </head>
 
 <body class="hm-dashboard-page">
@@ -58,10 +57,19 @@ if($_SESSION['role'] != 'HM'){
                     <button type="button" id="sidebarCollapse" class="btn btn-link text-dark me-2 d-lg-none" onclick="toggleSidebar()" aria-label="Toggle sidebar">
                         <i class="fas fa-align-left fs-5"></i>
                     </button>
-                    <h5 class="mb-0 fw-bold" id="pageMainHeader">School Progress Reporting Desk</h5>
+                    <h5 class="mb-0 fw-bold" id="pageMainHeader" data-en="School Progress Reporting Desk" data-mr="शाळा प्रगती अहवाल डेस्क">School Progress Reporting Desk</h5>
                 </div>
 
-                <div class="ms-auto d-flex align-items-center">
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <!-- Language Selector -->
+                    <div class="d-flex align-items-center gap-2 me-2">
+                        <label for="langSelector" class="mb-0 fw-semibold small text-muted" data-en="Language" data-mr="भाषा">Language</label>
+                        <select id="langSelector" class="form-select form-select-sm border-primary shadow-sm" style="width: 110px;" onchange="setHMLanguage(this.value)">
+                            <option value="en">English</option>
+                            <option value="mr">मराठी</option>
+                        </select>
+                    </div>
+
                     <!-- Notifications Dropdown -->
                     <div class="dropdown me-3 position-relative">
                         <button class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -88,213 +96,189 @@ if($_SESSION['role'] != 'HM'){
         </nav>
 
         <!-- Dashboard Content -->
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-0">
 
             <!-- PAGE TITLE -->
             <div class="card p-4 mb-4">
-                <h3 class="fw-bold mb-1">
-                    <i class="fa-solid fa-school me-2 text-primary"></i>
-                    Head Master Dashboard
-                </h3>
-                <p class="text-muted mb-0">
-                    Submit progress reports, monitor project activities and manage school updates.
-                </p>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="fw-bold mb-1 text-dark">
+                            <i class="fa-solid fa-school me-2 text-primary"></i>
+                            <span data-en="Head Master Dashboard" data-mr="मुख्याध्यापक डॅशबोर्ड">Head Master Dashboard</span>
+                        </h3>
+                        <p class="text-muted mb-0" data-en="Monitor assigned school projects, track fund utilization details, and view interactive visual KPIs." data-mr="नियुक्त शाळा प्रकल्पांवर लक्ष ठेवा, निधी वापराचा तपशील ट्रॅक करा आणि परस्परसंवादी व्हिज्युअल KPIs पहा.">
+                            Monitor assigned school projects, track fund utilization details, and view interactive visual KPIs.
+                        </p>
+                    </div>
+                    <div class="col-md-4 mt-3 mt-md-0">
+                        <label for="hmSchoolSelect" class="form-label fw-bold text-muted small text-uppercase mb-1" data-en="Active School Selection" data-mr="सक्रिय शाळा निवड">Active School Selection</label>
+                        <select id="hmSchoolSelect" class="form-select border-primary shadow-sm" onchange="loadHMSchoolSpecificDetails(this.value)">
+                            <!-- Dynamically populated by hm.js -->
+                        </select>
+                    </div>
+                </div>
             </div>
-        </nav>
-
-        <!-- Dashboard Content -->
-        <div class="container-fluid p-4">
 
             <!-- Sub-navigation Tabs -->
             <ul class="nav nav-pills mb-4 gap-2 bg-light p-2 rounded" id="hmDashboardTabs" role="tablist" style="width: fit-content; border: 1px solid rgba(228, 232, 239, 0.95); border-radius: 16px !important;">
                 <li class="nav-item">
-                    <button class="btn btn-sm btn-outline-primary active" id="nav-hm-report" onclick="switchTab('hm-report')">
-                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Submit Progress Update
+                    <button class="btn btn-sm active" id="nav-hm-report" onclick="switchTab('hm-report')">
+                        <i class="fa-solid fa-gauge-high me-2"></i><span data-en="Interactive Desk" data-mr="परस्परसंवादी डेस्क">Interactive Desk</span>
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="btn btn-sm btn-outline-primary" id="nav-hm-history" onclick="switchTab('hm-history')">
-                        <i class="fa-solid fa-clock-rotate-left me-2"></i>Timeline & History
+                    <button class="btn btn-sm" id="nav-hm-history" onclick="switchTab('hm-history')">
+                        <i class="fa-solid fa-clock-rotate-left me-2"></i><span data-en="Submission History" data-mr="सबमिशन इतिहास">Submission History</span>
                     </button>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-sm text-decoration-none" href="hm_utilization.php">
+                        <i class="fa-solid fa-indian-rupee-sign me-2"></i><span data-en="Amount Utilization" data-mr="रक्कम वापर">Amount Utilization</span>
+                    </a>
                 </li>
             </ul>
 
-            <!-- HM REPORT VIEW -->
-            <div id="hm-report-view" class="view-panel">
-
-                <div class="row">
-
-                    <!-- LEFT SIDE FORM -->
-                    <div class="col-lg-7">
-
-                        <div class="card p-4">
-
-                            <h4 class="fw-bold mb-1">
-                                <i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>
-                                Submit Progress Update
-                            </h4>
-
-                            <p class="text-muted mb-4">
-                                Use this form to submit actual physical construction logs, report blockers, geo-tags and photographs.
-                            </p>
-
-                            <!-- CEO Task Notification Box -->
-                            <div class="alert alert-info mb-3">
-                                <strong><i class="fa-solid fa-bell me-2"></i>CEO Task Notification</strong>
-                                <div id="hmTaskNotificationText" class="small mt-1">
-                                    No task assigned yet.
+            <!-- KPI Cards Row -->
+            <div class="row g-3 mb-4">
+                <!-- Card 1: Allotted Budget -->
+                <div class="col-md-3">
+                    <div class="card hm-kpi-card h-100 border-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Allotted Budget" data-mr="वाटप केलेला निधी">Allotted Budget</h6>
+                                <h2 class="fw-bold mb-0 text-dark">₹<span id="kpiAllocatedBudget">0.00</span> L</h2>
+                            </div>
+                            <div class="hm-kpi-icon bg-primary-soft text-primary">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mt-3 pt-3 border-top border-light" style="font-size: 0.8rem;">
+                            <span class="text-muted" data-en="Total sanctioned budget" data-mr="एकूण मंजूर निधी">Total sanctioned budget</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <a href="hm_utilization.php" class="text-decoration-none h-100 d-block">
+                        <div class="card hm-kpi-card h-100 border-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Amount Utilized" data-mr="वापरलेली रक्कम">Amount Utilized</h6>
+                                    <h2 class="fw-bold mb-0 text-dark">₹<span id="kpiAmountSpent">0.00</span> L</h2>
+                                </div>
+                                <div class="hm-kpi-icon bg-success-soft text-success">
+                                    <i class="fa-solid fa-sack-dollar"></i>
                                 </div>
                             </div>
-
-                            <!-- REPORT SUBMISSION FORM -->
-                            <form id="hmUpdateForm" onsubmit="handleHMUpdateSubmit(event)">
-                                <div class="mb-3">
-                                    <label for="hmSchoolSelect" class="form-label fw-semibold">Select School</label>
-                                    <select id="hmSchoolSelect" class="form-select" onchange="loadHMSchoolSpecificDetails(this.value)"></select>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="hmWorkType" class="form-label fw-semibold">Work Category</label>
-                                        <input type="text" id="hmWorkType" class="form-control" readonly>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="hmFundingSource" class="form-label fw-semibold">Funding Source</label>
-                                        <input type="text" id="hmFundingSource" class="form-control" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label for="hmProgressRange" class="form-label fw-semibold mb-0">Current Stage Progress</label>
-                                        <span id="hmProgressValueText" class="fw-bold text-primary">0%</span>
-                                    </div>
-                                    <input type="range" id="hmProgressRange" class="form-range" min="0" max="100" value="0" oninput="updateHMProgressSliderText(this.value)">
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="hmSpentAmount" class="form-label fw-semibold">Amount Spent (Lakhs)</label>
-                                        <input type="number" id="hmSpentAmount" class="form-control" placeholder="e.g. 1.5" min="0" step="0.01">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="hmBudgetNotes" class="form-label fw-semibold">Financial / Budget Notes</label>
-                                        <input type="text" id="hmBudgetNotes" class="form-control" placeholder="e.g. Materials purchased, labor paid">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="hmBlockerSelector" class="form-label fw-semibold">Report Blocker Status</label>
-                                    <select id="hmBlockerSelector" class="form-select" onchange="toggleHMBlockerDetailsInput(this.value)">
-                                        <option value="None">None</option>
-                                        <option value="Material Shortage">Material Shortage</option>
-                                        <option value="Labor Shortage">Labor Shortage</option>
-                                        <option value="Fund Delay">Fund Delay</option>
-                                        <option value="Weather Delays">Weather Delays</option>
-                                        <option value="Land Boundary Dispute">Land Boundary Dispute</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-
-                                <div id="hmBlockerDetailsContainer" class="mb-3 d-none">
-                                    <label for="hmBlockerDetails" class="form-label fw-semibold">Blocker Description</label>
-                                    <textarea id="hmBlockerDetails" class="form-control" rows="2" placeholder="Describe the blocker details..."></textarea>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Geo-Tagging Coordinates</label>
-                                    <div class="input-group">
-                                        <input type="text" id="hmGeoCoordinates" class="form-control" placeholder="Coordinates will show here" readonly required>
-                                        <button type="button" class="btn btn-outline-secondary" onclick="captureGeoTaggedPhoto()">
-                                            <i class="fa-solid fa-location-dot me-1"></i> Capture GPS
-                                        </button>
-                                    </div>
-                                    <input type="hidden" id="hmGeotagInput" value="Missing">
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label fw-semibold">Photo Proof Upload</label>
-                                    <div class="upload-zone" onclick="triggerPhotoUpload()">
-                                        <i class="fa-solid fa-cloud-arrow-up fs-2 mb-2 text-muted"></i>
-                                        <p class="mb-0 text-muted small">Click to upload site photograph proof</p>
-                                        <img id="photoPreview" class="upload-preview d-none" src="#" alt="Preview">
-                                    </div>
-                                    <input type="file" id="hmPhotoFile" class="d-none" accept="image/*" onchange="previewHMUploadedPhoto(this)" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="hmRemarks" class="form-label fw-semibold">Progress Remarks / Logs</label>
-                                    <textarea id="hmRemarks" class="form-control" rows="3" placeholder="Enter details of work completed..." required></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
-                                    <i class="fa-solid fa-paper-plane me-2"></i>Submit Progress Report
-                                </button>
-                            </form>
-
+                            <div class="d-flex align-items-center mt-3 pt-3 border-top border-light text-success fw-bold" style="font-size: 0.8rem;">
+                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
+                                <span data-en="Open Weightage Setup" data-mr="टक्केवारी रचना पहा">Open Weightage Setup</span>
+                            </div>
                         </div>
+                    </a>
+                </div>
+                <!-- Card 3: Completion Progress -->
+                <div class="col-md-3">
+                    <div class="card hm-kpi-card h-100 border-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Completion Progress" data-mr="पूर्णता प्रगती">Completion Progress</h6>
+                                <h2 class="fw-bold mb-1 text-dark"><span id="kpiCompletionProgress">0</span>%</h2>
+                            </div>
+                            <div class="hm-kpi-icon bg-info-soft text-info">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height: 6px; background: #e2e8f0; border-radius: 3px;">
+                            <div class="progress-bar bg-info" role="progressbar" id="kpiCompletionBar" style="width: 0%; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 4: Active Blocker -->
+                <div class="col-md-3">
+                    <div class="card hm-kpi-card h-100 border-0" id="kpiBlockerCard">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Active Blocker" data-mr="सक्रिय अडथळा">Active Blocker</h6>
+                                <h3 class="fw-bold mb-0 text-dark text-truncate" id="kpiBlockerText" style="max-width: 140px; font-size: 1.3rem;">None</h3>
+                            </div>
+                            <div class="hm-kpi-icon bg-warning-soft text-warning" id="kpiBlockerIcon">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mt-3 pt-3 border-top border-light" style="font-size: 0.8rem;">
+                            <span class="text-muted text-truncate" id="kpiBlockerDetailsText" style="max-width: 220px;" data-en="No project blockers reported" data-mr="अडथळे नोंदवले नाहीत">No project blockers reported</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- INTERACTIVE DESK REPORT VIEW -->
+            <div id="hm-report-view" class="view-panel">
+                <div class="row g-4">
+                    <!-- Column 1: Progress Ring Chart -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card p-4 text-center h-100">
+                            <h5 class="fw-bold mb-3 text-start text-dark">
+                                <i class="fa-solid fa-circle-notch text-primary me-2"></i>Stage Progress Ring
+                            </h5>
+                            <div class="position-relative d-flex justify-content-center align-items-center mx-auto my-auto" style="height: 200px; width: 200px;">
+                                <canvas id="hmProgressChart"></canvas>
+                                <div class="position-absolute text-center">
+                                    <h2 class="fw-bold mb-0 text-dark" id="chartPercentText" style="font-size: 2.1rem; line-height: 1;">0%</h2>
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Complete</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- RIGHT SIDE SUMMARY -->
-                    <!-- RIGHT SIDE SUMMARY -->
-<div class="col-lg-5">
+                    <!-- Column 2: Budget vs Spent Bar Chart -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card p-4 h-100 d-flex flex-column">
+                            <h5 class="fw-bold mb-3 text-dark">
+                                <i class="fa-solid fa-chart-column text-primary me-2"></i>Budget vs Spent Allotment
+                            </h5>
+                            <div class="my-auto" style="height: 160px; position: relative;">
+                                <canvas id="hmFundChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="card p-4 bg-light">
-
-        <h5 class="fw-bold mb-3">
-            Active School Summary
-        </h5>
-
-        <div id="hmSchoolSummaryPanel">
-            <!-- Dynamic Data -->
-        </div>
-
-        <div class="mt-4">
-            <h6 class="fw-bold">Project Progress Visualization</h6>
-
-            <div class="development-box">
-                <i class="fa-solid fa-person-digging development-icon"></i>
-
-                <h5 class="mt-3">Module Under Development</h5>
-
-                <p class="text-muted mb-0">
-                    HM Work Master, Utility Master, Notifications and
-                    additional analytics modules are currently under development.
-                </p>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
+                    <!-- Column 3: Recent Alerts Feed & Update Action -->
+                    <div class="col-lg-4 col-md-12">
+                        <div class="card p-4 h-100 d-flex flex-column">
+                            <h5 class="fw-bold mb-3 text-dark">
+                                <i class="fa-solid fa-bell text-primary me-2"></i>Recent Alerts Feed
+                            </h5>
+                            <div id="hmAlertsFeed" class="scroll-panel flex-grow-1 mb-3" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                            <div class="mt-auto pt-2">
+                                <button type="button" class="btn btn-primary w-100 py-2.5 fw-semibold" onclick="redirectToUpdateProgress()">
+                                    <i class="fa-solid fa-file-pen me-2"></i>Report School Progress
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
+            </div>
+                </div>
             </div>
 
-            <!-- HISTORY VIEW -->
+            <!-- TIMELINE & HISTORY VIEW -->
             <div id="hm-history-view" class="view-panel d-none">
-
                 <div class="card p-4">
-
-                    <h4 class="fw-bold mb-1">
+                    <h4 class="fw-bold mb-1 text-dark">
                         <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>
                         Submission Timeline & History
                     </h4>
-
                     <p class="text-muted mb-4">
-                        View past updates and approval status.
+                        View all pending verification reports and historical milestone approvals.
                     </p>
-
                     <div id="hmTimelineContainer" class="timeline-container">
                         <!-- Dynamic History -->
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
         <!-- Fixed Footer -->
@@ -309,10 +293,10 @@ if($_SESSION['role'] != 'HM'){
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Database -->
+<!-- Database scripts -->
 <script src="js/db.js"></script>
 
-<!-- HM Logic -->
+<!-- Dashboard dynamic controller -->
 <script src="js/hm.js"></script>
 
 </body>
