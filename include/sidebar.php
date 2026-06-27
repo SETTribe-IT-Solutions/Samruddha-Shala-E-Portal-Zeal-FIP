@@ -67,7 +67,7 @@ if ($current_dir === 'Dashboard') {
     <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-pen"></i> Update Work Master</a></li>
     <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-school"></i> CEO Work Master</a></li>
     <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-user-tie"></i> Sachiv Work Master</a></li>
-    <li><a href="amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="amount_utilization_ceo.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
     <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="create_user.php"><i class="fa-solid fa-user-plus"></i> Create User</a></li>
     <li><a href="ceo_alerts.php"><i class="fa-solid fa-bell"></i> Alerts & Notifications</a></li>
@@ -141,6 +141,17 @@ function showWorkInProgress(event, moduleName) {
         confirmButtonColor: '#0b63b7'
     });
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const currentLocation = window.location.pathname.split("/").pop();
+    const sidebarLinks = document.querySelectorAll("#sidebar .components li a");
+    sidebarLinks.forEach(function(link) {
+        const href = link.getAttribute("href");
+        if(href && href !== '#' && currentLocation.includes(href)) {
+            link.parentElement.classList.add("active");
+        }
+    });
+});
 
 function showMaintenanceModal(event) {
     event.preventDefault();
