@@ -1,3 +1,4 @@
+create_user :-
 <?php
 session_start();
 require_once __DIR__ . '/../include/dbConfig.php';
@@ -27,6 +28,78 @@ if ($columnsResult) {
 	}
 } else {
 	$errors[] = 'Unable to read users table schema.';
+}
+
+// Handle Delete User Action
+if (isset($_GET['delete_user_id']) && $isAdmin) {
+	$deleteId = intval($_GET['delete_user_id']);
+	
+	if ($deleteId == $_SESSION['user_id']) {
+		$_SESSION['error_msg'] = "You cannot delete your own logged-in user account!";
+	} else {
+		$stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+		if ($stmt) {
+			$stmt->bind_param("i", $deleteId);
+			if ($stmt->execute()) {
+				$_SESSION['success_msg'] = "User deleted successfully!";
+			} else {
+				$_SESSION['error_msg'] = "Failed to delete user.";
+			}
+			$stmt->close();
+		}
+	}
+	header("Location: create_user.php");
+	exit();
+}
+
+// Handle Update User Action
+if (isset($_POST['update_user']) && $isAdmin) {
+	$editId = intval($_POST['edit_id']);
+	$username = trim($_POST['username'] ?? '');
+	$password = trim($_POST['password'] ?? '');
+	$role = trim($_POST['role'] ?? '');
+	$name = trim($_POST['name'] ?? '');
+	$email = trim($_POST['email'] ?? '');
+	$isActive = isset($_POST['is_active']) ? 1 : 0;
+
+	if ($username === '' || $password === '' || $name === '') {
+		$_SESSION['error_msg'] = "Username, Password, and Full Name are required.";
+	} else {
+		$emailSql = "";
+		if (in_array('email', $userColumns, true)) {
+			$emailSql = ", email = ?";
+		}
+		
+		$sql = "UPDATE users SET username = ?, password = ?, role = ?, name = ?, is_active = ?" . $emailSql . " WHERE id = ?";
+		$stmt = $conn->prepare($sql);
+		if ($stmt) {
+			if (in_array('email', $userColumns, true)) {
+				$stmt->bind_param("ssssisi", $username, $password, $role, $name, $isActive, $email, $editId);
+			} else {
+				$stmt->bind_param("ssssii", $username, $password, $role, $name, $isActive, $editId);
+			}
+			
+			if ($stmt->execute()) {
+				$_SESSION['success_msg'] = "User updated successfully!";
+			} else {
+				$_SESSION['error_msg'] = "Failed to update user: " . $conn->error;
+			}
+			$stmt->close();
+		}
+	}
+	header("Location: create_user.php");
+	exit();
+}
+
+$sessionSuccess = $_SESSION['success_msg'] ?? '';
+$sessionError = $_SESSION['error_msg'] ?? '';
+unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+
+if (!empty($sessionSuccess)) {
+	$success = $sessionSuccess;
+}
+if (!empty($sessionError)) {
+	$errors[] = $sessionError;
 }
 
 if (!in_array('role', $userColumns, true)) {
@@ -67,6 +140,13 @@ if ($hasRole && $hasUsername) {
 		array_splice($displayColumns, $usernameIndex, 0, ['role']);
 	}
 }
+
+// Remove updated_date / updated_at columns from table view
+$displayColumns = array_filter($displayColumns, function($col) {
+	return !in_array($col, ['updated_date', 'updated_at'], true);
+});
+$displayColumns = array_values($displayColumns);
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $isAdmin) {
 	$newUsername = trim($_POST['username'] ?? '');
@@ -657,18 +737,25 @@ if ($usersResult) {
 											<?php foreach ($displayColumns as $column): ?>
 												<th><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $column))); ?></th>
 											<?php endforeach; ?>
+											<th style="text-align: center;">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
 										<?php if (empty($userRows)): ?>
 											<tr>
-												<td colspan="<?php echo max(1, count($displayColumns)); ?>" class="text-center py-4 text-muted">
+												<td colspan="<?php echo count($displayColumns) + 1; ?>" class="text-center py-4 text-muted">
 													No users found.
 												</td>
 											</tr>
 										<?php else: ?>
 											<?php foreach ($userRows as $userRow): ?>
-												<tr>
+												<tr data-id="<?php echo $userRow['id']; ?>"
+													data-role="<?php echo htmlspecialchars($userRow['role'] ?? ''); ?>"
+													data-name="<?php echo htmlspecialchars($userRow['name'] ?? ''); ?>"
+													data-username="<?php echo htmlspecialchars($userRow['username'] ?? ''); ?>"
+													data-password="<?php echo htmlspecialchars($userRow['password'] ?? ''); ?>"
+													data-is-active="<?php echo htmlspecialchars($userRow['is_active'] ?? '0'); ?>"
+													data-email="<?php echo htmlspecialchars($userRow['email'] ?? ''); ?>">
 													<?php foreach ($displayColumns as $column): ?>
 														<?php $cellValue = $userRow[$column] ?? ''; ?>
 														<td>
@@ -685,6 +772,10 @@ if ($usersResult) {
 															<?php endif; ?>
 														</td>
 													<?php endforeach; ?>
+													<td style="white-space: nowrap; text-align: center;">
+														<button type="button" class="btn btn-sm btn-outline-primary p-1 edit-user-btn" style="width: 28px; height: 28px;" title="Edit"><i class="fa-solid fa-pen" style="font-size: 0.75rem;"></i></button>
+														<button type="button" class="btn btn-sm btn-outline-danger p-1" style="width: 28px; height: 28px;" onclick="confirmDeleteUser(<?php echo $userRow['id']; ?>)" title="Delete"><i class="fa-solid fa-trash" style="font-size: 0.75rem;"></i></button>
+													</td>
 												</tr>
 											<?php endforeach; ?>
 										<?php endif; ?>
@@ -710,6 +801,114 @@ if ($usersResult) {
 			sidebar.classList.toggle('active');
 		}
 	}
+
+	// SweetAlert Delete Confirmation
+	function confirmDeleteUser(id) {
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "Do you really want to delete this user account?",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#d33',
+			cancelButtonColor: '#3085d6',
+			confirmButtonText: 'Yes, delete it!',
+			cancelButtonText: 'Cancel'
+		}).then((result) => {
+			if (result.isConfirmed) {
+				window.location.href = 'create_user.php?delete_user_id=' + id;
+			}
+		});
+	}
+
+	// Edit User Trigger
+	document.querySelectorAll('.edit-user-btn').forEach(function(btn) {
+		btn.addEventListener('click', function() {
+			const row = this.closest('tr');
+			document.getElementById('edit_id').value = row.dataset.id;
+			if (document.getElementById('edit_role')) {
+				document.getElementById('edit_role').value = row.dataset.role;
+			}
+			if (document.getElementById('edit_name')) {
+				document.getElementById('edit_name').value = row.dataset.name;
+			}
+			document.getElementById('edit_username').value = row.dataset.username;
+			document.getElementById('edit_password').value = row.dataset.password;
+			if (document.getElementById('edit_email')) {
+				document.getElementById('edit_email').value = row.dataset.email;
+			}
+			if (document.getElementById('edit_is_active')) {
+				document.getElementById('edit_is_active').checked = (row.dataset.isActive === '1');
+			}
+
+			const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+			editModal.show();
+		});
+	});
 	</script>
+
+	<!-- Edit User Modal -->
+	<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+				<div class="modal-header text-white" style="background: linear-gradient(135deg, #7f2ab3 0%, #2d064d 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;">
+					<h5 class="modal-title fw-bold" id="editUserModalLabel"><i class="fa-solid fa-user-pen me-2"></i>Edit User Account</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form method="POST" action="create_user.php" class="create-user-form">
+					<div class="modal-body p-4 bg-light">
+						<input type="hidden" name="edit_id" id="edit_id">
+						
+						<div class="row g-3">
+							<?php if ($hasRole): ?>
+								<div class="col-12">
+									<label class="form-label" for="edit_role">Role</label>
+									<select id="edit_role" name="role" class="form-select" required>
+										<option value="" selected hidden>Select</option>
+										<option value="HM">HM</option>
+										<option value="Sachiv">Sachiv</option>
+										<option value="CEO">CEO</option>
+									</select>
+								</div>
+							<?php endif; ?>
+							<?php if ($hasName): ?>
+								<div class="col-12">
+									<label class="form-label" for="edit_name">Full Name</label>
+									<input type="text" id="edit_name" name="name" class="form-control" placeholder="Enter full name" required>
+								</div>
+							<?php endif; ?>
+							<div class="col-12">
+								<label class="form-label" for="edit_username">Username</label>
+								<input type="text" id="edit_username" name="username" class="form-control" placeholder="Enter username" required>
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="edit_password">Password</label>
+								<input type="text" id="edit_password" name="password" class="form-control" placeholder="Enter password" required>
+							</div>
+							
+							<?php if (in_array('email', $userColumns, true)): ?>
+								<div class="col-12">
+									<label class="form-label" for="edit_email">Email Address</label>
+									<input type="email" id="edit_email" name="email" class="form-control" placeholder="Enter email address">
+								</div>
+							<?php endif; ?>
+
+							<?php if ($hasIsActive): ?>
+								<div class="col-12">
+									<div class="form-check my-2">
+										<input class="form-check-input" type="checkbox" id="edit_is_active" name="is_active">
+										<label class="form-check-label fw-bold" for="edit_is_active">Active Account</label>
+									</div>
+								</div>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="modal-footer bg-light" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+						<button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+						<button type="submit" name="update_user" class="btn btn-admin btn-sm px-4" style="background: linear-gradient(135deg, #7f2ab3 0%, #2d064d 100%); border: none;">Save Changes</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </body>
 </html>
