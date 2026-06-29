@@ -77,12 +77,12 @@ if ($current_dir === 'Dashboard') {
 
 <?php } elseif($role == 'HM') { ?>
 
-    <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="#" onclick="showWorkInProgress(event, 'Update Work Progress')"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
+    <li><a href="<?php echo $root_prefix; ?>Dashboard/hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+    <li><a href="<?php echo $root_prefix; ?>Dashboard/hm_update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
     <li><a href="#" onclick="showWorkInProgress(event, 'HM Work Master')"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
-    <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
+    <li><a href="<?php echo $root_prefix; ?>Dashboard/amount_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
     <li><a href="#" onclick="showWorkInProgress(event, 'Utility Master')"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="#" onclick="showWorkInProgress(event, 'Notification')"><i class="fa-solid fa-bell"></i> Notification</a></li>
+    <li><a href="<?php echo $root_prefix; ?>Dashboard/hm_notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
 
 
 <?php } ?>

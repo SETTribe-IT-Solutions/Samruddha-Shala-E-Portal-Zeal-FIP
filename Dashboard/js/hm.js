@@ -196,13 +196,13 @@ function loadHMSchoolSpecificDetails(schoolId) {
 
 // Redirect helper to open the reporting form with the currently selected school
 function redirectToUpdateProgress() {
-    Swal.fire({
-        title: 'Update Work Progress Under Development',
-        text: 'The Update Work Progress module is currently under development.',
-        icon: 'info',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#0b63b7'
-    });
+    const select = document.getElementById('hmSchoolSelect');
+    const schoolId = select ? select.value : '';
+    if (schoolId) {
+        window.location.href = `hm_update_work_progress.php?school_id=${schoolId}`;
+    } else {
+        window.location.href = 'hm_update_work_progress.php';
+    }
 }
 
 // --- HM HISTORY TIMELINE ---

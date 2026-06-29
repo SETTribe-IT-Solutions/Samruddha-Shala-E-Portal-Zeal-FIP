@@ -132,7 +132,7 @@ if($_SESSION['role'] != 'HM'){
                     </button>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-sm text-decoration-none" href="hm_utilization.php">
+                    <a class="btn btn-sm text-decoration-none" href="amount_utilization.php">
                         <i class="fa-solid fa-indian-rupee-sign me-2"></i><span data-en="Amount Utilization" data-mr="रक्कम वापर">Amount Utilization</span>
                     </a>
                 </li>
@@ -158,7 +158,7 @@ if($_SESSION['role'] != 'HM'){
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <a href="hm_utilization.php" class="text-decoration-none h-100 d-block">
+                    <a href="amount_utilization.php" class="text-decoration-none h-100 d-block">
                         <div class="card hm-kpi-card h-100 border-0">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>

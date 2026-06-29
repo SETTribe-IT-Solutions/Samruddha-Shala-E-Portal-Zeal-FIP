@@ -27,6 +27,9 @@ if($_SESSION['role'] != 'HM'){
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- CSS -->
     <link href="../css/sidebar.css" rel="stylesheet">
     <link href="css/hm_dashboard.css?v=1.0.1" rel="stylesheet">
@@ -67,162 +70,59 @@ if($_SESSION['role'] != 'HM'){
         <!-- Form and List Content -->
         <div class="container-fluid p-0">
 
-            <div class="card p-4 mb-4">
-                <h3 class="fw-bold mb-1 text-dark">
-                    <i class="fa-solid fa-file-pen me-2 text-primary"></i>
-                    Submit Progress Report
-                </h3>
-                <p class="text-muted mb-0">
-                    Select a school, update physical construction details, record expenses, capture geo-tagged proof, and submit for verification.
-                </p>
+            <!-- Under Maintenance Section -->
+            <div class="card p-5 text-center shadow-sm border-0 rounded-4 my-3" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+                <div class="card-body py-4">
+                    <div class="mb-4">
+                        <img src="../images/maintenance_boy.png?v=2" alt="Maintenance Boy" style="width: 240px; max-width: 100%; height: auto;" class="img-fluid rounded-4 shadow-sm mb-2">
+                    </div>
+                    <h2 class="fw-bold text-dark mb-3">
+                        We're Under <span style="color: #2563eb;">Maintenance!</span>
+                    </h2>
+                    <p class="text-muted fs-6 mx-auto mb-4" style="max-width: 550px; line-height: 1.6;">
+                        The <strong>Update Work Progress</strong> section is currently undergoing scheduled maintenance and system upgrades to enhance performance. Please check back again soon!
+                    </p>
+                    <div class="d-inline-flex align-items-center gap-2 px-4 py-2.5 rounded-pill mb-4 shadow-sm" style="background-color: #f0f4ff; color: #1e3a8a; font-weight: 600; font-size: 0.95rem;">
+                        <i class="fa-regular fa-face-smile text-primary me-1 fs-5"></i>
+                        <span>Thank you for your patience and support!</span>
+                        <i class="fa-solid fa-heart text-primary ms-1"></i>
+                    </div>
+                    <div class="mt-2">
+                        <a href="hm_dashboard.php" class="btn btn-primary px-4 py-2.5 rounded-3 fw-semibold shadow-sm">
+                            <i class="fa-solid fa-house me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <div class="row g-4">
-                <!-- LEFT COLUMN: SCHOOLS LIST -->
-                <div class="col-lg-5">
-                    <div class="card p-4 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold mb-0 text-dark">
-                                <i class="fa-solid fa-list-check text-primary me-2"></i>Assigned Works
-                            </h5>
-                            <span class="badge bg-primary rounded-pill" id="worksCountBadge">0 Schools</span>
-                        </div>
-                        
-                        <!-- Search Bar -->
-                        <div class="search-wrapper mb-3">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="hmSchoolSearch" class="form-control" placeholder="Search by school or block name..." onkeyup="filterHMSchools()">
-                        </div>
-
-                        <!-- Filter Pills -->
-                        <div class="filter-pills-container mb-3 scroll-panel">
-                            <span class="filter-pill active" onclick="setSchoolFilter('all', this)">All</span>
-                            <span class="filter-pill" onclick="setSchoolFilter('active', this)">Active</span>
-                            <span class="filter-pill" onclick="setSchoolFilter('completed', this)">Completed</span>
-                            <span class="filter-pill" onclick="setSchoolFilter('blocked', this)">Blocked</span>
-                        </div>
-
-                        <!-- Scrollable Card list -->
-                        <div id="hmSchoolList" class="scroll-panel" style="max-height: 480px; overflow-y: auto; padding-right: 2px;">
-                            <!-- Dynamic Card listing populated by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RIGHT COLUMN: UPDATE FORM -->
-                <div class="col-lg-7">
-                    <div class="card p-4">
-                        <h5 class="fw-bold mb-1 text-dark">
-                            <i class="fa-solid fa-square-plus text-primary me-2"></i>Update Progress Log
-                        </h5>
-                        <p class="text-muted small mb-3">
-                            Submit actual physical construction stages, release details, blockers, and geo-tag photos.
-                        </p>
-
-                        <!-- Hidden select element to bridge with script logic -->
-                        <select id="hmSchoolSelect" class="form-select d-none" onchange="loadHMSchoolSpecificDetails(this.value)"></select>
-
-                        <!-- Active Indicator banner -->
-                        <div class="alert alert-info-premium mb-3 d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">Active Selection</small>
-                                <strong id="hmSelectedSchoolName" class="text-primary" style="font-size: 0.95rem;">No School Selected</strong>
-                            </div>
-                            <span class="badge bg-secondary" id="hmSelectedBlockBadge">- Block</span>
-                        </div>
-
-                        <!-- CEO Task Directive Banner if any -->
-                        <div id="hmTaskAlertBanner" class="alert alert-warning py-2 px-3 mb-3 d-none" style="border-radius: 12px; border-left: 4px solid #f59e0b;">
-                            <div class="d-flex align-items-start">
-                                <i class="fa-solid fa-circle-info mt-1 me-2 text-warning"></i>
-                                <div class="small">
-                                    <strong>Task Directive:</strong> <span id="hmTaskAlertText">None</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Form -->
-                        <form id="hmUpdateForm" onsubmit="handleHMUpdateSubmit(event)">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="hmWorkType" class="form-label fw-semibold small text-muted mb-1">Work Category</label>
-                                    <input type="text" id="hmWorkType" class="form-control" readonly style="background-color: #f1f5f9;">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="hmFundingSource" class="form-label fw-semibold small text-muted mb-1">Funding Source</label>
-                                    <input type="text" id="hmFundingSource" class="form-control" readonly style="background-color: #f1f5f9;">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label for="hmProgressRange" class="form-label fw-semibold small text-muted mb-0">Current Progress Stage</label>
-                                    <span id="hmProgressValueText" class="fw-bold text-primary">0%</span>
-                                </div>
-                                <input type="range" id="hmProgressRange" class="form-range" min="0" max="100" value="0" oninput="updateHMProgressSliderText(this.value)">
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="hmSpentAmount" class="form-label fw-semibold small text-muted mb-1">Amount Spent (Lakhs)</label>
-                                    <input type="number" id="hmSpentAmount" class="form-control" placeholder="e.g. 1.50" min="0" step="0.01">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="hmBudgetNotes" class="form-label fw-semibold small text-muted mb-1">Financial Notes</label>
-                                    <input type="text" id="hmBudgetNotes" class="form-control" placeholder="e.g. Materials purchased">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="hmBlockerSelector" class="form-label fw-semibold small text-muted mb-1">Report Blocker Status</label>
-                                <select id="hmBlockerSelector" class="form-select" onchange="toggleHMBlockerDetailsInput(this.value)">
-                                    <option value="None">None</option>
-                                    <option value="Material Shortage">Material Shortage</option>
-                                    <option value="Labor Shortage">Labor Shortage</option>
-                                    <option value="Fund Delay">Fund Delay</option>
-                                    <option value="Weather Delays">Weather Delays</option>
-                                    <option value="Land Boundary Dispute">Land Boundary Dispute</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-
-                            <div id="hmBlockerDetailsContainer" class="mb-3 d-none">
-                                <label for="hmBlockerDetails" class="form-label fw-semibold small text-muted mb-1">Blocker Description</label>
-                                <textarea id="hmBlockerDetails" class="form-control" rows="2" placeholder="Describe the blocker details..."></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold small text-muted mb-1">Geo-Tagging Coordinates</label>
-                                <div class="input-group">
-                                    <input type="text" id="hmGeoCoordinates" class="form-control" placeholder="GPS coordinates" readonly required>
-                                    <button type="button" class="btn btn-outline-secondary small fw-bold" onclick="captureGeoTaggedPhoto()">
-                                        <i class="fa-solid fa-location-dot me-1"></i> Capture GPS
-                                    </button>
-                                </div>
-                                <input type="hidden" id="hmGeotagInput" value="Missing">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold small text-muted mb-1">Photo Proof Upload</label>
-                                <div class="upload-zone-premium" onclick="triggerPhotoUpload()">
-                                    <i class="fa-solid fa-cloud-arrow-up fs-3 mb-2 text-primary" id="uploadZoneIcon" style="opacity: 0.85;"></i>
-                                    <p class="mb-0 text-muted small fw-semibold" id="uploadZoneText">Click to select site photo proof</p>
-                                    <img id="photoPreview" class="upload-preview d-none" src="#" alt="Preview">
-                                </div>
-                                <input type="file" id="hmPhotoFile" class="d-none" accept="image/*" onchange="previewHMUploadedPhoto(this)" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="hmRemarks" class="form-label fw-semibold small text-muted mb-1">Progress Remarks</label>
-                                <textarea id="hmRemarks" class="form-control" rows="2" placeholder="Enter what physical work has been completed..." required></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mt-2">
-                                <i class="fa-solid fa-paper-plane me-2"></i>Submit Progress Report
-                            </button>
-                        </form>
-                    </div>
-                </div>
+            <!-- Hidden original elements for script compatibility -->
+            <div class="d-none">
+                <select id="hmSchoolSelect" class="form-select d-none" onchange="loadHMSchoolSpecificDetails(this.value)"></select>
+                <div id="worksCountBadge"></div>
+                <input type="text" id="hmSchoolSearch">
+                <div id="hmSchoolList"></div>
+                <strong id="hmSelectedSchoolName"></strong>
+                <span id="hmSelectedBlockBadge"></span>
+                <div id="hmTaskAlertBanner"></div>
+                <span id="hmTaskAlertText"></span>
+                <form id="hmUpdateForm">
+                    <input type="text" id="hmWorkType">
+                    <input type="text" id="hmFundingSource">
+                    <span id="hmProgressValueText"></span>
+                    <input type="range" id="hmProgressRange">
+                    <input type="number" id="hmSpentAmount">
+                    <input type="text" id="hmBudgetNotes">
+                    <select id="hmBlockerSelector"></select>
+                    <div id="hmBlockerDetailsContainer"></div>
+                    <textarea id="hmBlockerDetails"></textarea>
+                    <input type="text" id="hmGeoCoordinates">
+                    <input type="hidden" id="hmGeotagInput">
+                    <i id="uploadZoneIcon"></i>
+                    <p id="uploadZoneText"></p>
+                    <img id="photoPreview">
+                    <input type="file" id="hmPhotoFile">
+                    <textarea id="hmRemarks"></textarea>
+                </form>
             </div>
 
         </div>
@@ -244,6 +144,44 @@ if($_SESSION['role'] != 'HM'){
 
 <!-- Dashboard dynamic controller -->
 <script src="js/hm_update.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        html: `
+            <div style="text-align: center; padding: 10px 0;">
+                <img src="../images/maintenance_boy.png?v=2" alt="Maintenance Boy" style="width: 230px; margin-bottom: 20px; border-radius: 15px;">
+                <h2 style="color: #1e293b; font-weight: 800; margin-bottom: 15px;">
+                    We're Under <span style="color: #2563eb;">Maintenance!</span>
+                </h2>
+                <p style="color: #475569; font-size: 1.05rem; line-height: 1.5; margin-bottom: 25px;">
+                    We're currently working on making things better.<br>
+                    Please check back again soon!
+                </p>
+                <div style="background-color: #f0f4ff; color: #1e3a8a; padding: 12px 25px; border-radius: 50px; display: inline-block; font-weight: 600; font-size: 0.95rem;">
+                    <i class="fa-regular fa-face-smile text-primary me-2"></i> 
+                    Thank you for your patience and support! 
+                    <i class="fa-solid fa-heart text-primary ms-1"></i>
+                </div>
+            </div>
+        `,
+        showConfirmButton: true,
+        confirmButtonText: '<i class="fa-solid fa-house me-2"></i>Back to Dashboard',
+        confirmButtonColor: '#2563eb',
+        showCloseButton: true,
+        allowOutsideClick: true,
+        width: '550px',
+        padding: '2em',
+        customClass: {
+            popup: 'rounded-4 shadow-lg border-0'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'hm_dashboard.php';
+        }
+    });
+});
+</script>
 
 </body>
 </html>

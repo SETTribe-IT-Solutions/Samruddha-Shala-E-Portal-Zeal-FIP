@@ -9,8 +9,8 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['username'])) {
     exit();
 }
 
-if ($_SESSION['role'] !== 'CEO') {
-    header("Location: ceo_dashboard.php");
+if ($_SESSION['role'] !== 'CEO' && $_SESSION['role'] !== 'HM') {
+    header("Location: ../login.php");
     exit();
 }
 
