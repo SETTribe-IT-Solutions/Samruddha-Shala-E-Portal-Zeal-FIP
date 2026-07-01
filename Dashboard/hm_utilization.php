@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../css/sidebar.css" rel="stylesheet">
+    <link href="css/hm_dashboard.css?v=1.0.1" rel="stylesheet">
     
     <style>
         body {
@@ -95,32 +96,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
         }
     </style>
 </head>
-<body>
+<body class="hm-dashboard-page">
 <div id="wrapper">
-    <nav id="sidebar">
-        <div class="sidebar-header">
-            <h4 class="mb-0 text-white font-weight-bold"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i>Samruddha Shala</h4>
-            <small class="text-muted text-uppercase font-weight-bold" style="font-size: 0.7rem; letter-spacing: 1px;">E-Portal System</small>
-        </div>
 
-        <ul class="list-unstyled components">
-            <p>School reporting</p>
-            <li>
-                <a href="hm_dashboard.php?view=report"><i class="fa-solid fa-cloud-arrow-up"></i>Upload Progress</a>
-            </li>
-            <li>
-                <a href="hm_dashboard.php?view=history"><i class="fa-solid fa-clock-rotate-left"></i>Report History</a>
-            </li>
-            <li class="active">
-                <a href="hm_utilization.php"><i class="fa-solid fa-chart-pie"></i>Amount Utilization Report</a>
-            </li>
-        </ul>
-    </nav>
+    <!-- Sidebar -->
+    <?php include '../include/sidebar.php'; ?>
 
     <div id="content">
+        <!-- Fixed Header -->
+        <div class="hm-fixed-header">
+            <?php include '../include/website_header.php'; ?>
+        </div>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
-                <a href="hm_dashboard.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+                <div class="d-flex align-items-center">
+                    <button type="button" id="sidebarCollapse" class="btn btn-link text-dark me-2 d-lg-none" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                        <i class="fas fa-align-left fs-5"></i>
+                    </button>
+                    <a href="hm_dashboard.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+                </div>
                 <div class="ms-auto d-flex align-items-center gap-2">
                     <label for="langSelector" class="mb-0 fw-semibold" data-en="Language" data-mr="भाषा">Language</label>
                     <select id="langSelector" class="form-select form-select-sm" style="width: 130px;">
@@ -203,6 +197,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
                 <?php endif; ?>
             </div>
         </div>
+        
+        <!-- Fixed Footer -->
+        <div class="hm-fixed-footer">
+            <?php include '../include/website_footer.php'; ?>
+        </div>
     </div>
 </div>
 
@@ -229,6 +228,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calc'])) {
     langSelector.addEventListener('change', function () {
         setLanguage(this.value);
     });
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
 </script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

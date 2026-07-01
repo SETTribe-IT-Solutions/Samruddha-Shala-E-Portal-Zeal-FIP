@@ -28,10 +28,12 @@ $role     = $_SESSION['role'];
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- Custom Style Sheets -->
 <link href="../css/sidebar.css" rel="stylesheet">
-<link rel="stylesheet" href="css/sachiv_dashboard.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="css/sachiv_dashboard.css?v=2">
 
 </head>
 <body class="sachiv-dashboard-page">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <div id="wrapper">
     <!-- SIDEBAR -->
@@ -47,15 +49,20 @@ $role     = $_SESSION['role'];
         <!-- CONTENT AREA -->
         <div class="content-area">
 
-    <div class="mb-4">
-        <h3 class="fw-bold">
-            <i class="fa-solid fa-user-tie text-primary"></i>
-            Sachiv Dashboard
-        </h3>
-
-        <p class="text-muted">
-            Welcome to Samruddha Shala E-Portal
-        </p>
+    <div class="mb-4 d-flex align-items-center bg-white p-3 shadow-sm border" style="border-radius: 20px;">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="btn btn-light d-lg-none me-3 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 48px; height: 48px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
+            <i class="fa-solid fa-bars fs-5"></i>
+        </button>
+        
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="fa-solid fa-user-tie text-primary d-none d-md-inline-block me-2"></i>Sachiv Dashboard
+            </h3>
+            <p class="text-muted mb-0">
+                Welcome to Samruddha Shala E-Portal
+            </p>
+        </div>
     </div>
 
     <!-- KPI CARDS -->
@@ -127,18 +134,18 @@ $role     = $_SESSION['role'];
     <div class="row mt-4">
 
         <div class="col-md-6">
-            <div class="card dashboard-card p-4">
+            <div class="card dashboard-card p-4 h-100">
 
                 <h5>Quick Actions</h5>
 
                 <a href="sachiv_work_master.php"
-                   class="btn btn-primary w-100 mb-2">
+                   class="btn btn-sidebar-gradient w-100 mb-2">
                     <i class="fa-solid fa-list"></i>
                     Work Master
                 </a>
 
                 <a href="utility_master.php"
-                   class="btn btn-success w-100">
+                   class="btn btn-sidebar-gradient w-100">
                     <i class="fa-solid fa-screwdriver-wrench"></i>
                     Utility Master
                 </a>
@@ -147,7 +154,7 @@ $role     = $_SESSION['role'];
         </div>
 
         <div class="col-md-6">
-            <div class="card dashboard-card p-4">
+            <div class="card dashboard-card p-4 h-100">
 
                 <h5>Recent Notifications</h5>
 
@@ -199,24 +206,26 @@ $role     = $_SESSION['role'];
 
                         <tr>
                             <td>2</td>
-                            <td>Toilet Construction</td>
-                            <td>CSR Fund</td>
+                            <td>Water Tank Installation</td>
+                            <td>Annual Plan</td>
                             <td>
-                                <span class="badge bg-warning">
-                                    Pending
+                                <span class="badge bg-orange text-white">
+                                    Ongoing
                                 </span>
                             </td>
+                            
                         </tr>
 
                         <tr>
                             <td>3</td>
-                            <td>Water Tank Installation</td>
-                            <td>Annual Plan</td>
+                            <td>Toilet Construction</td>
+                            <td>CSR Fund</td>
                             <td>
-                                <span class="badge bg-primary">
-                                    Ongoing
+                                <span class="badge bg-danger">
+                                    Pending
                                 </span>
                             </td>
+                            
                         </tr>
 
                     </tbody>

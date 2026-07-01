@@ -88,7 +88,7 @@ if(isset($_POST['save']))
     echo "
     <script>
         alert('Data Saved Successfully');
-        window.location='amount_utilization.php';
+        window.location='amount_utilization_ceo.php';
     </script>";
 }
 ?>
