@@ -141,6 +141,79 @@
                         <div data-en="Unified Portal" data-mr="एकसंध पोर्टल">एकसंध पोर्टल</div>
                     </div>
                 </div>
+
+                <!-- Live School Progress Tracker Dropdown and Detail Card -->
+                <div class="mt-4 p-4 bg-white shadow-sm rounded-4 border">
+                    <h5 class="fw-bold mb-3 text-primary-emphasis" data-en="🏫 Live School Progress Tracker" data-mr="🏫 लाईव्ह शाळा प्रगती ट्रॅकर">
+                        🏫 लाईव्ह शाळा प्रगती ट्रॅकर
+                    </h5>
+                    
+                    <div class="mb-3 text-start">
+                        <label for="landingSchoolSelect" class="form-label fw-semibold" data-en="Select School:" data-mr="शाळा निवडा:">
+                            शाळा निवडा:
+                        </label>
+                        <select id="landingSchoolSelect" class="form-select border-primary-subtle">
+                            <option value="" disabled selected data-en="-- Select a School --" data-mr="-- शाळा निवडा --">-- शाळा निवडा --</option>
+                            <option value="ZP School Panhala">ZP School Panhala</option>
+                            <option value="ZP School Karvir">ZP School Karvir</option>
+                            <option value="ZP School Shahuwadi">ZP School Shahuwadi</option>
+                            <option value="ZP School Radhanagari">ZP School Radhanagari</option>
+                            <option value="ZP School Kagal">ZP School Kagal</option>
+                            <option value="ZP School Bhudargad">ZP School Bhudargad</option>
+                            <option value="ZP School Ajara">ZP School Ajara</option>
+                            <option value="ZP School Gadhinglaj">ZP School Gadhinglaj</option>
+                            <option value="ZP School Chandgad">ZP School Chandgad</option>
+                            <option value="ZP School Hatkanangale">ZP School Hatkanangale</option>
+                            <option value="ZP School Shirol">ZP School Shirol</option>
+                            <option value="ZP School Gaganbawda">ZP School Gaganbawda</option>
+                        </select>
+                    </div>
+
+                    <!-- School Details Container -->
+                    <div id="landingSchoolDetails" class="d-none mt-3 pt-3 border-top text-start">
+                        <h6 class="fw-bold text-primary mb-2" id="schoolDetailName">ZP School Panhala</h6>
+                        
+                        <div class="row g-2 mb-3" style="font-size: 0.95rem;">
+                            <div class="col-6">
+                                <span class="text-muted d-block" data-en="Block / Taluka:" data-mr="तालुका / गट:">तालुका / गट:</span>
+                                <strong id="schoolDetailBlock">-</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted d-block" data-en="Work Type:" data-mr="कामाचा प्रकार:">कामाचा प्रकार:</span>
+                                <strong id="schoolDetailWorkType">-</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted d-block" data-en="Budget Allocated:" data-mr="मंजूर निधी:">मंजूर निधी:</span>
+                                <strong id="schoolDetailBudget">-</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted d-block" data-en="Amount Spent:" data-mr="खर्च केलेला निधी:">खर्च केलेला निधी:</span>
+                                <strong id="schoolDetailSpent">-</strong>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <span class="text-muted d-block" data-en="Funding Source:" data-mr="निधीचा स्रोत:">निधीचा स्रोत:</span>
+                                <strong id="schoolDetailFunding">-</strong>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.9rem;">
+                                <span class="fw-semibold text-muted" data-en="Work Progress:" data-mr="कामाची प्रगती:">कामाची प्रगती:</span>
+                                <span class="fw-bold text-success" id="schoolDetailProgressText">0%</span>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 5px;">
+                                <div id="schoolDetailProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks / Updates -->
+                        <div class="p-3 bg-light rounded-3" style="font-size: 0.9rem; border-left: 4px solid #6420a5;">
+                            <span class="text-muted d-block fw-semibold" data-en="Latest Remarks / Status:" data-mr="नवीनतम टिप्पणी / स्थिती:">नवीनतम टिप्पणी / स्थिती:</span>
+                            <span class="text-dark" id="schoolDetailRemarks">-</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -450,8 +523,68 @@
         });
 
         revealItems.forEach(item => observer.observe(item));
+
+        // Initialize local client-side database
+        if (typeof initDatabase !== 'undefined') {
+            initDatabase();
+        }
+
+        // Dropdown selection change event handler
+        const schoolSelect = document.getElementById('landingSchoolSelect');
+        const schoolDetails = document.getElementById('landingSchoolDetails');
+        
+        if (schoolSelect) {
+            schoolSelect.addEventListener('change', function() {
+                const selectedSchoolName = this.value;
+                if (!selectedSchoolName) return;
+
+                // Find school in dynamic DB object loaded from localStorage (or fallback)
+                if (typeof db !== 'undefined' && db.schools) {
+                    const school = db.schools.find(s => s.name === selectedSchoolName);
+                    if (school) {
+                        document.getElementById('schoolDetailName').textContent = school.name;
+                        document.getElementById('schoolDetailBlock').textContent = school.block || 'N/A';
+                        document.getElementById('schoolDetailWorkType').textContent = school.work_type || 'N/A';
+                        document.getElementById('schoolDetailBudget').textContent = (school.budget ? school.budget + ' Lakhs' : 'N/A');
+                        document.getElementById('schoolDetailSpent').textContent = (school.spent ? school.spent + ' Lakhs' : 'N/A');
+                        document.getElementById('schoolDetailFunding').textContent = school.funding_source || 'N/A';
+                        
+                        const progress = parseInt(school.progress || 0);
+                        document.getElementById('schoolDetailProgressText').textContent = progress + '%';
+                        
+                        const progressBar = document.getElementById('schoolDetailProgressBar');
+                        if (progressBar) {
+                            progressBar.style.width = progress + '%';
+                            progressBar.setAttribute('aria-valuenow', progress);
+                        }
+                        
+                        document.getElementById('schoolDetailRemarks').textContent = school.remarks || 'No remarks available.';
+                        
+                        // Show school detail card
+                        schoolDetails.classList.remove('d-none');
+
+                        // Dynamically update the about section image if the school has a custom photo
+                        const aboutImg = document.querySelector('.about-image-block img');
+                        const aboutCaption = document.querySelector('.about-image-block .image-caption');
+                        if (aboutImg) {
+                            if (school.photo) {
+                                aboutImg.src = school.photo;
+                            } else {
+                                aboutImg.src = 'images/zp-building.jpg';
+                            }
+                            if (aboutCaption) {
+                                aboutCaption.textContent = school.name;
+                                aboutCaption.setAttribute('data-en', '# ' + school.name);
+                                aboutCaption.setAttribute('data-mr', '# ' + school.name);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
+<script src="Dashboard/js/db.js"></script>
 
 <?php require_once __DIR__ . '/include/landing_footer.php'; ?>
 <?php require_once __DIR__ . '/include/script.php'; ?>

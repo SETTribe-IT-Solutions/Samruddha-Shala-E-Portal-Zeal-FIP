@@ -25,6 +25,8 @@ $queries = [
     )",
     "CREATE TABLE IF NOT EXISTS work_master (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        school_name VARCHAR(150) NULL,
+        assigned_to VARCHAR(50) NULL,
         work_type_id INT NOT NULL,
         work_name_id INT NOT NULL,
         additional_notes TEXT,

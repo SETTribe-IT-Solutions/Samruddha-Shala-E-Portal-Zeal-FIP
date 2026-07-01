@@ -62,6 +62,34 @@ if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
                                 <form id="createWorkForm">
                                     <div class="row mb-3">
                                         <div class="col-md-6">
+                                            <label for="schoolNameSelect" class="form-label fw-semibold">School Name <span class="text-danger">*</span></label>
+                                            <select id="schoolNameSelect" name="school_name" class="form-select" required>
+                                                <option value="" disabled selected>Select School</option>
+                                                <option value="ZP School Panhala">ZP School Panhala</option>
+                                                <option value="ZP School Karvir">ZP School Karvir</option>
+                                                <option value="ZP School Shahuwadi">ZP School Shahuwadi</option>
+                                                <option value="ZP School Radhanagari">ZP School Radhanagari</option>
+                                                <option value="ZP School Kagal">ZP School Kagal</option>
+                                                <option value="ZP School Bhudargad">ZP School Bhudargad</option>
+                                                <option value="ZP School Ajara">ZP School Ajara</option>
+                                                <option value="ZP School Gadhinglaj">ZP School Gadhinglaj</option>
+                                                <option value="ZP School Chandgad">ZP School Chandgad</option>
+                                                <option value="ZP School Hatkanangale">ZP School Hatkanangale</option>
+                                                <option value="ZP School Shirol">ZP School Shirol</option>
+                                                <option value="ZP School Gaganbawda">ZP School Gaganbawda</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="assignedToSelect" class="form-label fw-semibold">Assigned To <span class="text-danger">*</span></label>
+                                            <select id="assignedToSelect" name="assigned_to" class="form-select" required>
+                                                <option value="" disabled selected>Select Assignment</option>
+                                                <option value="Headmaster">Headmaster</option>
+                                                <option value="Sachiv">Sachiv</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
                                             <label for="workTypeSelect" class="form-label fw-semibold">Work Type <span class="text-danger">*</span></label>
                                             <select id="workTypeSelect" name="work_type_id" class="form-select" required>
                                                 <option value="" disabled selected>Loading...</option>

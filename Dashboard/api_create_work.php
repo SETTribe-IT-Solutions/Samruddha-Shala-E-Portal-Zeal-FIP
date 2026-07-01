@@ -23,12 +23,26 @@ if (!$input) {
     exit;
 }
 
+$school_name = trim($input['school_name'] ?? '');
+$assigned_to = trim($input['assigned_to'] ?? '');
 $work_type_id = intval($input['work_type_id'] ?? 0);
 $work_name_id = intval($input['work_name_id'] ?? 0);
 $additional_notes = trim($input['additional_notes'] ?? '');
 $stages = $input['stages'] ?? [];
 
 // Validation
+if (empty($school_name)) {
+    echo json_encode(["status" => false, "message" => "School Name is required."]);
+    exit;
+}
+if (empty($assigned_to)) {
+    echo json_encode(["status" => false, "message" => "Assigned To is required."]);
+    exit;
+}
+if (!in_array($assigned_to, ['Headmaster', 'Sachiv'], true)) {
+    echo json_encode(["status" => false, "message" => "Invalid Assigned To selection."]);
+    exit;
+}
 if ($work_type_id <= 0) {
     echo json_encode(["status" => false, "message" => "Work Type is required."]);
     exit;
@@ -75,8 +89,8 @@ if (mysqli_num_rows($res) === 0) {
 // Database Transaction
 mysqli_begin_transaction($conn);
 try {
-    $stmt = mysqli_prepare($conn, "INSERT INTO work_master (work_type_id, work_name_id, additional_notes, created_by) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmt, "iisi", $work_type_id, $work_name_id, $additional_notes, $created_by);
+    $stmt = mysqli_prepare($conn, "INSERT INTO work_master (school_name, assigned_to, work_type_id, work_name_id, additional_notes, created_by) VALUES (?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "ssiisi", $school_name, $assigned_to, $work_type_id, $work_name_id, $additional_notes, $created_by);
     mysqli_stmt_execute($stmt);
     $work_id = mysqli_insert_id($conn);
     mysqli_stmt_close($stmt);
