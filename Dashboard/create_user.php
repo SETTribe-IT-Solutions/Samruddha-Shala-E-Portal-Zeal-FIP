@@ -45,10 +45,19 @@ if (!in_array('name', $userColumns, true)) {
 	}
 }
 
+if (!in_array('school_name', $userColumns, true)) {
+	if ($conn->query("ALTER TABLE users ADD COLUMN school_name VARCHAR(150) NULL")) {
+		$userColumns[] = 'school_name';
+	} else {
+		$errors[] = 'Unable to add school_name column to users table.';
+	}
+}
+
 $hasUsername = in_array('username', $userColumns, true);
 $hasPassword = in_array('password', $userColumns, true);
 $hasRole = in_array('role', $userColumns, true);
 $hasName = in_array('name', $userColumns, true);
+$hasSchoolName = in_array('school_name', $userColumns, true);
 $hasIsActive = in_array('is_active', $userColumns, true);
 
 if ($hasRole && $hasUsername) {
@@ -73,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 	$newPassword = trim($_POST['password'] ?? '');
 	$newRole = trim($_POST['role'] ?? '');
 	$newName = trim($_POST['name'] ?? '');
+	$newSchoolName = trim($_POST['school_name'] ?? '');
 	$isActive = isset($_POST['is_active']) ? 1 : 0;
 
 	if (!$hasUsername || !$hasPassword) {
@@ -81,6 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 
 	if ($newUsername === '') {
 		$errors[] = 'Username is required.';
+	} elseif (preg_match('/^\d/', $newUsername)) {
+		$errors[] = 'Username should not start with a number.';
 	}
 
 	if ($newPassword === '') {
@@ -117,26 +129,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 	}
 
 	if (empty($errors)) {
-		if ($hasRole && $hasName && $hasIsActive) {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name, is_active) VALUES (?, ?, ?, ?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ssssi', $newUsername, $newPassword, $newRole, $newName, $isActive);
-			}
-		} elseif ($hasRole && $hasName) {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ssss', $newUsername, $newPassword, $newRole, $newName);
-			}
-		} elseif ($hasIsActive) {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password, is_active) VALUES (?, ?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ssi', $newUsername, $newPassword, $isActive);
-			}
-		} else {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password) VALUES (?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ss', $newUsername, $newPassword);
-			}
+		// Use dynamic query builder to support varying columns safely
+		$cols = ['username', 'password'];
+		$vals = [$newUsername, $newPassword];
+		$types = 'ss';
+
+		if ($hasRole) {
+			$cols[] = 'role';
+			$vals[] = $newRole;
+			$types .= 's';
+		}
+		if ($hasName) {
+			$cols[] = 'name';
+			$vals[] = $newName;
+			$types .= 's';
+		}
+		if ($hasSchoolName) {
+			$cols[] = 'school_name';
+			$vals[] = ($newSchoolName !== '') ? $newSchoolName : null;
+			$types .= 's';
+		}
+		if ($hasIsActive) {
+			$cols[] = 'is_active';
+			$vals[] = $isActive;
+			$types .= 'i';
+		}
+
+		$colsStr = implode(', ', array_map(function($c) { return "`$c`"; }, $cols));
+		$placeholders = implode(', ', array_fill(0, count($cols), '?'));
+		
+		$insertStmt = $conn->prepare("INSERT INTO users ($colsStr) VALUES ($placeholders)");
+		if ($insertStmt) {
+			$insertStmt->bind_param($types, ...$vals);
 		}
 
 		if (!isset($insertStmt) || !$insertStmt) {
@@ -146,7 +170,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 			$insertStmt->close();
 		} else {
 			$errors[] = 'Failed to create user: ' . $conn->error;
-			$insertStmt->close();
+			if (isset($insertStmt) && $insertStmt) {
+				$insertStmt->close();
+			}
 		}
 	}
 }
@@ -606,8 +632,28 @@ if ($usersResult) {
 						<div class="card-body">
 							<form method="POST" class="create-user-form">
 								<div class="row g-3">
-									<?php if ($hasRole): ?>
+									<?php if ($hasSchoolName): ?>
 										<div class="col-md-3">
+											<label class="form-label" for="school_name">School Name</label>
+											<select id="school_name" name="school_name" class="form-select">
+												<option value="" selected>None / N/A</option>
+												<option value="ZP School Panhala">ZP School Panhala</option>
+												<option value="ZP School Karvir">ZP School Karvir</option>
+												<option value="ZP School Shahuwadi">ZP School Shahuwadi</option>
+												<option value="ZP School Radhanagari">ZP School Radhanagari</option>
+												<option value="ZP School Kagal">ZP School Kagal</option>
+												<option value="ZP School Bhudargad">ZP School Bhudargad</option>
+												<option value="ZP School Ajara">ZP School Ajara</option>
+												<option value="ZP School Gadhinglaj">ZP School Gadhinglaj</option>
+												<option value="ZP School Chandgad">ZP School Chandgad</option>
+												<option value="ZP School Hatkanangale">ZP School Hatkanangale</option>
+												<option value="ZP School Shirol">ZP School Shirol</option>
+												<option value="ZP School Gaganbawda">ZP School Gaganbawda</option>
+											</select>
+										</div>
+									<?php endif; ?>
+									<?php if ($hasRole): ?>
+										<div class="col-md-2">
 											<label class="form-label" for="role">Role</label>
 											<select id="role" name="role" class="form-select" required>
 												<option value="" selected hidden>Select</option>
@@ -618,16 +664,16 @@ if ($usersResult) {
 										</div>
 									<?php endif; ?>
 									<?php if ($hasName): ?>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<label class="form-label" for="name">Full Name</label>
 											<input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
 										</div>
 									<?php endif; ?>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label class="form-label" for="username">Username</label>
 										<input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required>
 									</div>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label class="form-label" for="password">Password</label>
 										<input type="text" id="password" name="password" class="form-control" placeholder="Enter password" required>
 									</div>
@@ -713,6 +759,81 @@ if ($usersResult) {
 			sidebar.classList.toggle('active');
 		}
 	}
+
+	// Client-side validation and Popup errors/success alerts
+	document.addEventListener('DOMContentLoaded', function() {
+		// Server-side errors popup
+		<?php if (!empty($errors)): ?>
+		if (typeof Swal !== 'undefined') {
+			Swal.fire({
+				title: 'Validation Error',
+				html: '<ul class="text-start mb-0"><?php foreach ($errors as $error): ?><li><?php echo addslashes(htmlspecialchars($error)); ?></li><?php endforeach; ?></ul>',
+				icon: 'error',
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#7f2ab3'
+			});
+		}
+		<?php endif; ?>
+
+		// Server-side success popup
+		<?php if (!empty($success)): ?>
+		if (typeof Swal !== 'undefined') {
+			Swal.fire({
+				title: 'Success',
+				text: '<?php echo addslashes(htmlspecialchars($success)); ?>',
+				icon: 'success',
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#7f2ab3'
+			});
+		}
+		<?php endif; ?>
+
+		// Form submit validation
+		const form = document.querySelector('.create-user-form');
+		if (form) {
+			form.addEventListener('submit', function(event) {
+				const roleEl = document.getElementById('role');
+				const nameEl = document.getElementById('name');
+				const usernameEl = document.getElementById('username');
+				const passwordEl = document.getElementById('password');
+				
+				let errs = [];
+				
+				if (roleEl && !roleEl.value) {
+					errs.push("Please select a role.");
+				}
+				if (nameEl && !nameEl.value.trim()) {
+					errs.push("Full name is required.");
+				}
+				if (usernameEl) {
+					const username = usernameEl.value.trim();
+					if (!username) {
+						errs.push("Username is required.");
+					} else if (/^\d/.test(username)) {
+						errs.push("Username should not start with a number.");
+					}
+				}
+				if (passwordEl && !passwordEl.value.trim()) {
+					errs.push("Password is required.");
+				}
+				
+				if (errs.length > 0) {
+					event.preventDefault();
+					if (typeof Swal !== 'undefined') {
+						Swal.fire({
+							title: 'Validation Error',
+							html: '<ul class="text-start mb-0">' + errs.map(e => '<li>' + e + '</li>').join('') + '</ul>',
+							icon: 'error',
+							confirmButtonText: 'OK',
+							confirmButtonColor: '#7f2ab3'
+						});
+					} else {
+						alert(errs.join('\n'));
+					}
+				}
+			});
+		}
+	});
 	</script>
 </body>
 </html>

@@ -120,10 +120,16 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         hideError();
 
+        const schoolNameSelect = document.getElementById("schoolNameSelect");
+        const schoolName = schoolNameSelect ? schoolNameSelect.value : "";
+        const assignedToSelect = document.getElementById("assignedToSelect");
+        const assignedTo = assignedToSelect ? assignedToSelect.value : "";
         const workTypeId = workTypeSelect.value;
         const workNameId = workNameSelect.value;
         const additionalNotes = document.getElementById("additionalNotes").value;
         
+        if (!schoolName) return showError("School Name is required.");
+        if (!assignedTo) return showError("Assigned To role is required.");
         if (!workTypeId) return showError("Work Type is required.");
         if (!workNameId) return showError("Work Name is required.");
 
@@ -160,6 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Saving...';
 
         const payload = {
+            school_name: schoolName,
+            assigned_to: assignedTo,
             work_type_id: workTypeId,
             work_name_id: workNameId,
             additional_notes: additionalNotes,
