@@ -1,756 +1,624 @@
 <?php
 session_start();
-if(empty($_SESSION['user_id']) || empty($_SESSION['username'])){
+if (empty($_SESSION['user_id']) || empty($_SESSION['username'])) {
     header("Location: ../login.php");
     exit();
 }
 
 // Restrict access to CEO only
 if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
-    // If not CEO, redirect them to login page or prevent access
     header("Location: ../login.php");
     exit();
 }
+
+$host = "82.25.121.144";
+$username = "u196817721_S_Eportal_U";
+$password = "Sam_shalaEportal@2026";
+$database = "u196817721_S_shalaEportal";
+
+$dbConn = mysqli_connect($host, $username, $password, $database);
+if (!$dbConn) {
+    die("<h3 style='color:red'>❌ Database Connection Failed<br>Error: " . mysqli_connect_error() . "</h3>");
+}
+mysqli_set_charset($dbConn, "utf8");
+
+// HM amount utilization summary
+$summarySql = "SELECT
+        COUNT(*) AS record_count,
+        SUM(sanctioned_amount) AS total_sanctioned,
+        SUM(amount_spent) AS total_spent,
+        SUM(amount_spent > sanctioned_amount) AS over_utilized,
+        SUM(amount_spent >= sanctioned_amount * 0.75 AND amount_spent <= sanctioned_amount) AS close_to_limit,
+        SUM(amount_spent < sanctioned_amount * 0.75) AS on_track
+    FROM amount_utilization";
+$summaryResult = mysqli_query($dbConn, $summarySql);
+$summary = mysqli_fetch_assoc($summaryResult) ?: [];
+
+$total_utilization_records = (int)($summary['record_count'] ?? 0);
+$total_sanctioned = (float)($summary['total_sanctioned'] ?? 0.0);
+$total_spent = (float)($summary['total_spent'] ?? 0.0);
+$average_utilization = $total_sanctioned > 0 ? round(($total_spent / $total_sanctioned) * 100, 2) : 0;
+$over_utilized_count = (int)($summary['over_utilized'] ?? 0);
+$close_to_limit_count = (int)($summary['close_to_limit'] ?? 0);
+$on_track_count = (int)($summary['on_track'] ?? 0);
+
+// Funding source breakdown
+$fundingBreakdown = [];
+$fundSql = "SELECT fund_source, SUM(sanctioned_amount) AS sanctioned, SUM(amount_spent) AS spent, COUNT(*) AS records
+    FROM amount_utilization
+    GROUP BY fund_source
+    ORDER BY sanctioned DESC";
+$fundResult = mysqli_query($dbConn, $fundSql);
+while ($row = mysqli_fetch_assoc($fundResult)) {
+    $fundingBreakdown[] = $row;
+}
+
+// Work type utilization breakdown
+$workTypeBreakdown = [];
+$workTypeSql = "SELECT work_type, SUM(sanctioned_amount) AS sanctioned, SUM(amount_spent) AS spent, COUNT(*) AS records
+    FROM amount_utilization
+    GROUP BY work_type
+    ORDER BY spent DESC";
+$workTypeResult = mysqli_query($dbConn, $workTypeSql);
+while ($row = mysqli_fetch_assoc($workTypeResult)) {
+    $workTypeBreakdown[] = $row;
+}
+
+// Taluka school coverage from talukas_school_data
+$talukaCoverage = [];
+$talukaSql = "SELECT taluka_name,
+        COUNT(DISTINCT school_name) AS schools,
+        GROUP_CONCAT(DISTINCT work_type ORDER BY work_type SEPARATOR ', ') AS work_types
+    FROM talukas_school_data
+    WHERE is_active = 1
+    GROUP BY taluka_name
+    ORDER BY schools DESC, taluka_name ASC";
+$talukaResult = mysqli_query($dbConn, $talukaSql);
+if (!$talukaResult) {
+    die("<h3 style='color:red'>DB Error taluka query: " . mysqli_error($dbConn) . "</h3>");
+}
+while ($row = mysqli_fetch_assoc($talukaResult)) {
+    $talukaCoverage[] = $row;
+}
+
+$talukaTotalsSql = "SELECT
+        COUNT(DISTINCT school_name) AS total_schools,
+        COUNT(DISTINCT taluka_name) AS total_talukas
+    FROM talukas_school_data
+    WHERE is_active = 1";
+$talukaTotalsResult = mysqli_query($dbConn, $talukaTotalsSql);
+if (!$talukaTotalsResult) {
+    die("<h3 style='color:red'>DB Error taluka totals query: " . mysqli_error($dbConn) . "</h3>");
+}
+$talukaTotals = mysqli_fetch_assoc($talukaTotalsResult) ?: [];
+$totalTalukaSchools = (int)($talukaTotals['total_schools'] ?? 0);
+$totalTalukas = (int)($talukaTotals['total_talukas'] ?? 0);
+
+// Recent activity from HM amount utilization
+$recentActivityRows = [];
+$recentSql = "SELECT a.work_name, a.fund_source, a.sanctioned_amount, a.amount_spent, a.expense_date,
+        u.name AS hm_name
+    FROM amount_utilization a
+    LEFT JOIN users u ON u.id = a.hm_id
+    ORDER BY a.id DESC
+    LIMIT 6";
+$recentSql = "SELECT a.work_name, a.fund_source, a.sanctioned_amount, a.amount_spent, a.expense_date,
+        u.name AS hm_name
+    FROM amount_utilization a
+    LEFT JOIN users u ON u.id = a.hm_id
+    ORDER BY a.id DESC
+    LIMIT 6";
+$recentResult = mysqli_query($dbConn, $recentSql);
+if (!$recentResult) {
+    die('<h3 style="color:red">DB Error in recent activity query: ' . mysqli_error($dbConn) . '</h3>');
+}
+while ($row = mysqli_fetch_assoc($recentResult)) {
+    $recentActivityRows[] = $row;
+}
+
+// Blocker info based on highest utilization ratio
+$blockerInfo = null;
+$blockerSql = "SELECT a.work_name, a.fund_source, a.sanctioned_amount, a.amount_spent,
+        MAX(t.school_name) AS school_name,
+        MAX(t.taluka_name) AS taluka_name,
+        ROUND(100 * a.amount_spent / NULLIF(a.sanctioned_amount, 0), 1) AS utilization_percent,
+        u.name AS hm_name
+    FROM amount_utilization a
+    LEFT JOIN talukas_school_data t
+        ON a.work_name = t.work_name
+        AND a.work_type = t.work_type
+    LEFT JOIN users u ON u.id = a.hm_id
+    WHERE a.sanctioned_amount > 0
+    GROUP BY a.id
+    ORDER BY (a.amount_spent / a.sanctioned_amount) DESC
+    LIMIT 1";
+$blockerResult = mysqli_query($dbConn, $blockerSql);
+if ($blockerResult) {
+    $blockerInfo = mysqli_fetch_assoc($blockerResult);
+} else {
+    die('<h3 style="color:red">DB Error in blocker query: ' . mysqli_error($dbConn) . '</h3>');
+}
+
+// CEO task and work master snapshot
+$taskSummary = [];
+$taskSql = "SELECT COUNT(*) AS total_tasks,
+        SUM(status = 'Pending') AS pending_tasks,
+        SUM(status = 'Completed') AS completed_tasks
+    FROM ceo_create_tasks";
+$taskResult = mysqli_query($dbConn, $taskSql);
+$taskSummary = mysqli_fetch_assoc($taskResult) ?: [];
+$totalTasks = (int)($taskSummary['total_tasks'] ?? 0);
+$pendingTasks = (int)($taskSummary['pending_tasks'] ?? 0);
+$completedTasks = (int)($taskSummary['completed_tasks'] ?? 0);
+
+$workSummary = [];
+$workSql = "SELECT COUNT(*) AS total_works,
+        SUM(status = 'Pending') AS pending_works,
+        SUM(status = 'Completed') AS completed_works
+    FROM work_master";
+$workResult = mysqli_query($dbConn, $workSql);
+$workSummary = mysqli_fetch_assoc($workResult) ?: [];
+$totalWorks = (int)($workSummary['total_works'] ?? 0);
+$pendingWorks = (int)($workSummary['pending_works'] ?? 0);
+$completedWorks = (int)($workSummary['completed_works'] ?? 0);
+
+// Latest HM utilization submissions
+$recentUtilizationRows = [];
+$recentUtilizationSql = "SELECT a.*, u.name AS hm_name
+    FROM amount_utilization a
+    LEFT JOIN users u ON u.id = a.hm_id
+    ORDER BY a.id DESC
+    LIMIT 10";
+$recentUtilizationResult = mysqli_query($dbConn, $recentUtilizationSql);
+if (!$recentUtilizationResult) {
+    die('<h3 style="color:red">DB Error in latest utilization query: ' . mysqli_error($dbConn) . '</h3>');
+}
+while ($row = mysqli_fetch_assoc($recentUtilizationResult)) {
+    $recentUtilizationRows[] = $row;
+}
+
+$fundTimeline = [];
+$fundTimelineSql = "SELECT DATE_FORMAT(expense_date, '%b %Y') AS month_label,
+        SUM(sanctioned_amount) AS total_sanctioned,
+        SUM(amount_spent) AS total_spent
+    FROM amount_utilization
+    WHERE expense_date IS NOT NULL
+    GROUP BY YEAR(expense_date), MONTH(expense_date)
+    ORDER BY YEAR(expense_date), MONTH(expense_date)
+    LIMIT 6";
+$fundTimelineResult = mysqli_query($dbConn, $fundTimelineSql);
+if ($fundTimelineResult) {
+    while ($row = mysqli_fetch_assoc($fundTimelineResult)) {
+        $fundTimeline[] = $row;
+    }
+}
+
+$fundDistribution = [];
+$fundDistributionSql = "SELECT IFNULL(fund_source, 'Unknown') AS fund_source,
+        SUM(amount_spent) AS total_spent
+    FROM amount_utilization
+    GROUP BY fund_source
+    ORDER BY total_spent DESC
+    LIMIT 6";
+$fundDistributionResult = mysqli_query($dbConn, $fundDistributionSql);
+if ($fundDistributionResult) {
+    while ($row = mysqli_fetch_assoc($fundDistributionResult)) {
+        $fundDistribution[] = $row;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samruddha Shala E-Portal - CEO Dashboard</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>CEO Dashboard - Samruddha Shala E-Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Custom Style Sheet -->
     <link href="css/style.css" rel="stylesheet">
     <link href="../css/sidebar.css" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="css/ceo_dashboard.css?v=2" rel="stylesheet">
+    <link href="css/ceo_dashboard.css?v=3" rel="stylesheet">
     <style>
-        .ceo-dashboard-page .card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out !important;
+        body.ceo-dashboard-page { background: #f4f7fb; font-family: 'Outfit', sans-serif; }
+        .dashboard-card { border-radius: 24px; border: 1px solid rgba(226, 232, 240, 0.95); box-shadow: 0 18px 36px rgba(61, 84, 117, 0.08); background: #ffffff; }
+        .dashboard-card .card-title { font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; }
+        .dashboard-card .stat-value { font-size: clamp(1.8rem, 2.5vw, 2.5rem); font-weight: 700; }
+        .dashboard-card .stat-detail { font-size: 0.92rem; color: #475569; }
+        .chart-panel { min-height: 320px; }
+        .badge-status { border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.72rem; font-weight: 700; padding: 0.55rem 0.9rem; }
+        .badge-status-success { background: #dcfce7; color: #166534; }
+        .badge-status-warning { background: #fef3c7; color: #92400e; }
+        .badge-status-danger { background: #fee2e2; color: #991b1b; }
+        .nav-summary-pill { border-radius: 999px; padding: 0.55rem 1rem; font-size: 0.82rem; font-weight: 700; }
+        .chart-legend-key { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 0.65rem; }
+        .chart-legend-item { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.65rem; }
+        .chart-legend-item span { color: #334155; font-size: 0.9rem; }
+        .table-responsive { min-height: 1px; }
+        .table thead th { background: #f8fafc; border-bottom: 0; }
+        .table tbody tr:hover { background: rgba(59, 130, 246, 0.04); }
+        .taluka-button {
+            min-height: 142px;
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: #0f172a;
         }
-        .ceo-dashboard-page .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(255, 193, 7, 0.3), 0 5px 15px rgba(255, 193, 7, 0.2) !important;
-            border-color: rgba(255, 193, 7, 0.4) !important;
+        .taluka-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.4);
+            background: #f8fbff;
         }
-    </style>
-    <!-- <style>
-        :root {
-            --ceo-sidebar-width: 250px;
-            --ceo-header-height: 64px;
-            --ceo-footer-height: 60px;
-            --ceo-shell-bg: #f4f8fb;
+        .taluka-button-active {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: #ffffff;
         }
-
-        body.ceo-dashboard-page {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: block;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at top left, rgba(123, 92, 255, 0.08), transparent 28%),
-                linear-gradient(180deg, #eef6fb 0%, #f7fafc 100%);
+        .taluka-button-active .taluka-icon {
+            background: rgba(255,255,255,0.18);
+            color: #ffffff;
         }
-
-        body.ceo-dashboard-page #wrapper {
-            min-height: 100vh;
+        .taluka-button-inner {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
         }
-
-        body.ceo-dashboard-page #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--ceo-sidebar-width);
-            min-width: var(--ceo-sidebar-width);
-            max-width: var(--ceo-sidebar-width);
-            height: 100vh;
-            z-index: 1100;
-            overflow: hidden;
-            background: linear-gradient(180deg, #6420a5 0%, #8a45b8 54%, #efbc4d 100%);
-            box-shadow: 10px 0 32px rgba(91, 35, 140, 0.22);
+        .taluka-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
         }
-
-        body.ceo-dashboard-page #sidebar .sidebar-header {
-            padding: 20px 16px 16px;
+        .taluka-button .taluka-icon {
+            background: #eff6ff;
+            color: #2563eb;
         }
-
-        body.ceo-dashboard-page #sidebar .sidebar-header h4 {
-            font-size: 18px;
-            line-height: 1.2;
+        .taluka-label {
+            font-size: 0.95rem;
+            line-height: 1.3;
         }
-
-        body.ceo-dashboard-page #sidebar .sidebar-header small {
-            font-size: 11px !important;
-            letter-spacing: 0.8px !important;
+        .taluka-section-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
         }
-
-        body.ceo-dashboard-page #sidebar .components {
-            padding: 10px 0 8px;
+        .language-switcher .btn {
+            min-width: 100px;
         }
-
-        body.ceo-dashboard-page #sidebar .components li {
-            margin: 4px 10px;
+        .nav-tabs {
+            border-bottom: 0;
+            gap: 0.75rem;
         }
-
-        body.ceo-dashboard-page #sidebar .components li a {
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
+        .nav-tabs .nav-link {
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            margin-right: 0.5rem;
+            color: #334155;
+            background: #f8fafc;
+            padding: 0.85rem 1.15rem;
+            min-height: 50px;
         }
-
-        body.ceo-dashboard-page #sidebar .components li a i {
-            width: 18px;
-            font-size: 14px;
+        .nav-tabs .nav-link.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.15);
         }
-
-        body.ceo-dashboard-page #sidebar .sidebar-footer {
-            padding: 12px 14px 8px;
+        .tab-content .tab-pane {
+            padding-top: 1rem;
         }
-
-        body.ceo-dashboard-page #sidebar .sidebar-footer p {
-            margin-bottom: 4px;
-            font-size: 11px;
+        .tab-card .chart-panel {
+            min-height: 340px;
         }
-
-        body.ceo-dashboard-page #sidebar .logout-wrapper {
-            padding: 10px 12px 14px;
-        }
-
-        body.ceo-dashboard-page #sidebar .logout-btn {
-            padding: 10px 14px;
-            font-size: 13px;
-            border-radius: 12px;
-        }
-
-        body.ceo-dashboard-page #content {
-            margin-left: var(--ceo-sidebar-width);
-            width: calc(100vw - var(--ceo-sidebar-width));
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: calc(var(--ceo-header-height) + 16px) 18px calc(var(--ceo-footer-height) + 22px);
+        .tab-card .list-group-item {
+            border: 0;
+            padding-left: 0;
+            padding-right: 0;
             background: transparent;
         }
-
-        body.ceo-dashboard-page .ceo-fixed-header,
-        body.ceo-dashboard-page .ceo-fixed-footer {
-            position: fixed;
-            left: var(--ceo-sidebar-width);
-            right: 0;
-            z-index: 1050;
+        .tab-card .list-group-item + .list-group-item {
+            margin-top: 0.65rem;
         }
-
-        body.ceo-dashboard-page .ceo-fixed-header {
-            top: 0;
+        .tab-card .list-group {
+            gap: 0.75rem;
         }
-
-        body.ceo-dashboard-page .ceo-fixed-footer {
-            bottom: 0;
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-header .site-banner-wrapper,
-        body.ceo-dashboard-page .ceo-fixed-footer .login-page-footer {
-            width: 100%;
-            margin: 0;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-header .site-banner-wrapper {
-            box-shadow: 0 2px 12px rgba(17, 24, 39, 0.08);
-        }
-
-        body.ceo-dashboard-page .ceo-fixed-footer .login-page-footer {
-            box-shadow: 0 -2px 12px rgba(17, 24, 39, 0.06);
-        }
-
-        body.ceo-dashboard-page .navbar {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(228, 232, 239, 0.95);
-            border-radius: 22px;
-            padding: 18px 24px;
-            margin-bottom: 18px;
-            box-shadow: 0 18px 36px rgba(54, 78, 105, 0.08);
-        }
-
-        body.ceo-dashboard-page .container-fluid.p-4 {
-            padding: 0 !important;
-        }
-
-        body.ceo-dashboard-page .row {
-            --bs-gutter-x: 1.15rem;
-            --bs-gutter-y: 1.15rem;
-        }
-
-        body.ceo-dashboard-page .card,
-        body.ceo-dashboard-page .border.rounded.p-4,
-        body.ceo-dashboard-page .border.rounded.p-3 {
-            border: 1px solid rgba(232, 236, 242, 0.9) !important;
-            border-radius: 24px !important;
-            box-shadow: 0 14px 32px rgba(54, 78, 105, 0.08);
-            background: rgba(255, 255, 255, 0.97);
-        }
-
-        body.ceo-dashboard-page .card.p-4.bg-light {
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%) !important;
-        }
-
-        body.ceo-dashboard-page .btn-outline-primary {
-            border: none;
-            color: #ffffff;
-            background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%);
-            border-radius: 16px;
-            padding: 10px 16px;
-            font-weight: 600;
-            box-shadow: 0 10px 20px rgba(127, 42, 179, 0.18);
-        }
-
-        body.ceo-dashboard-page .btn-outline-primary:hover {
-            color: #ffffff;
-            background: linear-gradient(135deg, #6f239d 0%, #e2ad35 100%);
-        }
-
-        body.ceo-dashboard-page .table thead th {
-            background: #f7f3ff;
-            color: #4c2a7a;
-            border-bottom: 0;
-        }
-
         @media (max-width: 991px) {
-            :root {
-                --ceo-sidebar-width: 0px;
-            }
-
-            body.ceo-dashboard-page {
-                overflow-y: auto;
-            }
-
-            body.ceo-dashboard-page #sidebar {
-                width: 250px;
-                min-width: 250px;
-                max-width: 250px;
-                left: -250px;
-                overflow-y: auto;
-            }
-
-            body.ceo-dashboard-page #sidebar.active {
-                left: 0;
-            }
-
-            body.ceo-dashboard-page #content {
-                margin-left: 0;
-                width: 100vw;
-                padding: calc(var(--ceo-header-height) + 12px) 12px calc(var(--ceo-footer-height) + 18px);
-            }
-
-            body.ceo-dashboard-page .ceo-fixed-header,
-            body.ceo-dashboard-page .ceo-fixed-footer {
-                left: 0;
-            }
-
-            body.ceo-dashboard-page .navbar {
-                padding: 14px 16px;
-                border-radius: 18px;
-            }
+            .chart-panel { min-height: 260px; }
+            .nav-tabs .nav-link { width: 100%; text-align: center; margin-right: 0; }
         }
-    </style> -->
+    </style>
 </head>
 <body class="ceo-dashboard-page">
-
     <div id="wrapper">
-        <!-- Sidebar Navigation -->
         <?php include '../include/sidebar.php'; ?>
-        <!-- Page Content -->
         <div id="content">
             <div class="ceo-fixed-header">
                 <?php include '../include/website_header.php'; ?>
             </div>
-            <!-- Header Top Bar -->
-            <nav class="navbar navbar-expand-lg navbar-light p-3">
-                <div class="container-fluid d-flex flex-nowrap align-items-center px-1">
-                    <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
-                        <!-- Mobile Sidebar Toggle -->
-                        <button class="btn btn-light d-lg-none me-2 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%); color: white;" type="button" id="mobileSidebarToggle" aria-label="Toggle Sidebar">
+
+            <nav class="navbar navbar-expand-lg navbar-light p-3 mb-4" style="background: rgba(255,255,255,0.92); border-radius: 22px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);">
+                <div class="container-fluid px-2">
+                    <div class="d-flex align-items-center flex-grow-1 gap-3">
+                        <button class="btn btn-light d-lg-none me-2 shadow-sm border-0 d-flex justify-content-center align-items-center" style="width: 42px; height: 42px; background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%); color: white;" type="button" id="mobileSidebarToggle" aria-label="Toggle Sidebar">
                             <i class="fa-solid fa-bars fs-6"></i>
                         </button>
-                        <h4 class="fw-bold mb-0 text-truncate" id="pageMainHeader" style="line-height: 1.2; font-size: clamp(1rem, 4vw, 1.25rem);">Kolhapur District CEO Overview</h4>
-                    </div>
-                    <div class="ms-2 d-flex align-items-center flex-shrink-0">
-                        <!-- Notifications Dropdown -->
-                        <div class="position-relative me-2">
-                            <a href="ceo_alerts.php" class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" title="View Alerts & Notifications">
-                                <i class="fa-regular fa-bell fs-5"></i>
-                                <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">0</span>
-                            </a>
+                        <div>
+                            <h4 class="fw-bold mb-1 text-truncate" id="pageMainHeader" data-i18n="navTitle">CEO Dashboard</h4>
+                            <p class="mb-0 text-muted" style="font-size: 0.95rem;" id="pageMainDescription" data-i18n="navDescription">A live taluka dashboard built from the E-Portal database.</p>
                         </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap language-switcher">
+                        <button id="langMarBtn" class="btn btn-sm btn-primary">मराठी</button>
+                        <button id="langEngBtn" class="btn btn-sm btn-outline-primary">English</button>
                     </div>
                 </div>
             </nav>
 
-            <!-- Main Content Container -->
-            <div class="container-fluid p-4">
-
-                <!-- ============================================== -->
-                <!-- CEO VIEW: OVERVIEW DASHBOARD -->
-                <!-- ============================================== -->
-                <div id="ceo-overview-view" class="view-panel">
-                    <!-- Statistics Summary Row -->
-                    <div class="row mb-4 align-items-stretch">
-                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
-                            <div class="card kpi-card h-100 d-flex flex-column">
-                                <div class="kpi-icon bg-primary-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
-                                    <i class="fa-solid fa-list-check text-primary" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
+            <div class="container-fluid p-0">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card dashboard-card p-4 h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center" style="width:52px; height:52px;">
+                                    <i class="fa-solid fa-school fs-5"></i>
                                 </div>
-                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Works Active</h6>
-                                <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-total-works">0</h2>
-                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
-                                    <span class="text-success small fw-bold"><i class="fa-solid fa-arrow-up-right me-1"></i>12% vs Last Month</span>
-                                    <span class="text-muted small fw-medium">Active works</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
-                            <div class="card kpi-card h-100 d-flex flex-column">
-                                <div class="kpi-icon bg-success-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
-                                    <i class="fa-solid fa-chart-line text-success" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
-                                </div>
-                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Overall Progress</h6>
-                                <h2 class="fw-bold mb-2 text-dark" id="kpi-overall-progress">0%</h2>
-                                <div class="progress progress-bar-thin mb-1 flex-grow-1" style="height: 8px; border-radius: 4px;">
-                                    <div id="kpi-progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
-                                    <span class="text-muted small fw-medium">Avg Completion</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
-                            <div class="card kpi-card h-100 d-flex flex-column">
-                                <div class="kpi-icon bg-warning-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
-                                    <i class="fa-solid fa-indian-rupee-sign text-warning" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
-                                </div>
-                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Funding Allocation</h6>
-                                <!-- Added word-break to prevent long numbers from overflowing -->
-                                <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-funding" style="word-break: break-word; line-height: 1.1; font-size: clamp(1.5rem, 2vw, 2rem);">₹0.0 Cr</h2>
-                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
-                                    <span class="text-muted small fw-medium">Utilized: <strong class="text-dark" id="kpi-funding-utilization">0%</strong></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
-                            <div class="card kpi-card h-100 d-flex flex-column" style="cursor: default;">
-                                <div class="kpi-icon bg-danger-soft mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 1.8rem; box-shadow: 4px 6px 12px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -2px -2px 6px rgba(0,0,0,0.05); background-image: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0)); transform: perspective(100px) translateZ(5px);">
-                                    <i class="fa-solid fa-triangle-exclamation text-danger" style="filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));"></i>
-                                </div>
-                                <h6 class="text-muted mb-1 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Critical Alerts</h6>
-                                <h2 class="fw-bold mb-0 text-dark flex-grow-1" id="kpi-alerts">0</h2>
-                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
-                                    <span class="text-danger small fw-bold" id="kpi-blocker-count-badge">0 Blockers Active</span>
-                                    <span class="pulse-dot" id="kpi-pulse-dot" style="width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); animation: pulse-red 2s infinite;"></span>
+                                <div>
+                                    <div class="text-muted small mb-1" data-i18n="summarySchoolsLabel">एकूण शाळा</div>
+                                    <div class="fw-bold fs-4"><?php echo number_format($totalTalukaSchools); ?></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Charts Summary Preview Section -->
-                    <div class="row mb-4 align-items-stretch">
-                        <div class="col-lg-6 mb-3 mb-lg-0">
-                            <div class="card p-4 h-100 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="fw-bold mb-0">Physical Progress Analytics</h5>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" style="pointer-events: none;">Detailed Analytics</button>
+                    <div class="col-6 col-md-3">
+                        <div class="card dashboard-card p-4 h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-success text-white rounded-3 d-flex align-items-center justify-content-center" style="width:52px; height:52px;">
+                                    <i class="fa-solid fa-coins fs-5"></i>
                                 </div>
-                                <div class="flex-grow-1" style="min-height: 300px; position: relative;">
-                                    <canvas id="overviewPhysicalChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mb-3 mb-lg-0">
-                            <div class="card p-4 h-100 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="fw-bold mb-0">Funding Distribution</h5>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" style="pointer-events: none;">Funding Dashboard</button>
-                                </div>
-                                <div class="flex-grow-1" style="min-height: 300px; position: relative;">
-                                    <canvas id="overviewFundingChart"></canvas>
+                                <div>
+                                    <div class="text-muted small mb-1" data-i18n="summaryBudgetLabel">एकूण बजेट</div>
+                                    <div class="fw-bold fs-4">₹<?php echo number_format($total_sanctioned, 2); ?></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Alerts Overview & Recent Blockers -->
-                    <div class="row mb-4 align-items-stretch">
-                        <div class="col-lg-5 mb-3 mb-lg-0">
-                            <div class="card p-4 h-100 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h5 class="fw-bold mb-0">Live Alert Summary</h5>
-                                    <span class="badge bg-danger rounded-pill" id="ceo-overview-alerts-pill">0 Alerts</span>
+                    <div class="col-6 col-md-3">
+                        <div class="card dashboard-card p-4 h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-info text-white rounded-3 d-flex align-items-center justify-content-center" style="width:52px; height:52px;">
+                                    <i class="fa-solid fa-check-circle fs-5"></i>
                                 </div>
-                                <div id="overviewAlertsContainer" class="flex-grow-1" style="max-height: 300px; overflow-y: auto;">
-                                    <!-- Dynamic notifications/alerts summary -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-7 mb-3 mb-lg-0">
-                            <div class="card p-4 h-100 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h5 class="fw-bold mb-0">High-Priority Interventions</h5>
-                                    <span class="badge bg-danger rounded-pill">Action Required</span>
-                                </div>
-                                <div class="table-responsive flex-grow-1" style="max-height: 300px; overflow-y: auto;">
-                                    <table class="table align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>School</th>
-                                                <th>Work Type</th>
-                                                <th>Progress</th>
-                                                <th>Blocker Type</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="overviewHighPriorityTable">
-                                            <!-- Dynamic top delayed/blocked school list -->
-                                        </tbody>
-                                    </table>
+                                <div>
+                                    <div class="text-muted small mb-1" data-i18n="summaryCompletedLabel">पूर्ण झालेले प्रकल्प</div>
+                                    <div class="fw-bold fs-4"><?php echo number_format($completedWorks); ?></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-
-                <!-- ============================================== -->
-                <!-- CEO VIEW: ASSIGN TASK -->
-                <!-- ============================================== -->
-                <div id="ceo-task-view" class="view-panel d-none">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card p-4">
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-file-signature me-2 text-primary"></i>Assign Task to School</h4>
-                                <p class="text-muted mb-4">Create or update the active task for a Kolhapur school. This resets work progress to 0% and marks the task as pending CEO action.</p>
-
-                                <form id="ceoAssignTaskForm" onsubmit="handleAssignTaskSubmit(event)">
-                                    <div class="mb-3">
-                                        <label for="ceoTaskSchoolSelect" class="form-label fw-semibold">Select School</label>
-                                        <select id="ceoTaskSchoolSelect" class="form-select"></select>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="ceoTaskWorkType" class="form-label fw-semibold">Work Type</label>
-                                            <select id="ceoTaskWorkType" class="form-select">
-                                                <option value="Construction">Construction</option>
-                                                <option value="Non-Construction">Non-Construction</option>
-                                            </select>
+                    <div class="col-6 col-md-3">
+                        <div class="card dashboard-card p-4 h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-warning text-white rounded-3 d-flex align-items-center justify-content-center" style="width:52px; height:52px;">
+                                    <i class="fa-solid fa-clock fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small mb-1" data-i18n="summaryPendingLabel">प्रलंबित कामे</div>
+                                    <div class="fw-bold fs-4"><?php echo number_format($pendingWorks); ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="card dashboard-card p-4 tab-card h-100">
+                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+                                <div>
+                                    <h5 class="fw-bold mb-1" data-i18n="fundTabSectionTitle">निधीचा आढावा आणि वाटप</h5>
+                                    <p class="text-muted mb-0" data-i18n="fundTabSectionDescription">निधीचा आढावा व वाटप डेटाबेसमधून पाहा.</p>
+                                </div>
+                                <ul class="nav nav-tabs mb-0" id="fundTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="receipt-tab" data-bs-toggle="tab" data-bs-target="#receipt-tab-pane" type="button" role="tab" aria-controls="receipt-tab-pane" aria-selected="true" data-i18n="fundReceiptTab">निधीचा आढावा</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="distribution-tab" data-bs-toggle="tab" data-bs-target="#distribution-tab-pane" type="button" role="tab" aria-controls="distribution-tab-pane" aria-selected="false" data-i18n="fundDistributionTab">निधी वाटप</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="receipt-tab-pane" role="tabpanel" aria-labelledby="receipt-tab">
+                                    <div class="row g-4 align-items-stretch">
+                                        <div class="col-lg-8">
+                                            <div class="chart-panel rounded-4 p-3 bg-white shadow-sm">
+                                                <canvas id="fundReceiptChart"></canvas>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="ceoTaskBudget" class="form-label fw-semibold">Budget (Lakhs)</label>
-                                            <input type="number" min="0" step="0.1" id="ceoTaskBudget" class="form-control" placeholder="e.g. 4.0">
+                                        <div class="col-lg-4">
+                                            <div class="p-4 bg-light rounded-4 h-100 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <div class="text-muted small mb-2" data-i18n="fundReceiptSummaryTitle">Receipt Summary</div>
+                                                    <div class="fw-semibold fs-4">₹<?php echo number_format(array_sum(array_map('floatval', array_column($fundTimeline, 'total_sanctioned'))), 2); ?></div>
+                                                    <div class="text-muted mt-1" data-i18n="fundReceiptSummaryText">एकूण प्राप्त निधी</div>
+                                                </div>
+                                                <div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <span class="text-muted" data-i18n="fundReceiptChartLabel1">Received</span>
+                                                        <span class="fw-semibold">₹<?php echo number_format(array_sum(array_map('floatval', array_column($fundTimeline, 'total_sanctioned'))), 2); ?></span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="text-muted" data-i18n="fundReceiptChartLabel2">Spent</span>
+                                                        <span class="fw-semibold">₹<?php echo number_format(array_sum(array_map('floatval', array_column($fundTimeline, 'total_spent'))), 2); ?></span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="ceoTaskFundingSource" class="form-label fw-semibold">Funding Source</label>
-                                            <select id="ceoTaskFundingSource" class="form-select" required>
-                                                <option value="" disabled selected>Select Funding Source</option>
-                                                <option value="Annual Plan">Annual Plan</option>
-                                                <option value="Minor Mineral Fund">Minor Mineral Fund</option>
-                                                <option value="ZP Own Fund">ZP Own Fund</option>
-                                                <option value="CSR Fund">CSR Fund</option>
-                                            </select>
+                                </div>
+                                <div class="tab-pane fade" id="distribution-tab-pane" role="tabpanel" aria-labelledby="distribution-tab">
+                                    <div class="row g-4 align-items-stretch">
+                                        <div class="col-lg-6">
+                                            <div class="chart-panel rounded-4 p-3 bg-white shadow-sm">
+                                                <canvas id="fundDistributionChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="p-4 bg-light rounded-4 h-100">
+                                                <div class="text-muted small mb-3" data-i18n="fundDistributionSummaryTitle">Distribution Summary</div>
+                                                <div class="list-group list-group-flush">
+                                                    <?php foreach ($fundDistribution as $distribution): ?>
+                                                        <div class="list-group-item d-flex justify-content-between align-items-center border rounded-3 p-3 mb-2 bg-white">
+                                                            <span><?php echo htmlspecialchars($distribution['fund_source']); ?></span>
+                                                            <span class="fw-semibold">₹<?php echo number_format((float)$distribution['total_spent'], 2); ?></span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="ceoTaskDescription" class="form-label fw-semibold">Task Description</label>
-                                        <textarea id="ceoTaskDescription" class="form-control" rows="4" placeholder="Describe the task details, expected outcomes, and priority..." required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold"><i class="fa-solid fa-paper-plane me-2"></i>Assign Task</button>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- ============================================== -->
-                <!-- CEO VIEW: PHYSICAL PROGRESS ANALYTICS -->
-                <!-- ============================================== -->
-                <div id="ceo-physical-view" class="view-panel d-none">
-                    <div class="card p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-industry me-2 text-primary"></i>Physical Progress Analytics</h4>
-                                <p class="text-muted mb-0">Deep dive tracking of target infrastructure development across classrooms, toilets, fencing, and water facilities</p>
-                            </div>
-                        </div>
-
-                        <!-- Progress Metrics Grid for four key pillars -->
-                        <div class="row mb-4">
-                            <div class="col-md-6 col-lg-3">
-                                <div class="border rounded p-3 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 class="mb-0 text-muted">Classrooms</h6>
-                                        <span class="badge bg-primary rounded-pill" id="phys-cnt-classrooms">0 Works</span>
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="card dashboard-card p-4">
+                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="taluka-section-icon bg-primary text-white d-flex align-items-center justify-content-center">
+                                        <i class="fa-solid fa-map-location-dot fs-5"></i>
                                     </div>
-                                    <h3 class="fw-bold mb-2" id="phys-avg-classrooms">0%</h3>
-                                    <div class="progress progress-bar-thin">
-                                        <div id="phys-bar-classrooms" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1" id="talukaSectionTitle" data-i18n="talukaTitle">तालुक्यानुसार माहिती</h5>
+                                        <p class="text-muted mb-0" id="talukaSectionDescription" data-i18n="talukaDescription">सक्रिय तालुक्यांची माहिती आणि शाळा मॅपिंग डेटाबेसवरून.</p>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="border rounded p-3 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 class="mb-0 text-muted">Toilets</h6>
-                                        <span class="badge bg-success rounded-pill" id="phys-cnt-toilets">0 Works</span>
-                                    </div>
-                                    <h3 class="fw-bold mb-2" id="phys-avg-toilets">0%</h3>
-                                    <div class="progress progress-bar-thin">
-                                        <div id="phys-bar-toilets" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
-                                    </div>
+                                <div class="text-end">
+                                    <div class="text-muted small mb-1" data-i18n="talukaSummaryLabel">संपूर्ण सक्रिय तालुक्यांची संख्या</div>
+                                    <div class="fw-bold fs-5"><?php echo number_format($totalTalukas); ?> <span class="text-secondary" data-i18n="talukaLabel">तालुके</span></div>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="border rounded p-3 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 class="mb-0 text-muted">Fencing</h6>
-                                        <span class="badge bg-warning rounded-pill" id="phys-cnt-fencing">0 Works</span>
-                                    </div>
-                                    <h3 class="fw-bold mb-2" id="phys-avg-fencing">0%</h3>
-                                    <div class="progress progress-bar-thin">
-                                        <div id="phys-bar-fencing" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
-                                    </div>
+                            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-6 g-3">
+                                <div class="col">
+                                    <button type="button" class="btn taluka-button taluka-button-active w-100 py-4" data-lang-mar="सर्व तालुके" data-lang-eng="All Talukas" id="talukaAllButton">
+                                        <div class="taluka-button-inner">
+                                            <div class="taluka-icon bg-primary text-white mb-3"><i class="fa-solid fa-map"></i></div>
+                                            <span class="taluka-label fw-semibold" data-default="सर्व तालुके">सर्व तालुके</span>
+                                        </div>
+                                    </button>
                                 </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3">
-                                <div class="border rounded p-3 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 class="mb-0 text-muted">Water Facilities</h6>
-                                        <span class="badge bg-info rounded-pill" id="phys-cnt-water">0 Works</span>
-                                    </div>
-                                    <h3 class="fw-bold mb-2" id="phys-avg-water">0%</h3>
-                                    <div class="progress progress-bar-thin">
-                                        <div id="phys-bar-water" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Heavy Chart Analysis -->
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="border rounded p-4 mb-4" style="height: 380px; position: relative;">
-                                    <h6 class="fw-bold mb-3">Completion Stages Breakdown by Work Type</h6>
-                                    <canvas id="detailedPhysicalChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="border rounded p-4 mb-4">
-                                    <h6 class="fw-bold mb-3">Key Infrastructure Insights</h6>
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="mb-3 d-flex align-items-start">
-                                            <i class="fa-solid fa-circle-check text-success mt-1 me-3"></i>
-                                            <div>
-                                                <strong>Water Facilities</strong> have the highest average progress. Most borewells are fully operational.
+                                <?php foreach ($talukaCoverage as $taluka): ?>
+                                    <div class="col">
+                                        <button type="button" class="btn taluka-button w-100 py-4" data-lang-mar="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>" data-lang-eng="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>">
+                                            <div class="taluka-button-inner">
+                                                <div class="taluka-icon bg-light text-primary mb-3"><i class="fa-solid fa-map"></i></div>
+                                                <span class="taluka-label fw-semibold"><?php echo htmlspecialchars($taluka['taluka_name']); ?></span>
                                             </div>
-                                        </li>
-                                        <li class="mb-3 d-flex align-items-start">
-                                            <i class="fa-solid fa-circle-exclamation text-warning mt-1 me-3"></i>
-                                            <div>
-                                                <strong>Fencing Boundary Walls</strong> are delayed due to land boundary clarifications at ZP School Indapur.
-                                            </div>
-                                        </li>
-                                        <li class="mb-0 d-flex align-items-start">
-                                            <i class="fa-solid fa-triangle-exclamation text-danger mt-1 me-3"></i>
-                                            <div>
-                                                <strong>Classrooms</strong> extension construction requires close supervision due to labour shortage in rural pockets.
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
+                                        </button>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ============================================== -->
-                <!-- CEO VIEW: FUNDING DISTRIBUTION -->
-                <!-- ============================================== -->
-                <div id="ceo-funding-view" class="view-panel d-none">
-                    <div class="card p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-hand-holding-dollar me-2 text-primary"></i>Funding Distribution Dashboard</h4>
-                                <p class="text-muted mb-0">Track funding allocations and spending progress from critical development sources: Annual Plan, Minor Mineral Fund, ZP Own Fund, and CSR</p>
-                            </div>
-                        </div>
-
-                        <!-- Funding Summary Metric Badges -->
-                        <div class="row mb-4" id="fundingSourceGlowRow">
-                            <!-- Dynamic Funding source cards with calculations of Allocations vs Utilizations -->
-                        </div>
-
-                        <!-- Chart + Breakdown analysis -->
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="border rounded p-4 mb-4" style="height: 380px; position: relative;">
-                                    <h6 class="fw-bold mb-3">Overall Fund Source Allocation %</h6>
-                                    <canvas id="detailedFundingChart"></canvas>
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="card dashboard-card p-4 h-100">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div>
+                                    <h5 class="fw-bold mb-1" id="recentTitle" data-i18n="recentTitle">रिसेंट अॅक्टिव्हिटी</h5>
+                                    <p class="text-muted mb-0" id="recentDescription" data-i18n="recentDescription">ताज्या HM खर्च नोंदी आणि शाळा/तालुका माहिती.</p>
                                 </div>
+                                <span class="badge bg-primary text-white" id="recentBadge" data-i18n="latestBadge">नवीनतम</span>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="border rounded p-4 mb-4">
-                                    <h6 class="fw-bold mb-3">Financial Distribution Logs</h6>
-                                    <div class="table-responsive">
-                                        <table class="table align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th>Source</th>
-                                                    <th>Allocated</th>
-                                                    <th>Spent</th>
-                                                    <th>Utilization %</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="detailedFundingTable">
-                                                <!-- Dynamic calculations rendered here -->
-                                            </tbody>
-                                        </table>
+                            <?php if (empty($recentActivityRows)): ?>
+                                <div class="py-5 text-center text-muted" id="recentEmpty" data-i18n="noRecent">रिसेंट अॅक्टिव्हिटी उपलब्ध नाही.</div>
+                            <?php else: ?>
+                                <div class="list-group list-group-flush">
+                                    <?php foreach ($recentActivityRows as $item): ?>
+                                        <div class="list-group-item border-0 px-0 py-3">
+                                            <div class="d-flex align-items-start justify-content-between gap-3">
+                                                <div>
+                                                    <div class="fw-semibold"><?php echo htmlspecialchars($item['work_name'] ?: 'कार्य उपलब्ध नाही'); ?></div>
+                                                    <div class="text-muted small"><?php echo htmlspecialchars($item['fund_source'] ?: 'Funding'); ?></div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="fw-semibold">₹<?php echo number_format((float)$item['amount_spent'], 2); ?></div>
+                                                    <div class="text-muted small"><?php echo htmlspecialchars(date('d MMM, Y', strtotime($item['expense_date']))); ?></div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between mt-2 gap-2">
+                                                <span class="badge bg-light text-dark"><?php echo htmlspecialchars($item['hm_name'] ?: 'HM'); ?></span>
+                                                <span class="text-muted small"><?php echo htmlspecialchars($item['fund_source'] ?: 'Funding'); ?></span>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card dashboard-card p-4 h-100">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div>
+                                    <h5 class="fw-bold mb-1" id="blockerTitle" data-i18n="blockerTitle">ब्लॉकर माहिती</h5>
+                                    <p class="text-muted mb-0" id="blockerDescription" data-i18n="blockerDescription">उच्च उपयोग झालेल्या प्रकल्पांबद्दलची माहिती.</p>
+                                </div>
+                                <span class="badge bg-danger text-white" id="blockerBadge" data-i18n="highBadge">उच्च</span>
+                            </div>
+                            <?php if (empty($blockerInfo)): ?>
+                                <div class="py-5 text-center text-muted" id="blockerEmpty" data-i18n="noBlocker">ब्लॉकर माहिती उपलब्ध नाही.</div>
+                            <?php else: ?>
+                                <div class="mb-3">
+                                    <div class="text-muted small mb-1" data-i18n="blockerWorkLabel">कार्य</div>
+                                    <div class="fw-semibold"><?php echo htmlspecialchars($blockerInfo['work_name'] ?: 'कार्य उपलब्ध नाही'); ?></div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted small mb-1" data-i18n="blockerSchoolLabel">शाळा</div>
+                                    <div class="fw-semibold"><?php echo htmlspecialchars($blockerInfo['school_name'] ?: 'N/A'); ?></div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted small mb-1" data-i18n="blockerTalukaLabel">तालुका</div>
+                                    <div class="fw-semibold"><?php echo htmlspecialchars($blockerInfo['taluka_name'] ?: 'N/A'); ?></div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded-3 text-center">
+                                            <div class="text-muted small" data-i18n="blockerSanctionLabel">अनुदान</div>
+                                            <div class="fw-semibold">₹<?php echo number_format((float)$blockerInfo['sanctioned_amount'], 2); ?></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded-3 text-center">
+                                            <div class="text-muted small" data-i18n="blockerSpentLabel">खर्च</div>
+                                            <div class="fw-semibold">₹<?php echo number_format((float)$blockerInfo['amount_spent'], 2); ?></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============================================== -->
-                <!-- CEO VIEW: ALERTS & NOTIFICATIONS -->
-                <!-- ============================================== -->
-                <div id="ceo-alerts-view" class="view-panel d-none">
-                    <div class="card p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-bell me-2 text-danger animate-pulse"></i>Alerts & Notifications Command Center</h4>
-                                <p class="text-muted mb-0">Review urgent reports, missing details, delayed work stages, and active blockers requiring intervention</p>
-                            </div>
-                        </div>
-
-                        <!-- Alerts Category Tabs -->
-                        <ul class="nav nav-pills mb-4 gap-2 bg-light p-2 rounded" id="alertsNavPills" role="tablist">
-                            <li class="nav-item">
-                                <button class="btn btn-sm btn-outline-dark active" onclick="filterAlerts('all')">
-                                    All Alerts <span class="badge bg-secondary ms-1" id="alerts-cnt-all">0</span>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="btn btn-sm btn-outline-danger" onclick="filterAlerts('blocker')">
-                                    🛑 Reported Blockers <span class="badge bg-danger ms-1" id="alerts-cnt-blocker">0</span>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="btn btn-sm btn-outline-warning" onclick="filterAlerts('delay')">
-                                    ⚠️ Delayed Progress <span class="badge bg-warning ms-1" id="alerts-cnt-delay">0</span>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="btn btn-sm btn-outline-secondary" onclick="filterAlerts('geotag')">
-                                    📍 Missing Geo-Tag <span class="badge bg-secondary ms-1" id="alerts-cnt-geotag">0</span>
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="btn btn-sm btn-outline-info" onclick="filterAlerts('pending')">
-                                    📥 Pending Updates <span class="badge bg-info text-dark ms-1" id="alerts-cnt-pending">0</span>
-                                </button>
-                            </li>
-                        </ul>
-
-                        <!-- Alerts Content Feed -->
-                        <div id="detailedAlertsContainer" class="mb-4">
-                            <!-- Dynamically loaded list of alert items with filters -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============================================== -->
-                <!-- CEO VIEW: SCHOOL MONITOR TABLE -->
-                <!-- ============================================== -->
-                <div id="ceo-monitor-view" class="view-panel d-none">
-                    <div class="card p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <h4 class="fw-bold mb-1"><i class="fa-solid fa-list-check me-2 text-primary"></i>District-Wide School Project Monitor</h4>
-                                <p class="text-muted mb-0">Overview of all active construction, sanitation, fencing, and water works across schools in Kolhapur District, Maharashtra, by taluka and block</p>
-                            </div>
-                        </div>
-
-                        <!-- Filter options row -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-4">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                                    <input type="text" id="schoolSearchInput" class="form-control border-start-0" placeholder="Search by School Name or Kolhapur Taluka/Block (e.g. Karvir, Shirol)..." onkeyup="filterSchoolsTable()">
+                                <div class="d-flex align-items-center justify-content-between gap-2">
+                                    <span class="badge bg-warning text-dark">उपयोग %: <?php echo number_format((float)$blockerInfo['utilization_percent'], 1); ?>%</span>
+                                    <span class="text-muted small">HM: <?php echo htmlspecialchars($blockerInfo['hm_name'] ?: 'N/A'); ?></span>
                                 </div>
-                            </div>
-                            <div class="col-md-2">
-                                <select id="filterWorkType" class="form-select" onchange="filterSchoolsTable()">
-                                    <option value="">All Work Types</option>
-                                    <option value="Classrooms">Classrooms</option>
-                                    <option value="Toilets">Toilets</option>
-                                    <option value="Fencing">Fencing</option>
-                                    <option value="Water Facilities">Water Facilities</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <select id="filterFundingSource" class="form-select" onchange="filterSchoolsTable()">
-                                    <option value="">All Funding Sources</option>
-                                    <option value="Annual Plan">Annual Plan</option>
-                                    <option value="Minor Mineral Fund">Minor Mineral Fund</option>
-                                    <option value="ZP Own Fund">ZP Own Fund</option>
-                                    <option value="CSR Fund">CSR Fund</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <select id="filterAlertStatus" class="form-select" onchange="filterSchoolsTable()">
-                                    <option value="">All Alert Statuses</option>
-                                    <option value="Blocker">Reported Blocker</option>
-                                    <option value="Delay">Delayed Progress</option>
-                                    <option value="MissingGeotag">Missing Geo-Tag</option>
-                                    <option value="Clean">No Alerts</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 text-end">
-                                <button class="btn btn-outline-secondary w-100" onclick="exportToCSV()"><i class="fa-solid fa-download me-2"></i>Export CSV</button>
-                            </div>
-                        </div>
-
-                        <!-- Data table -->
-                        <div class="table-responsive shadow-sm">
-                            <table class="table table-hover align-middle bg-white mb-0" id="schoolProjectsTable">
-                                <thead>
-                                    <tr>
-                                        <th>School Name</th>
-                                        <th>Kolhapur Taluka / Block (Location)</th>
-                                        <th>Work Type</th>
-                                        <th>Funding Source</th>
-                                        <th>Progress Stage</th>
-                                        <th>Geo-tag</th>
-                                        <th>Alert Status</th>
-                                        <th class="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="schoolProjectsTableBody">
-                                    <!-- Dynamic rows loaded here -->
-                                </tbody>
-                            </table>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="ceo-fixed-footer">
@@ -759,57 +627,169 @@ if (!isset($_SESSION['role']) || strtoupper($_SESSION['role']) !== 'CEO') {
         </div>
     </div>
 
-    <!-- Details View Modal -->
-    <div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-labelledby="projectDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content" style="border-radius: var(--card-border-radius);">
-                <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold" id="projectDetailsModalLabel">School Work Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4" id="projectModalBody">
-                    <!-- Dynamic details go here -->
-                </div>
-                <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap 5 Bundle JS with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Shared Database Layer -->
-    <script src="js/db.js?v=2"></script>
-    <!-- CEO Application Logic -->
-    <script src="js/ceo.js?v=9"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
-            
-            if (mobileSidebarToggle && sidebar) {
-                mobileSidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
-                });
+        const langStrings = {
+            pageTitle: { mar: 'CEO डॅशबोर्ड - समृद्ध शाळा ई-पोर्टल', eng: 'CEO Dashboard - Samruddha Shala E-Portal' },
+            navTitle: { mar: 'CEO डॅशबोर्ड', eng: 'CEO Dashboard' },
+            navDescription: { mar: 'डेटाबेसवरून तालुकानिहाय माहिती आणि ताज्या अहवालांसह फायनल व्यू.', eng: 'Taluka-wise data and latest activity loaded from database.' },
+            fundReceiptTitle: { mar: 'निधीचा आढावा', eng: 'Fund Receipt Overview' },
+            fundReceiptDescription: { mar: 'ताज्या निधी प्राप्ती आणि खर्चाचा आढावा.', eng: 'Recent fund receipts and expenditure analysis.' },
+            fundReceiptBadge: { mar: 'निधी आढावा', eng: 'Fund Overview' },
+            fundDistributionTitle: { mar: 'निधी वाटप विवरण', eng: 'Fund Allocation Details' },
+            fundDistributionDescription: { mar: 'वितरण शेअर आणि निधी स्रोतांनुसार तपशील.', eng: 'Allocation share and funding source breakdown.' },
+            fundDistributionBadge: { mar: 'वाटप', eng: 'Allocation' },
+            fundTabSectionTitle: { mar: 'निधीचा आढावा आणि वाटप', eng: 'Fund Overview & Distribution' },
+            fundTabSectionDescription: { mar: 'निधीचा आढावा व वाटप डेटाबेसमधून पाहा.', eng: 'View receipt and distribution details from the database.' },
+            fundReceiptTab: { mar: 'निधीचा आढावा', eng: 'Receipt' },
+            fundDistributionTab: { mar: 'निधी वाटप', eng: 'Distribution' },
+            fundReceiptSummaryTitle: { mar: 'Receipt Summary', eng: 'Receipt Summary' },
+            fundReceiptSummaryText: { mar: 'एकूण प्राप्त निधी', eng: 'Total received funds' },
+            fundReceiptChartLabel1: { mar: 'प्राप्त', eng: 'Received' },
+            fundReceiptChartLabel2: { mar: 'खर्च', eng: 'Spent' },
+            fundDistributionSummaryTitle: { mar: 'वितरण सारांश', eng: 'Distribution Summary' },
+            talukaTitle: { mar: 'तालुक्यानुसार माहिती', eng: 'Taluka-wise Information' },
+            talukaDescription: { mar: 'सक्रिय तालुक्यांची माहिती आणि शाळा मॅपिंग डेटाबेसवरून.', eng: 'Active taluka details and school mapping from the database.' },
+            talukaSummaryLabel: { mar: 'संपूर्ण सक्रिय तालुक्यांची संख्या', eng: 'Total active talukas' },
+            talukaLabel: { mar: 'तालुके', eng: 'Talukas' },
+            summarySchoolsLabel: { mar: 'एकूण शाळा', eng: 'Total Schools' },
+            summaryBudgetLabel: { mar: 'एकूण बजेट', eng: 'Total Budget' },
+            summaryCompletedLabel: { mar: 'पूर्ण झालेले प्रकल्प', eng: 'Completed Projects' },
+            summaryPendingLabel: { mar: 'प्रलंबित कामे', eng: 'Pending Works' },
+            recentTitle: { mar: 'रिसेंट अॅक्टिव्हिटी', eng: 'Recent Activity' },
+            recentDescription: { mar: 'ताज्या HM खर्च नोंदी आणि शाळा/तालुका माहिती.', eng: 'Latest HM expense updates and taluka info.' },
+            latestBadge: { mar: 'नवीनतम', eng: 'Latest' },
+            noRecent: { mar: 'रिसेंट अॅक्टिव्हिटी उपलब्ध नाही.', eng: 'No recent activity available.' },
+            blockerTitle: { mar: 'ब्लॉकर माहिती', eng: 'Blocker Info' },
+            blockerDescription: { mar: 'उच्च उपयोग झालेल्या प्रकल्पांबद्दलची माहिती.', eng: 'Details of the highest utilization project.' },
+            highBadge: { mar: 'उच्च', eng: 'High' },
+            noBlocker: { mar: 'ब्लॉकर माहिती उपलब्ध नाही.', eng: 'No blocker information available.' },
+            blockerWorkLabel: { mar: 'कार्य', eng: 'Work' },
+            blockerSchoolLabel: { mar: 'शाळा', eng: 'School' },
+            blockerTalukaLabel: { mar: 'तालुका', eng: 'Taluka' },
+            blockerSanctionLabel: { mar: 'अनुदान', eng: 'Sanction' },
+            blockerSpentLabel: { mar: 'खर्च', eng: 'Spent' },
+            fundReceivedLabel: { mar: 'प्राप्त निधी', eng: 'Funds Received' },
+            fundSpentLabel: { mar: 'वितरित निधी', eng: 'Funds Spent' }
+        };
 
-                if (sidebarCloseBtn) {
-                    sidebarCloseBtn.addEventListener('click', function() {
-                        sidebar.classList.remove('active');
-                    });
-                }
+        const fundReceiptLabels = <?php echo json_encode(array_column($fundTimeline, 'month_label')); ?>;
+        const fundReceiptSanctioned = <?php echo json_encode(array_map('floatval', array_column($fundTimeline, 'total_sanctioned'))); ?>;
+        const fundReceiptSpent = <?php echo json_encode(array_map('floatval', array_column($fundTimeline, 'total_spent'))); ?>;
+        const fundDistributionLabels = <?php echo json_encode(array_column($fundDistribution, 'fund_source')); ?>;
+        const fundDistributionValues = <?php echo json_encode(array_map('floatval', array_column($fundDistribution, 'total_spent'))); ?>;
 
-                // Close sidebar when clicking outside on mobile
-                document.addEventListener('click', function(event) {
-                    if (window.innerWidth < 992) {
-                        if (!sidebar.contains(event.target) && !mobileSidebarToggle.contains(event.target) && sidebar.classList.contains('active')) {
-                            sidebar.classList.remove('active');
+        let fundReceiptChart = null;
+        let fundDistributionChart = null;
+
+        function createCharts() {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+            const receiptCtx = document.getElementById('fundReceiptChart');
+            if (receiptCtx) {
+                fundReceiptChart = new Chart(receiptCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: fundReceiptLabels,
+                        datasets: [
+                            {
+                                label: langStrings.fundReceivedLabel.mar,
+                                data: fundReceiptSanctioned,
+                                backgroundColor: 'rgba(59, 130, 246, 0.85)'
+                            },
+                            {
+                                label: langStrings.fundSpentLabel.mar,
+                                data: fundReceiptSpent,
+                                backgroundColor: 'rgba(16, 185, 129, 0.85)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { beginAtZero: true }
                         }
                     }
                 });
             }
+            const distributionCtx = document.getElementById('fundDistributionChart');
+            if (distributionCtx) {
+                fundDistributionChart = new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: fundDistributionLabels,
+                        datasets: [{
+                            label: langStrings.fundDistributionBadge.mar,
+                            data: fundDistributionValues,
+                            backgroundColor: ['#2563eb', '#0ea5e9', '#22c55e', '#f59e0b', '#ec4899', '#8b5cf6']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateChartLanguage(lang) {
+            if (fundReceiptChart) {
+                fundReceiptChart.data.datasets[0].label = langStrings.fundReceivedLabel[lang];
+                fundReceiptChart.data.datasets[1].label = langStrings.fundSpentLabel[lang];
+                fundReceiptChart.update();
+            }
+            if (fundDistributionChart) {
+                fundDistributionChart.data.datasets[0].label = langStrings.fundDistributionBadge[lang];
+                fundDistributionChart.update();
+            }
+        }
+
+        function setLanguage(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (langStrings[key] && langStrings[key][lang]) {
+                    el.textContent = langStrings[key][lang];
+                }
+            });
+
+            document.getElementById('langMarBtn').classList.toggle('btn-primary', lang === 'mar');
+            document.getElementById('langMarBtn').classList.toggle('btn-outline-primary', lang !== 'mar');
+            document.getElementById('langEngBtn').classList.toggle('btn-primary', lang === 'eng');
+            document.getElementById('langEngBtn').classList.toggle('btn-outline-primary', lang !== 'eng');
+
+            document.querySelectorAll('.taluka-button').forEach(btn => {
+                const text = btn.getAttribute('data-lang-' + lang);
+                const label = btn.querySelector('.taluka-label');
+                if (text && label) {
+                    label.textContent = text;
+                }
+            });
+
+            updateChartLanguage(lang);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            if (mobileSidebarToggle && sidebar) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            document.getElementById('langMarBtn').addEventListener('click', () => setLanguage('mar'));
+            document.getElementById('langEngBtn').addEventListener('click', () => setLanguage('eng'));
+            setLanguage('mar');
+            createCharts();
         });
     </script>
 </body>

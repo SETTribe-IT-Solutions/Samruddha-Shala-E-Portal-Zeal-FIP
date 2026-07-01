@@ -596,16 +596,24 @@ if ($usersResult) {
 			color: #4c2a7a;
 			font-weight: 600;
 			border-bottom-width: 0;
+			font-size: 0.95rem;
 		}
 
 		.table td {
 			vertical-align: middle;
+			font-size: 0.92rem;
+			white-space: normal;
+		}
+
+		.table-responsive {
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
 		}
 
 		.status-pill {
 			border-radius: 999px;
-			padding: 0.22rem 0.65rem;
-			font-size: 0.75rem;
+			padding: 0.25rem 0.75rem;
+			font-size: 0.78rem;
 			font-weight: 600;
 		}
 
@@ -617,6 +625,30 @@ if ($usersResult) {
 		.status-inactive {
 			background: #fee2e2;
 			color: #991b1b;
+		}
+
+		.action-buttons {
+			display: inline-flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 0.35rem;
+		}
+
+		.action-buttons .btn {
+			min-width: 72px;
+			padding: 0.45rem 0.65rem;
+			font-size: 0.85rem;
+		}
+
+		.action-buttons .btn i {
+			margin-right: 0.35rem;
+		}
+
+		@media (max-width: 1200px) {
+			.table thead th,
+			.table td {
+				font-size: 0.92rem;
+			}
 		}
 
 		@media (max-width: 991px) {
@@ -818,9 +850,16 @@ if ($usersResult) {
 															<?php endif; ?>
 														</td>
 													<?php endforeach; ?>
-													<td style="white-space: nowrap; text-align: center;">
-														<button type="button" class="btn btn-sm btn-outline-primary p-1 edit-user-btn" style="width: 28px; height: 28px;" title="Edit"><i class="fa-solid fa-pen" style="font-size: 0.75rem;"></i></button>
-														<button type="button" class="btn btn-sm btn-outline-danger p-1" style="width: 28px; height: 28px;" onclick="confirmDeleteUser(<?php echo $userRow['id']; ?>)" title="Delete"><i class="fa-solid fa-trash" style="font-size: 0.75rem;"></i></button>
+													<td class="text-center actions-cell">
+														<div class="action-buttons">
+								<button type="button" class="btn btn-sm btn-outline-primary edit-user-btn" title="Edit" aria-label="Edit user">
+									<i class="fa-solid fa-pen"></i>
+									<span class="d-none d-md-inline ms-1">Edit</span>
+								</button>
+														<button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteUser(<?php echo $userRow['id']; ?>)" title="Delete" aria-label="Delete user">
+								<i class="fa-solid fa-trash"></i>
+								<span class="d-none d-md-inline ms-1">Delete</span>
+							</button>
 													</td>
 												</tr>
 											<?php endforeach; ?>
@@ -848,22 +887,26 @@ if ($usersResult) {
 		}
 	}
 
-	// SweetAlert Delete Confirmation
+	// SweetAlert Delete Confirmation and client-side validation
 	function confirmDeleteUser(id) {
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "Do you really want to delete this user account?",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#d33',
-			cancelButtonColor: '#3085d6',
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'Cancel'
-		}).then((result) => {
-			if (result.isConfirmed) {
-				window.location.href = 'create_user.php?delete_user_id=' + id;
-			}
-		});
+		if (typeof Swal !== 'undefined') {
+			Swal.fire({
+				title: 'Are you sure?',
+				text: 'Do you really want to delete this user account?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Yes, delete it!',
+				cancelButtonText: 'Cancel'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					window.location.href = 'create_user.php?delete_user_id=' + id;
+				}
+			});
+		} else {
+			window.location.href = 'create_user.php?delete_user_id=' + id;
+		}
 	}
 
 	document.addEventListener('DOMContentLoaded', function() {
@@ -938,6 +981,7 @@ if ($usersResult) {
 				}
 			});
 		}
+<<<<<<< HEAD
 
 		// Edit User Trigger
 		document.querySelectorAll('.edit-user-btn').forEach(function(btn) {
@@ -963,6 +1007,8 @@ if ($usersResult) {
 				editModal.show();
 			});
 		});
+=======
+>>>>>>> 5d12bd917e600b220bb8cd2c0c87a9c04865e15e
 	});
 	</script>
 
