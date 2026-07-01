@@ -1,0 +1,90 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<style>
+    body { font-family: Arial, sans-serif; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; vertical-align: top; }
+    th { background-color: #f2f2f2; }
+</style>
+</head>
+<body>
+<h2>Test Cases - Create Task</h2>
+<table>
+    <tr>
+        <th>Scenario Id</th>
+        <th>Scenario objective</th>
+        <th>Test Case Id</th>
+        <th>Test case Objective</th>
+        <th>Steps</th>
+        <th>Test Data</th>
+        <th>Expected Result</th>
+        <th>Actual Result</th>
+        <th>Status</th>
+        <th>Tester Name</th>
+    </tr>
+    <tr>
+        <td>SC_01</td>
+        <td>Validate Task Creation</td>
+        <td>TC_01_01</td>
+        <td>Verify successful task creation with all valid mandatory and optional inputs.</td>
+        <td>1. Log in with valid credentials.<br>2. Navigate to "Create Task" page.<br>3. Fill all fields (Title, Description, Due Date, etc.).<br>4. Click "Submit/Save".</td>
+        <td>Title: "Monthly Report"<br>Desc: "Q3 Metrics"<br>Date: [Future Date]</td>
+        <td>A new task should be created successfully, and the user should be redirected to the task list or see a success message.</td>
+        <td></td>
+        <td></td>
+        <td>arunadevi</td>
+    </tr>
+    <tr>
+        <td>SC_01</td>
+        <td>Validate Task Creation</td>
+        <td>TC_01_02</td>
+        <td>Verify task creation fails when mandatory fields are left blank.</td>
+        <td>1. Navigate to "Create Task".<br>2. Leave mandatory fields (e.g., Title) empty.<br>3. Click "Submit/Save".</td>
+        <td>Title: "" (Blank)<br>Desc: "Test"</td>
+        <td>The system should prevent creation and display validation error messages next to the empty mandatory fields.</td>
+        <td></td>
+        <td></td>
+        <td>arunadevi</td>
+    </tr>
+    <tr>
+        <td>SC_02</td>
+        <td>Validate Input Boundaries</td>
+        <td>TC_02_01</td>
+        <td>Verify behavior when exceeding maximum character limits on the Task Title.</td>
+        <td>1. Navigate to "Create Task".<br>2. Enter a string exceeding the max length in the Title field.<br>3. Click "Submit/Save".</td>
+        <td>Title: [String > 255 chars]</td>
+        <td>The system should either truncate the input automatically or display an error message regarding the character limit.</td>
+        <td></td>
+        <td></td>
+        <td>arunadevi</td>
+    </tr>
+    <tr>
+        <td>SC_03</td>
+        <td>Validate Date Logic</td>
+        <td>TC_03_01</td>
+        <td>Verify that a task cannot be created with a due date set in the past.</td>
+        <td>1. Navigate to "Create Task".<br>2. Fill in valid details but select a Due Date from the past.<br>3. Click "Submit/Save".</td>
+        <td>Date: [Yesterday's Date]</td>
+        <td>The system should display a validation error stating the due date cannot be in the past.</td>
+        <td></td>
+        <td></td>
+        <td>arunadevi</td>
+    </tr>
+    <tr>
+        <td>SC_04</td>
+        <td>Validate Session Management</td>
+        <td>TC_04_01</td>
+        <td>Verify that unauthenticated users cannot access the create_task.php page.</td>
+        <td>1. Ensure you are logged out.<br>2. Manually enter the URL for the "Create Task" page in the browser.</td>
+        <td>N/A</td>
+        <td>The system should deny access and redirect the user to the login page.</td>
+        <td></td>
+        <td></td>
+        <td>arunadevi</td>
+    </tr>
+</table>
+</body>
+</html>

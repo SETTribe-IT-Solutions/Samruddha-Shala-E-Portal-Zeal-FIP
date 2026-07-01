@@ -83,6 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 
     if ($newUsername === '') {
         $errors[] = 'Username is required.';
+    } elseif (preg_match('/^\d/', $newUsername)) {
+        $errors[] = 'Username should not start with a number.';
     }
 
     if ($newPassword === '') {
@@ -551,5 +553,80 @@ function toggleSidebar() {
         sidebar.classList.toggle('active');
     }
 }
+
+// Client-side validation and Popup errors/success alerts
+document.addEventListener('DOMContentLoaded', function() {
+    // Server-side errors popup
+    <?php if (!empty($errors)): ?>
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Validation Error',
+            html: '<ul class="text-start mb-0"><?php foreach ($errors as $error): ?><li><?php echo addslashes(htmlspecialchars($error)); ?></li><?php endforeach; ?></ul>',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#7f2ab3'
+        });
+    }
+    <?php endif; ?>
+
+    // Server-side success popup
+    <?php if (!empty($success)): ?>
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Success',
+            text: '<?php echo addslashes(htmlspecialchars($success)); ?>',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#7f2ab3'
+        });
+    }
+    <?php endif; ?>
+
+    // Form submit validation
+    const form = document.querySelector('.create-user-form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            const roleEl = document.getElementById('role');
+            const nameEl = document.getElementById('name');
+            const usernameEl = document.getElementById('username');
+            const passwordEl = document.getElementById('password');
+            
+            let errs = [];
+            
+            if (roleEl && !roleEl.value) {
+                errs.push("Please select a role.");
+            }
+            if (nameEl && !nameEl.value.trim()) {
+                errs.push("Full name is required.");
+            }
+            if (usernameEl) {
+                const username = usernameEl.value.trim();
+                if (!username) {
+                    errs.push("Username is required.");
+                } else if (/^\d/.test(username)) {
+                    errs.push("Username should not start with a number.");
+                }
+            }
+            if (passwordEl && !passwordEl.value.trim()) {
+                errs.push("Password is required.");
+            }
+            
+            if (errs.length > 0) {
+                event.preventDefault();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Validation Error',
+                        html: '<ul class="text-start mb-0">' + errs.map(e => '<li>' + e + '</li>').join('') + '</ul>',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#7f2ab3'
+                    });
+                } else {
+                    alert(errs.join('\n'));
+                }
+            }
+        });
+    }
+});
 </script>
 <?php include 'include/script.php'; ?>

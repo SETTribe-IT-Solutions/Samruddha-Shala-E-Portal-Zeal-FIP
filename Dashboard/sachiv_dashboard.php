@@ -12,6 +12,40 @@ if (
 
 $username = $_SESSION['username'];
 $role     = $_SESSION['role'];
+
+// Fetch counts from database
+$host = "82.25.121.144";
+$db_user = "u196817721_S_Eportal_U";
+$db_pass = "Sam_shalaEportal@2026";
+$db_name = "u196817721_S_shalaEportal";
+$conn = mysqli_connect($host, $db_user, $db_pass, $db_name);
+
+$total_works = 0;
+$completed_works = 0;
+$pending_works = 0;
+$alerts_count = 0;
+
+if ($conn) {
+    $res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM work_master");
+    if ($res && $row = mysqli_fetch_assoc($res)) {
+        $total_works = $row['cnt'];
+    }
+    
+    $res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM work_master WHERE status = 'Completed'");
+    if ($res && $row = mysqli_fetch_assoc($res)) {
+        $completed_works = $row['cnt'];
+    }
+    
+    $res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM work_master WHERE status = 'Pending'");
+    if ($res && $row = mysqli_fetch_assoc($res)) {
+        $pending_works = $row['cnt'];
+    }
+    
+    $res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM work_master WHERE status IN ('Delayed', 'Blocked')");
+    if ($res && $row = mysqli_fetch_assoc($res)) {
+        $alerts_count = $row['cnt'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -73,7 +107,7 @@ $role     = $_SESSION['role'];
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6>Total Works</h6>
-                        <h2>25</h2>
+                        <h2><?php echo htmlspecialchars($total_works); ?></h2>
                     </div>
 
                     <div class="icon-box bg-purple">
@@ -88,7 +122,7 @@ $role     = $_SESSION['role'];
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6>Completed</h6>
-                        <h2>15</h2>
+                        <h2><?php echo htmlspecialchars($completed_works); ?></h2>
                     </div>
 
                     <div class="icon-box bg-green">
@@ -103,7 +137,7 @@ $role     = $_SESSION['role'];
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6>Pending</h6>
-                        <h2>7</h2>
+                        <h2><?php echo htmlspecialchars($pending_works); ?></h2>
                     </div>
 
                     <div class="icon-box bg-orange">
@@ -118,7 +152,7 @@ $role     = $_SESSION['role'];
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6>Alerts</h6>
-                        <h2>3</h2>
+                        <h2><?php echo htmlspecialchars($alerts_count); ?></h2>
                     </div>
 
                     <div class="icon-box bg-red">
@@ -143,11 +177,11 @@ $role     = $_SESSION['role'];
                     <i class="fa-solid fa-list"></i>
                     Work Master
                 </a>
-
-                <a href="utility_master.php"
-                   class="btn btn-sidebar-gradient w-100">
-                    <i class="fa-solid fa-screwdriver-wrench"></i>
-                    Utility Master
+                
+                <a href="Financial_Master.php"
+                   class="btn btn-sidebar-gradient w-100 mb-2">
+                    <i class="fa-solid fa-coins"></i>
+                    Financial Master
                 </a>
 
             </div>

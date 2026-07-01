@@ -1,3 +1,4 @@
+create_user :-
 <?php
 session_start();
 require_once __DIR__ . '/../include/dbConfig.php';
@@ -29,6 +30,78 @@ if ($columnsResult) {
 	$errors[] = 'Unable to read users table schema.';
 }
 
+// Handle Delete User Action
+if (isset($_GET['delete_user_id']) && $isAdmin) {
+	$deleteId = intval($_GET['delete_user_id']);
+	
+	if ($deleteId == $_SESSION['user_id']) {
+		$_SESSION['error_msg'] = "You cannot delete your own logged-in user account!";
+	} else {
+		$stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+		if ($stmt) {
+			$stmt->bind_param("i", $deleteId);
+			if ($stmt->execute()) {
+				$_SESSION['success_msg'] = "User deleted successfully!";
+			} else {
+				$_SESSION['error_msg'] = "Failed to delete user.";
+			}
+			$stmt->close();
+		}
+	}
+	header("Location: create_user.php");
+	exit();
+}
+
+// Handle Update User Action
+if (isset($_POST['update_user']) && $isAdmin) {
+	$editId = intval($_POST['edit_id']);
+	$username = trim($_POST['username'] ?? '');
+	$password = trim($_POST['password'] ?? '');
+	$role = trim($_POST['role'] ?? '');
+	$name = trim($_POST['name'] ?? '');
+	$email = trim($_POST['email'] ?? '');
+	$isActive = isset($_POST['is_active']) ? 1 : 0;
+
+	if ($username === '' || $password === '' || $name === '') {
+		$_SESSION['error_msg'] = "Username, Password, and Full Name are required.";
+	} else {
+		$emailSql = "";
+		if (in_array('email', $userColumns, true)) {
+			$emailSql = ", email = ?";
+		}
+		
+		$sql = "UPDATE users SET username = ?, password = ?, role = ?, name = ?, is_active = ?" . $emailSql . " WHERE id = ?";
+		$stmt = $conn->prepare($sql);
+		if ($stmt) {
+			if (in_array('email', $userColumns, true)) {
+				$stmt->bind_param("ssssisi", $username, $password, $role, $name, $isActive, $email, $editId);
+			} else {
+				$stmt->bind_param("ssssii", $username, $password, $role, $name, $isActive, $editId);
+			}
+			
+			if ($stmt->execute()) {
+				$_SESSION['success_msg'] = "User updated successfully!";
+			} else {
+				$_SESSION['error_msg'] = "Failed to update user: " . $conn->error;
+			}
+			$stmt->close();
+		}
+	}
+	header("Location: create_user.php");
+	exit();
+}
+
+$sessionSuccess = $_SESSION['success_msg'] ?? '';
+$sessionError = $_SESSION['error_msg'] ?? '';
+unset($_SESSION['success_msg'], $_SESSION['error_msg']);
+
+if (!empty($sessionSuccess)) {
+	$success = $sessionSuccess;
+}
+if (!empty($sessionError)) {
+	$errors[] = $sessionError;
+}
+
 if (!in_array('role', $userColumns, true)) {
 	if ($conn->query("ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'HM'")) {
 		$userColumns[] = 'role';
@@ -45,10 +118,19 @@ if (!in_array('name', $userColumns, true)) {
 	}
 }
 
+if (!in_array('school_name', $userColumns, true)) {
+	if ($conn->query("ALTER TABLE users ADD COLUMN school_name VARCHAR(150) NULL")) {
+		$userColumns[] = 'school_name';
+	} else {
+		$errors[] = 'Unable to add school_name column to users table.';
+	}
+}
+
 $hasUsername = in_array('username', $userColumns, true);
 $hasPassword = in_array('password', $userColumns, true);
 $hasRole = in_array('role', $userColumns, true);
 $hasName = in_array('name', $userColumns, true);
+$hasSchoolName = in_array('school_name', $userColumns, true);
 $hasIsActive = in_array('is_active', $userColumns, true);
 
 if ($hasRole && $hasUsername) {
@@ -68,11 +150,19 @@ if ($hasRole && $hasUsername) {
 	}
 }
 
+// Remove updated_date / updated_at columns from table view
+$displayColumns = array_filter($displayColumns, function($col) {
+	return !in_array($col, ['updated_date', 'updated_at'], true);
+});
+$displayColumns = array_values($displayColumns);
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $isAdmin) {
 	$newUsername = trim($_POST['username'] ?? '');
 	$newPassword = trim($_POST['password'] ?? '');
 	$newRole = trim($_POST['role'] ?? '');
 	$newName = trim($_POST['name'] ?? '');
+	$newSchoolName = trim($_POST['school_name'] ?? '');
 	$isActive = isset($_POST['is_active']) ? 1 : 0;
 
 	if (!$hasUsername || !$hasPassword) {
@@ -81,6 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 
 	if ($newUsername === '') {
 		$errors[] = 'Username is required.';
+	} elseif (preg_match('/^\d/', $newUsername)) {
+		$errors[] = 'Username should not start with a number.';
 	}
 
 	if ($newPassword === '') {
@@ -117,26 +209,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 	}
 
 	if (empty($errors)) {
-		if ($hasRole && $hasName && $hasIsActive) {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name, is_active) VALUES (?, ?, ?, ?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ssssi', $newUsername, $newPassword, $newRole, $newName, $isActive);
-			}
-		} elseif ($hasRole && $hasName) {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ssss', $newUsername, $newPassword, $newRole, $newName);
-			}
-		} elseif ($hasIsActive) {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password, is_active) VALUES (?, ?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ssi', $newUsername, $newPassword, $isActive);
-			}
-		} else {
-			$insertStmt = $conn->prepare('INSERT INTO users (username, password) VALUES (?, ?)');
-			if ($insertStmt) {
-				$insertStmt->bind_param('ss', $newUsername, $newPassword);
-			}
+		// Use dynamic query builder to support varying columns safely
+		$cols = ['username', 'password'];
+		$vals = [$newUsername, $newPassword];
+		$types = 'ss';
+
+		if ($hasRole) {
+			$cols[] = 'role';
+			$vals[] = $newRole;
+			$types .= 's';
+		}
+		if ($hasName) {
+			$cols[] = 'name';
+			$vals[] = $newName;
+			$types .= 's';
+		}
+		if ($hasSchoolName) {
+			$cols[] = 'school_name';
+			$vals[] = ($newSchoolName !== '') ? $newSchoolName : null;
+			$types .= 's';
+		}
+		if ($hasIsActive) {
+			$cols[] = 'is_active';
+			$vals[] = $isActive;
+			$types .= 'i';
+		}
+
+		$colsStr = implode(', ', array_map(function($c) { return "`$c`"; }, $cols));
+		$placeholders = implode(', ', array_fill(0, count($cols), '?'));
+		
+		$insertStmt = $conn->prepare("INSERT INTO users ($colsStr) VALUES ($placeholders)");
+		if ($insertStmt) {
+			$insertStmt->bind_param($types, ...$vals);
 		}
 
 		if (!isset($insertStmt) || !$insertStmt) {
@@ -146,7 +250,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user']) && $is
 			$insertStmt->close();
 		} else {
 			$errors[] = 'Failed to create user: ' . $conn->error;
-			$insertStmt->close();
+			if (isset($insertStmt) && $insertStmt) {
+				$insertStmt->close();
+			}
 		}
 	}
 }
@@ -603,8 +709,28 @@ if ($usersResult) {
 						<div class="card-body">
 							<form method="POST" class="create-user-form">
 								<div class="row g-3">
-									<?php if ($hasRole): ?>
+									<?php if ($hasSchoolName): ?>
 										<div class="col-md-3">
+											<label class="form-label" for="school_name">School Name</label>
+											<select id="school_name" name="school_name" class="form-select">
+												<option value="" selected>None / N/A</option>
+												<option value="ZP School Panhala">ZP School Panhala</option>
+												<option value="ZP School Karvir">ZP School Karvir</option>
+												<option value="ZP School Shahuwadi">ZP School Shahuwadi</option>
+												<option value="ZP School Radhanagari">ZP School Radhanagari</option>
+												<option value="ZP School Kagal">ZP School Kagal</option>
+												<option value="ZP School Bhudargad">ZP School Bhudargad</option>
+												<option value="ZP School Ajara">ZP School Ajara</option>
+												<option value="ZP School Gadhinglaj">ZP School Gadhinglaj</option>
+												<option value="ZP School Chandgad">ZP School Chandgad</option>
+												<option value="ZP School Hatkanangale">ZP School Hatkanangale</option>
+												<option value="ZP School Shirol">ZP School Shirol</option>
+												<option value="ZP School Gaganbawda">ZP School Gaganbawda</option>
+											</select>
+										</div>
+									<?php endif; ?>
+									<?php if ($hasRole): ?>
+										<div class="col-md-2">
 											<label class="form-label" for="role">Role</label>
 											<select id="role" name="role" class="form-select" required>
 												<option value="" selected hidden>Select</option>
@@ -615,16 +741,16 @@ if ($usersResult) {
 										</div>
 									<?php endif; ?>
 									<?php if ($hasName): ?>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<label class="form-label" for="name">Full Name</label>
 											<input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
 										</div>
 									<?php endif; ?>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label class="form-label" for="username">Username</label>
 										<input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required>
 									</div>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label class="form-label" for="password">Password</label>
 										<input type="text" id="password" name="password" class="form-control" placeholder="Enter password" required>
 									</div>
@@ -657,18 +783,25 @@ if ($usersResult) {
 											<?php foreach ($displayColumns as $column): ?>
 												<th><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $column))); ?></th>
 											<?php endforeach; ?>
+											<th style="text-align: center;">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
 										<?php if (empty($userRows)): ?>
 											<tr>
-												<td colspan="<?php echo max(1, count($displayColumns)); ?>" class="text-center py-4 text-muted">
+												<td colspan="<?php echo count($displayColumns) + 1; ?>" class="text-center py-4 text-muted">
 													No users found.
 												</td>
 											</tr>
 										<?php else: ?>
 											<?php foreach ($userRows as $userRow): ?>
-												<tr>
+												<tr data-id="<?php echo $userRow['id']; ?>"
+													data-role="<?php echo htmlspecialchars($userRow['role'] ?? ''); ?>"
+													data-name="<?php echo htmlspecialchars($userRow['name'] ?? ''); ?>"
+													data-username="<?php echo htmlspecialchars($userRow['username'] ?? ''); ?>"
+													data-password="<?php echo htmlspecialchars($userRow['password'] ?? ''); ?>"
+													data-is-active="<?php echo htmlspecialchars($userRow['is_active'] ?? '0'); ?>"
+													data-email="<?php echo htmlspecialchars($userRow['email'] ?? ''); ?>">
 													<?php foreach ($displayColumns as $column): ?>
 														<?php $cellValue = $userRow[$column] ?? ''; ?>
 														<td>
@@ -685,6 +818,10 @@ if ($usersResult) {
 															<?php endif; ?>
 														</td>
 													<?php endforeach; ?>
+													<td style="white-space: nowrap; text-align: center;">
+														<button type="button" class="btn btn-sm btn-outline-primary p-1 edit-user-btn" style="width: 28px; height: 28px;" title="Edit"><i class="fa-solid fa-pen" style="font-size: 0.75rem;"></i></button>
+														<button type="button" class="btn btn-sm btn-outline-danger p-1" style="width: 28px; height: 28px;" onclick="confirmDeleteUser(<?php echo $userRow['id']; ?>)" title="Delete"><i class="fa-solid fa-trash" style="font-size: 0.75rem;"></i></button>
+													</td>
 												</tr>
 											<?php endforeach; ?>
 										<?php endif; ?>
@@ -710,6 +847,146 @@ if ($usersResult) {
 			sidebar.classList.toggle('active');
 		}
 	}
+
+	// Client-side validation and Popup errors/success alerts
+	document.addEventListener('DOMContentLoaded', function() {
+		// Server-side errors popup
+		<?php if (!empty($errors)): ?>
+		if (typeof Swal !== 'undefined') {
+			Swal.fire({
+				title: 'Validation Error',
+				html: '<ul class="text-start mb-0"><?php foreach ($errors as $error): ?><li><?php echo addslashes(htmlspecialchars($error)); ?></li><?php endforeach; ?></ul>',
+				icon: 'error',
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#7f2ab3'
+			});
+		}
+		<?php endif; ?>
+
+		// Server-side success popup
+		<?php if (!empty($success)): ?>
+		if (typeof Swal !== 'undefined') {
+			Swal.fire({
+				title: 'Success',
+				text: '<?php echo addslashes(htmlspecialchars($success)); ?>',
+				icon: 'success',
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#7f2ab3'
+			});
+		}
+		<?php endif; ?>
+
+		// Form submit validation
+		const form = document.querySelector('.create-user-form');
+		if (form) {
+			form.addEventListener('submit', function(event) {
+				const roleEl = document.getElementById('role');
+				const nameEl = document.getElementById('name');
+				const usernameEl = document.getElementById('username');
+				const passwordEl = document.getElementById('password');
+				
+				let errs = [];
+				
+				if (roleEl && !roleEl.value) {
+					errs.push("Please select a role.");
+				}
+				if (nameEl && !nameEl.value.trim()) {
+					errs.push("Full name is required.");
+				}
+				if (usernameEl) {
+					const username = usernameEl.value.trim();
+					if (!username) {
+						errs.push("Username is required.");
+					} else if (/^\d/.test(username)) {
+						errs.push("Username should not start with a number.");
+					}
+				}
+				if (passwordEl && !passwordEl.value.trim()) {
+					errs.push("Password is required.");
+				}
+				
+				if (errs.length > 0) {
+					event.preventDefault();
+					if (typeof Swal !== 'undefined') {
+						Swal.fire({
+							title: 'Validation Error',
+							html: '<ul class="text-start mb-0">' + errs.map(e => '<li>' + e + '</li>').join('') + '</ul>',
+							icon: 'error',
+							confirmButtonText: 'OK',
+							confirmButtonColor: '#7f2ab3'
+						});
+					} else {
+						alert(errs.join('\n'));
+					}
+				}
+			});
+		}
+	});
 	</script>
+
+	<!-- Edit User Modal -->
+	<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+				<div class="modal-header text-white" style="background: linear-gradient(135deg, #7f2ab3 0%, #2d064d 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;">
+					<h5 class="modal-title fw-bold" id="editUserModalLabel"><i class="fa-solid fa-user-pen me-2"></i>Edit User Account</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form method="POST" action="create_user.php" class="create-user-form">
+					<div class="modal-body p-4 bg-light">
+						<input type="hidden" name="edit_id" id="edit_id">
+						
+						<div class="row g-3">
+							<?php if ($hasRole): ?>
+								<div class="col-12">
+									<label class="form-label" for="edit_role">Role</label>
+									<select id="edit_role" name="role" class="form-select" required>
+										<option value="" selected hidden>Select</option>
+										<option value="HM">HM</option>
+										<option value="Sachiv">Sachiv</option>
+										<option value="CEO">CEO</option>
+									</select>
+								</div>
+							<?php endif; ?>
+							<?php if ($hasName): ?>
+								<div class="col-12">
+									<label class="form-label" for="edit_name">Full Name</label>
+									<input type="text" id="edit_name" name="name" class="form-control" placeholder="Enter full name" required>
+								</div>
+							<?php endif; ?>
+							<div class="col-12">
+								<label class="form-label" for="edit_username">Username</label>
+								<input type="text" id="edit_username" name="username" class="form-control" placeholder="Enter username" required>
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="edit_password">Password</label>
+								<input type="text" id="edit_password" name="password" class="form-control" placeholder="Enter password" required>
+							</div>
+							
+							<?php if (in_array('email', $userColumns, true)): ?>
+								<div class="col-12">
+									<label class="form-label" for="edit_email">Email Address</label>
+									<input type="email" id="edit_email" name="email" class="form-control" placeholder="Enter email address">
+								</div>
+							<?php endif; ?>
+
+							<?php if ($hasIsActive): ?>
+								<div class="col-12">
+									<div class="form-check my-2">
+										<input class="form-check-input" type="checkbox" id="edit_is_active" name="is_active">
+										<label class="form-check-label fw-bold" for="edit_is_active">Active Account</label>
+									</div>
+								</div>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="modal-footer bg-light" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+						<button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+						<button type="submit" name="update_user" class="btn btn-admin btn-sm px-4" style="background: linear-gradient(135deg, #7f2ab3 0%, #2d064d 100%); border: none;">Save Changes</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </body>
 </html>
