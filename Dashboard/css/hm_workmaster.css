@@ -1,0 +1,23 @@
+/* Basic styles for HM Work Master page */
+.hm-workmaster-page {
+    font-family: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background: #f7f9fb;
+    min-height: 100vh;
+}
+
+.card .card-header strong {
+    font-size: 1rem;
+}
+
+#workTableBody tr td {
+    vertical-align: middle;
+}
+
+#totalBadge {
+    font-size: 0.9rem;
+}
+
+/* Small responsive adjustments */
+@media (max-width: 768px) {
+    .card .card-body .row > .col-md-1 { display: flex; }
+}

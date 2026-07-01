@@ -81,7 +81,7 @@ if ($current_dir === 'Dashboard') {
 
     <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
     <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
+    <li><a href="<?php echo $dashboard_prefix; ?>hm_workmaster.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
     <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
     <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
     <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
@@ -190,7 +190,3 @@ function showMaintenanceModal(event) {
     });
 }
 </script>
-<head>
-    <link rel="stylesheet" href="<?php echo $root_prefix; ?>css/style.css?v=1.0.1">
-    <link rel="stylesheet" href="<?php echo $root_prefix; ?>css/sidebar.css?v=1.0.1">
-</head>
