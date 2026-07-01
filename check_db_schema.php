@@ -8,17 +8,10 @@ if ($conn->connect_error) {
     echo "CONNECT_ERROR: {$conn->connect_error}";
     exit(1);
 }
-$tables = ['tasks', 'task_progress', 'amount_utilization', 'users'];
-foreach ($tables as $table) {
-    echo "\n--- TABLE: $table ---\n";
-    $res = $conn->query("DESCRIBE `$table`");
-    while ($row = $res->fetch_assoc()) {
-        echo $row['Field'] . ' => ' . $row['Type'];
-        if ($row['Null'] !== 'YES') echo ' NOT NULL';
-        if ($row['Key'] === 'PRI') echo ' PRIMARY';
-        if ($row['Default'] !== null) echo ' DEFAULT=' . $row['Default'];
-        if ($row['Extra']) echo ' EXTRA=' . $row['Extra'];
-        echo "\n";
-    }
+
+$res = $conn->query("SELECT * FROM talukas_school_data LIMIT 5");
+while ($row = $res->fetch_assoc()) {
+    print_r($row);
 }
 $conn->close();
+?>
