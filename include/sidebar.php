@@ -75,7 +75,7 @@ if ($current_dir === 'Dashboard') {
 
     <li><a href="sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
     <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
-    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <!-- <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li> -->
 
 <?php } elseif($role == 'HM') { ?>
 
