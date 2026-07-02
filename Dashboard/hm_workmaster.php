@@ -304,6 +304,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] !== 'HM') {
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-12 d-flex justify-content-lg-end gap-2 align-items-center">
+                            <button id="addTopBtn" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> नवीन काम</button>
                             <button id="importBtn" class="btn btn-import btn-sm"><i class="fa fa-file-import"></i> आयात</button>
                             <button id="exportBtn" class="btn btn-export btn-sm"><i class="fa fa-file-excel"></i> निर्यात</button>
                             <input type="file" id="importFileInput" accept=".csv" style="display:none">
@@ -400,6 +401,25 @@ if (isset($_SESSION['role']) && $_SESSION['role'] !== 'HM') {
   </div>
 </div>
 
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Work</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="createModalBody">
+        <!-- Dynamic form -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveCreateBtn">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -436,13 +456,56 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSortIndicators();
     loadWorkData();
 
-    // Export button placeholders (safe attach)
-    const exportBtn = document.getElementById('exportBtn');
-    const importBtn = document.getElementById('importBtn');
-    const importFileInput = document.getElementById('importFileInput');
-    const exportTopBtn = document.getElementById('exportTopBtn');
-    if (exportBtn) exportBtn.addEventListener('click', function () { alert('Export not yet implemented.'); });
-    if (exportTopBtn) exportTopBtn.addEventListener('click', function () { alert('Export not yet implemented.'); });
+    // Dynamic CSV Export
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+            const params = new URLSearchParams(gatherParams());
+            params.set('per_page', '10000');
+            params.set('page', '1');
+            
+            fetch('api_get_work_masters.php?' + params.toString())
+                .then(res => res.json())
+                .then(json => {
+                    const records = Array.isArray(json.data) ? json.data : [];
+                    if (records.length === 0) {
+                        alert('No records to export');
+                        return;
+                    }
+                    
+                    const csvRows = [];
+                    csvRows.push(['Sr. No.', 'Work Type', 'Work Name', 'School Name', 'Stages', 'Completed Percentage', 'Status', 'Created At']);
+                    
+                    records.forEach((row, idx) => {
+                        csvRows.push([
+                            idx + 1,
+                            row.work_type_name || '',
+                            row.work_name || '',
+                            row.school_name || '',
+                            row.stage_name || '',
+                            (row.completed_percentage || 0) + '%',
+                            row.status || '',
+                            row.created_at || ''
+                        ]);
+                    });
+                    
+                    const csvContent = csvRows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")).join("\n");
+                    
+                    const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", "work_records.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Export failed.');
+                });
+        });
+    }
+
     if (importBtn && importFileInput) {
         importBtn.addEventListener('click', function () {
             importFileInput.value = '';
@@ -471,17 +534,211 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    document.getElementById('addTopBtn').addEventListener('click', function () {
-        // Open edit modal with empty form for creation (to be implemented)
-        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        document.getElementById('editModalBody').innerHTML = '<p>Create form will go here.</p>';
-        editModal.show();
-    });
+    // Dynamic Create Modal
+    const addTopBtn = document.getElementById('addTopBtn');
+    if (addTopBtn) {
+        addTopBtn.addEventListener('click', function () {
+            const modal = new bootstrap.Modal(document.getElementById('createModal'));
+            const body = document.getElementById('createModalBody');
+            body.innerHTML = '<p>Loading...</p>';
+            modal.show();
 
-    // Save edit placeholder
-    document.getElementById('saveEditBtn').addEventListener('click', function () {
-        alert('Save functionality not implemented yet.');
-    });
+            fetch('api_get_work_options.php')
+                .then(r => r.json())
+                .then(opts => {
+                    const work_types = Array.isArray(opts.work_types) ? opts.work_types : [];
+                    const work_names = Array.isArray(opts.work_names) ? opts.work_names : [];
+
+                    let html = '<form id="createForm">';
+                    
+                    html += '<div class="mb-3"><label class="form-label">Work Type <span class="text-danger">*</span></label>';
+                    html += '<select name="work_type_id" id="createWorkType" class="form-select" required>';
+                    html += '<option value="">Select type</option>';
+                    work_types.forEach(t => {
+                        html += '<option value="' + t.id + '">' + escapeHtml(t.work_type_name) + '</option>';
+                    });
+                    html += '</select></div>';
+
+                    html += '<div class="mb-3"><label class="form-label">Work Name <span class="text-danger">*</span></label>';
+                    html += '<select name="work_name_id" id="createWorkName" class="form-select" required>';
+                    html += '<option value="">Select name</option>';
+                    work_names.forEach(n => {
+                        html += '<option value="' + n.id + '" data-type-id="' + n.work_type_id + '">' + escapeHtml(n.work_name) + '</option>';
+                    });
+                    html += '</select></div>';
+
+                    html += '<div class="mb-3"><label class="form-label">School Name <span class="text-danger">*</span></label>';
+                    html += '<input name="school_name" class="form-control" required placeholder="Enter school name"></div>';
+
+                    html += '<div class="mb-3"><label class="form-label">Assigned To <span class="text-danger">*</span></label>';
+                    html += '<select name="assigned_to" class="form-select" required>';
+                    html += '<option value="Headmaster">Headmaster</option>';
+                    html += '<option value="Sachiv">Sachiv</option>';
+                    html += '</select></div>';
+
+                    html += '<div class="mb-3"><label class="form-label">Additional Notes</label>';
+                    html += '<textarea name="additional_notes" class="form-control" placeholder="Enter notes"></textarea></div>';
+
+                    html += '<hr><h6 class="fw-bold mb-3">Work Stages & Weightage (Must equal 100%)</h6>';
+                    html += '<div class="table-responsive">';
+                    html += '<table class="table table-bordered align-middle text-center" id="createStagesTable">';
+                    html += '<thead><tr><th style="width: 50%;">Stage Name</th><th style="width: 30%;">Weightage (%)</th><th style="width: 20%;">Action</th></tr></thead>';
+                    html += '<tbody id="createStagesTbody">';
+                    html += '<tr class="create-stage-row">';
+                    html += '<td><input type="text" class="form-control form-control-sm stage-name-input" placeholder="e.g. Planning & Approval" required></td>';
+                    html += '<td><input type="number" class="form-control form-control-sm stage-weight-input text-center mx-auto" style="width: 80px;" min="1" max="100" placeholder="0" required></td>';
+                    html += '<td>';
+                    html += '<button type="button" class="btn btn-success btn-sm me-1 add-stage-row-btn" style="padding: 2px 6px;"><i class="fa fa-plus"></i></button>';
+                    html += '<button type="button" class="btn btn-danger btn-sm delete-stage-row-btn" disabled style="padding: 2px 6px;"><i class="fa fa-trash"></i></button>';
+                    html += '</td>';
+                    html += '</tr>';
+                    html += '</tbody>';
+                    html += '<tfoot><tr class="fw-bold bg-light"><td class="text-start ps-3">Total</td><td id="createTotalWeightCell" class="text-danger fw-bold">0%</td><td></td></tr></tfoot>';
+                    html += '</table>';
+                    html += '</div>';
+
+                    html += '</form>';
+                    body.innerHTML = html;
+
+                    const typeSelect = document.getElementById('createWorkType');
+                    const nameSelect = document.getElementById('createWorkName');
+                    const nameOptions = Array.from(nameSelect.options);
+
+                    typeSelect.addEventListener('change', function () {
+                        const selectedTypeVal = typeSelect.value;
+                        nameSelect.value = '';
+                        nameSelect.innerHTML = '<option value="">Select name</option>';
+                        nameOptions.forEach(opt => {
+                            if (opt.value === '' || opt.getAttribute('data-type-id') === selectedTypeVal) {
+                                nameSelect.appendChild(opt.cloneNode(true));
+                            }
+                        });
+                    });
+
+                    function calculateCreateTotalWeight() {
+                        let total = 0;
+                        document.querySelectorAll('#createStagesTbody .stage-weight-input').forEach(input => {
+                            const val = parseFloat(input.value);
+                            if (!isNaN(val)) total += val;
+                        });
+                        const cell = document.getElementById('createTotalWeightCell');
+                        cell.textContent = total + '%';
+                        if (total === 100) {
+                            cell.className = 'text-success fw-bold';
+                        } else {
+                            cell.className = 'text-danger fw-bold';
+                        }
+                    }
+
+                    const stagesTbody = document.getElementById('createStagesTbody');
+                    stagesTbody.addEventListener('input', function (e) {
+                        if (e.target.classList.contains('stage-weight-input')) {
+                            calculateCreateTotalWeight();
+                        }
+                    });
+
+                    stagesTbody.addEventListener('click', function (e) {
+                        const target = e.target.closest('button');
+                        if (!target) return;
+
+                        if (target.classList.contains('add-stage-row-btn')) {
+                            const newRow = document.createElement('tr');
+                            newRow.className = 'create-stage-row';
+                            newRow.innerHTML = `
+                                <td><input type="text" class="form-control form-control-sm stage-name-input" placeholder="Enter stage name" required></td>
+                                <td><input type="number" class="form-control form-control-sm stage-weight-input text-center mx-auto" style="width: 80px;" min="1" max="100" placeholder="0" required></td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-sm me-1 add-stage-row-btn" style="padding: 2px 6px;"><i class="fa fa-plus"></i></button>
+                                    <button type="button" class="btn btn-danger btn-sm delete-stage-row-btn" style="padding: 2px 6px;"><i class="fa fa-trash"></i></button>
+                                </td>
+                            `;
+                            stagesTbody.appendChild(newRow);
+                            
+                            const deleteBtns = stagesTbody.querySelectorAll('.delete-stage-row-btn');
+                            deleteBtns.forEach(btn => btn.disabled = false);
+                            calculateCreateTotalWeight();
+                        } else if (target.classList.contains('delete-stage-row-btn')) {
+                            const row = target.closest('tr');
+                            row.remove();
+                            
+                            const rows = stagesTbody.querySelectorAll('tr');
+                            if (rows.length === 1) {
+                                rows[0].querySelector('.delete-stage-row-btn').disabled = true;
+                            }
+                            calculateCreateTotalWeight();
+                        }
+                    });
+
+                    const saveCreateBtn = document.getElementById('saveCreateBtn');
+                    saveCreateBtn.onclick = function () {
+                        const form = document.getElementById('createForm');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        let total = 0;
+                        const stages = [];
+                        let validStages = true;
+
+                        document.querySelectorAll('#createStagesTbody .create-stage-row').forEach(row => {
+                            const name = row.querySelector('.stage-name-input').value.trim();
+                            const pct = parseFloat(row.querySelector('.stage-weight-input').value);
+                            if (!name || isNaN(pct) || pct <= 0) {
+                                validStages = false;
+                            }
+                            total += pct;
+                            stages.push({ name: name, percentage: pct });
+                        });
+
+                        if (!validStages) {
+                            alert('Please fill out all stage names and percentages.');
+                            return;
+                        }
+
+                        if (Math.abs(total - 100) > 0.01) {
+                            alert('Total stage percentage must equal exactly 100%. Current total: ' + total + '%');
+                            return;
+                        }
+
+                        const payload = {
+                            school_name: form.school_name.value.trim(),
+                            assigned_to: form.assigned_to.value,
+                            work_type_id: parseInt(form.work_type_id.value),
+                            work_name_id: parseInt(form.work_name_id.value),
+                            additional_notes: form.additional_notes.value.trim(),
+                            stages: stages
+                        };
+
+                        fetch('api_create_work.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(r => r.json())
+                        .then(resp => {
+                            if (resp.status === false) {
+                                alert('Error: ' + (resp.message || 'Failed to create work'));
+                                return;
+                            }
+                            modal.hide();
+                            loadWorkData();
+                            alert(resp.message || 'Work created successfully.');
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Creation failed.');
+                        });
+                    };
+
+                }).catch(err => {
+                    body.innerHTML = '<div class="text-danger">Failed to load creation options.</div>';
+                    console.error(err);
+                });
+        });
+    }
 
     window.viewWork = function (id) {
         const modal = new bootstrap.Modal(document.getElementById('viewModal'));
@@ -520,7 +777,6 @@ document.addEventListener('DOMContentLoaded', function () {
         body.innerHTML = '<p>Loading...</p>';
         modal.show();
 
-        // fetch options and record in parallel
         Promise.all([
             fetch('api_get_work_options.php').then(r => r.json()),
             fetch('api_get_work_master.php?id=' + encodeURIComponent(id)).then(r => r.json())
@@ -532,18 +788,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let html = '<form id="editForm">';
             html += '<input type="hidden" name="id" value="' + escapeHtml(data.id) + '">';
-            html += '<div class="mb-3"><label class="form-label">Work Type</label><select name="work_type_id" class="form-select">';
+            
+            html += '<div class="mb-3"><label class="form-label">Work Type</label><select name="work_type_id" id="editWorkType" class="form-select">';
             html += '<option value="">Select type</option>';
             work_types.forEach(t => html += '<option value="' + t.id + '"' + (t.id == data.work_type_id ? ' selected' : '') + '>' + escapeHtml(t.work_type_name) + '</option>');
             html += '</select></div>';
 
-            html += '<div class="mb-3"><label class="form-label">Work Name</label><select name="work_name_id" class="form-select">';
+            html += '<div class="mb-3"><label class="form-label">Work Name</label><select name="work_name_id" id="editWorkName" class="form-select">';
             html += '<option value="">Select name</option>';
-            work_names.forEach(n => html += '<option value="' + n.id + '"' + (n.id == data.work_name_id ? ' selected' : '') + '>' + escapeHtml(n.work_name) + '</option>');
+            work_names.forEach(n => {
+                const isSelected = (n.id == data.work_name_id);
+                if (n.work_type_id == data.work_type_id || isSelected) {
+                    html += '<option value="' + n.id + '" data-type-id="' + n.work_type_id + '"' + (isSelected ? ' selected' : '') + '>' + escapeHtml(n.work_name) + '</option>';
+                }
+            });
             html += '</select></div>';
 
             html += '<div class="mb-3"><label class="form-label">School</label><input name="school_name" class="form-control" value="' + escapeHtml(data.school_name || '') + '"></div>';
-            html += '<div class="mb-3"><label class="form-label">Assigned To</label><input name="assigned_to" class="form-control" value="' + escapeHtml(data.assigned_to || '') + '"></div>';
+            
+            html += '<div class="mb-3"><label class="form-label">Assigned To</label><select name="assigned_to" class="form-select">';
+            ['Headmaster', 'Sachiv'].forEach(role => {
+                html += '<option value="' + role + '"' + (role === data.assigned_to ? ' selected' : '') + '>' + role + '</option>';
+            });
+            html += '</select></div>';
+
             html += '<div class="mb-3"><label class="form-label">Status</label><select name="status" class="form-select">';
             ['Pending','In Progress','Completed'].forEach(s => html += '<option value="' + s + '"' + (s == data.status ? ' selected' : '') + '>' + s + '</option>');
             html += '</select></div>';
@@ -552,7 +820,27 @@ document.addEventListener('DOMContentLoaded', function () {
             html += '</form>';
             body.innerHTML = html;
 
-            // wire save button
+            const editTypeSelect = document.getElementById('editWorkType');
+            const editNameSelect = document.getElementById('editWorkName');
+            
+            const allNameOptions = work_names.map(n => {
+                const opt = document.createElement('option');
+                opt.value = n.id;
+                opt.textContent = n.work_name;
+                opt.setAttribute('data-type-id', n.work_type_id);
+                return opt;
+            });
+
+            editTypeSelect.addEventListener('change', function () {
+                const selectedTypeVal = editTypeSelect.value;
+                editNameSelect.innerHTML = '<option value="">Select name</option>';
+                allNameOptions.forEach(opt => {
+                    if (opt.value === '' || opt.getAttribute('data-type-id') === selectedTypeVal) {
+                        editNameSelect.appendChild(opt.cloneNode(true));
+                    }
+                });
+            });
+
             const saveBtn = document.getElementById('saveEditBtn');
             saveBtn.onclick = function () {
                 const form = document.getElementById('editForm');
@@ -651,17 +939,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     const percent = isNaN(percentVal) ? '-' : Math.max(0, Math.min(100, percentVal));
                     const textStatus = row.status || '';
                     const statusLabel = percent === '-' ? (textStatus || 'Pending') : (percent === 100 ? 'Completed' : percent === 0 ? 'Not Started' : 'In Progress');
-                    const badgeClass = statusLabel === 'Completed' ? 'bg-success' : statusLabel === 'Not Started' ? 'bg-secondary text-white' : statusLabel === 'In Progress' ? 'bg-warning text-dark' : 'bg-info text-dark';
+                    const badgeClass = statusLabel === 'Completed' ? 'badge-completed' : statusLabel === 'Not Started' ? 'badge-notstarted' : statusLabel === 'In Progress' ? 'badge-inprogress' : 'badge-pending';
                     tr.innerHTML = `
-                        <td style="width:50px">${idx+1}</td>
+                        <td style="width:50px">${idx+start}</td>
                         <td>${escapeHtml(row.work_type_name || '')}</td>
                         <td>${escapeHtml(row.work_name || '')}</td>
                         <td>${escapeHtml(row.school_name || '')}</td>
                         <td>${escapeHtml(row.stage_name || '-')}</td>
                         <td>
-                            ${percent === '-' ? '-' : `<div class="progress" style="height:10px"><div class="progress-bar" role="progressbar" style="width:${percent}%" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div></div><div class="mt-1"><strong>${percent}%</strong></div>`}
+                            ${percent === '-' ? '-' : `<div class="progress"><div class="progress-bar progress-bar-premium" role="progressbar" style="width:${percent}%" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div></div><div class="mt-1"><strong>${percent}%</strong></div>`}
                         </td>
-                        <td><span class="badge ${badgeClass}">${escapeHtml(statusLabel)}</span></td>
+                        <td><span class="badge-status ${badgeClass}">${escapeHtml(statusLabel)}</span></td>
                         <td>
                             <button class="btn action-btn action-view me-1" title="View" onclick="viewWork(${row.id})"><i class="fa fa-eye"></i></button>
                             <button class="btn action-btn action-edit me-1" title="Edit" onclick="editWork(${row.id})"><i class="fa fa-edit"></i></button>
