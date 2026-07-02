@@ -80,11 +80,11 @@ if ($current_dir === 'Dashboard') {
 <?php } elseif($role == 'HM') { ?>
 
     <li><a href="hm_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Update Work Progress</a></li>
-    <li><a href="<?php echo $dashboard_prefix; ?>hm_workmaster.php"><i class="fa-solid fa-school"></i> HM Work Master</a></li>
-    <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Amount Utilization</a></li>
-    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
-    <li><a href="notification.php"><i class="fa-solid fa-bell"></i> Notification</a></li>
+    <li><a href="hm_update_work_progress.php"><i class="fa-solid fa-chart-line"></i> Stage Progress Update</a></li>
+    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-list-check"></i> Work Status</a></li>
+    <li><a href="hm_utilization.php"><i class="fa-solid fa-indian-rupee-sign"></i> Fund Details</a></li>
+    <li><a href="amount_utilization.php"><i class="fa-solid fa-file-invoice-dollar"></i> Fund Report</a></li>
+    <li><a href="hm_notification.php"><i class="fa-solid fa-bell"></i> Notifications</a></li>
 
 <?php } ?>
 
