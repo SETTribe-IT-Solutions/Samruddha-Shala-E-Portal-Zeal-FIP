@@ -74,8 +74,9 @@ if ($current_dir === 'Dashboard') {
 <?php } elseif($role == 'SACHIV') { ?>
 
     <li><a href="sachiv_dashboard.php"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
-    <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li>
+    <li><a href="sachiv_work_master.php"><i class="fa-solid fa-list"></i> Sachiv Work Master</a></li>
+    <li><a href="Financial_Master.php"><i class="fa-solid fa-coins"></i> Financial Master</a></li>
+    <!-- <li><a href="#" onclick="showMaintenanceModal(event)"><i class="fa-solid fa-screwdriver-wrench"></i> Utility Master</a></li> -->
 
 <?php } elseif($role == 'HM') { ?>
 
