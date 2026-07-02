@@ -8,7 +8,7 @@ if ($conn->connect_error) {
     echo "CONNECT_ERROR: {$conn->connect_error}";
     exit(1);
 }
-$tables = ['tasks', 'task_progress', 'amount_utilization', 'users'];
+$tables = ['talukas_school_data', 'work_type_master', 'work_name_master', 'work_master', 'work_stages'];
 foreach ($tables as $table) {
     echo "\n--- TABLE: $table ---\n";
     $res = $conn->query("DESCRIBE `$table`");
@@ -22,3 +22,4 @@ foreach ($tables as $table) {
     }
 }
 $conn->close();
+?>

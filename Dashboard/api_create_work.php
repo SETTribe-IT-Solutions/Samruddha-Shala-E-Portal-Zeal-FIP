@@ -74,17 +74,22 @@ if (abs($total_percentage - 100) > 0.01) {
     exit;
 }
 
-// Check if work_type and work_name exist
-$res = mysqli_query($conn, "SELECT id FROM work_type_master WHERE id = $work_type_id");
-if (mysqli_num_rows($res) === 0) {
+// Check if work_type and work_name exist and fetch their names
+$res_type = mysqli_query($conn, "SELECT work_type_name FROM work_type_master WHERE id = $work_type_id");
+if (mysqli_num_rows($res_type) === 0) {
     echo json_encode(["status" => false, "message" => "Selected Work Type does not exist."]);
     exit;
 }
-$res = mysqli_query($conn, "SELECT id FROM work_name_master WHERE id = $work_name_id AND work_type_id = $work_type_id");
-if (mysqli_num_rows($res) === 0) {
+$row_type = mysqli_fetch_assoc($res_type);
+$work_type_name = $row_type['work_type_name'];
+
+$res_name = mysqli_query($conn, "SELECT work_name FROM work_name_master WHERE id = $work_name_id AND work_type_id = $work_type_id");
+if (mysqli_num_rows($res_name) === 0) {
     echo json_encode(["status" => false, "message" => "Selected Work Name does not exist for this Work Type."]);
     exit;
 }
+$row_name = mysqli_fetch_assoc($res_name);
+$work_name_text = $row_name['work_name'];
 
 // Database Transaction
 mysqli_begin_transaction($conn);
@@ -96,13 +101,32 @@ try {
     mysqli_stmt_close($stmt);
 
     $stmt_stage = mysqli_prepare($conn, "INSERT INTO work_stages (work_id, stage_name, stage_percentage) VALUES (?, ?, ?)");
+    
+    $stage_names = [];
+    $stage_pcts = [];
+    
     foreach ($stages as $stage) {
         $name = trim($stage['name']);
         $pct = floatval($stage['percentage']);
+        
+        // Insert into work_stages
         mysqli_stmt_bind_param($stmt_stage, "isd", $work_id, $name, $pct);
         mysqli_stmt_execute($stmt_stage);
+
+        $stage_names[] = $name;
+        $stage_pcts[] = $pct;
     }
     mysqli_stmt_close($stmt_stage);
+
+    // Prepare comma-separated strings for ceo_create_stage
+    $stages_str = implode(', ', $stage_names);
+    $percentages_str = implode(', ', $stage_pcts);
+
+    // Insert into ceo_create_stage (singular)
+    $stmt_ceo_stage = mysqli_prepare($conn, "INSERT INTO ceo_create_stage (work_type, work_name, stages, percentages, remarks) VALUES (?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt_ceo_stage, "sssss", $work_type_name, $work_name_text, $stages_str, $percentages_str, $additional_notes);
+    mysqli_stmt_execute($stmt_ceo_stage);
+    mysqli_stmt_close($stmt_ceo_stage);
 
     mysqli_commit($conn);
     echo json_encode(["status" => true, "message" => "Work created successfully."]);
