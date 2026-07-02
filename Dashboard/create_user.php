@@ -700,9 +700,13 @@ if ($usersResult) {
 			</div>
 
 			<nav class="navbar create-user-topbar">
-				<div class="container-fluid px-0">
+				<div class="container-fluid px-0 d-flex justify-content-between align-items-center">
 					<div class="d-flex align-items-center gap-2">
-						<h4 class="fw-bold mb-0 text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;">Admin User Management</h4>
+						<h4 class="fw-bold mb-0 text-truncate" id="pageMainHeader" style="color: #2d064d; font-family: 'Outfit', sans-serif; font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 800 !important; line-height: 1.2;" data-i18n="navTitle">Create User</h4>
+					</div>
+					<div class="d-flex align-items-center gap-2 flex-wrap language-switcher">
+						<button id="langMarBtn" class="btn btn-sm btn-primary">मराठी</button>
+						<button id="langEngBtn" class="btn btn-sm btn-outline-primary">English</button>
 					</div>
 				</div>
 			</nav>
@@ -711,13 +715,13 @@ if ($usersResult) {
 				<div class="container-fluid">
 					<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
 						<div>
-							<h4 class="page-title">Admin User Management</h4>
-							<p class="page-subtitle">Create user accounts and manage the master users list.</p>
+							<h4 class="page-title" data-i18n="pageTitle">Admin User Management</h4>
+							<p class="page-subtitle" data-i18n="pageSubtitle">Create user accounts and manage the master users list.</p>
 						</div>
 					</div>
 
 					<?php if (!$isAdmin): ?>
-						<div class="alert alert-warning">Limited access mode: you can view existing users. Creating users requires administrator access.</div>
+						<div class="alert alert-warning" data-i18n="alertAdminOnly">Limited access mode: you can view existing users. Creating users requires administrator access.</div>
 					<?php endif; ?>
 
 					<?php if (!empty($success)): ?>
@@ -736,16 +740,16 @@ if ($usersResult) {
 
 					<div class="card admin-card create-user-card mb-4">
 						<div class="card-header">
-							<h5 class="mb-0">Create New User</h5>
+							<h5 class="mb-0" data-i18n="cardTitle">Create New User</h5>
 						</div>
 						<div class="card-body">
 							<form method="POST" class="create-user-form">
 								<div class="row g-3">
 									<?php if ($hasSchoolName): ?>
 										<div class="col-md-3">
-											<label class="form-label" for="school_name">School Name</label>
+											<label class="form-label" for="school_name" data-i18n="lblSchoolName">School Name</label>
 											<select id="school_name" name="school_name" class="form-select">
-												<option value="" selected>None / N/A</option>
+												<option value="" selected data-i18n="optNone">None / N/A</option>
 												<option value="ZP School Panhala">ZP School Panhala</option>
 												<option value="ZP School Karvir">ZP School Karvir</option>
 												<option value="ZP School Shahuwadi">ZP School Shahuwadi</option>
@@ -763,9 +767,9 @@ if ($usersResult) {
 									<?php endif; ?>
 									<?php if ($hasRole): ?>
 										<div class="col-md-2">
-											<label class="form-label" for="role">Role</label>
+											<label class="form-label" for="role" data-i18n="lblRole">Role</label>
 											<select id="role" name="role" class="form-select" required>
-												<option value="" selected hidden>Select</option>
+												<option value="" selected hidden data-i18n="optSelectRole">Select</option>
 												<option value="HM">HM</option>
 												<option value="Sachiv">Sachiv</option>
 												<option value="CEO">CEO</option>
@@ -774,29 +778,29 @@ if ($usersResult) {
 									<?php endif; ?>
 									<?php if ($hasName): ?>
 										<div class="col-md-2">
-											<label class="form-label" for="name">Full Name</label>
+											<label class="form-label" for="name" data-i18n="lblFullName">Full Name</label>
 											<input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
 										</div>
 									<?php endif; ?>
 									<div class="col-md-2">
-										<label class="form-label" for="username">Username</label>
+										<label class="form-label" for="username" data-i18n="lblUsername">Username</label>
 										<input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required>
 									</div>
 									<div class="col-md-2">
-										<label class="form-label" for="password">Password</label>
+										<label class="form-label" for="password" data-i18n="lblPassword">Password</label>
 										<input type="text" id="password" name="password" class="form-control" placeholder="Enter password" required>
 									</div>
 									<?php if ($hasIsActive): ?>
 										<div class="col-md-1 d-flex align-items-end justify-content-md-end">
 											<div class="form-check mb-2">
 												<input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
-												<label class="form-check-label" for="is_active">Active</label>
+												<label class="form-check-label" for="is_active" data-i18n="lblActive">Active</label>
 											</div>
 										</div>
 									<?php endif; ?>
 								</div>
 								<div class="create-user-actions">
-									<button type="submit" name="create_user" class="btn btn-admin" <?php echo $isAdmin ? '' : 'disabled'; ?>>Create User</button>
+									<button type="submit" name="create_user" class="btn btn-admin" <?php echo $isAdmin ? '' : 'disabled'; ?> data-i18n="btnCreateAccount">Create User</button>
 								</div>
 							</form>
 						</div>
@@ -804,8 +808,8 @@ if ($usersResult) {
 
 					<div class="card admin-card">
 						<div class="card-header d-flex justify-content-between align-items-center">
-							<h5 class="mb-0">Users Master Table</h5>
-							<span class="badge text-bg-light"><?php echo count($userRows); ?> users</span>
+							<h5 class="mb-0" data-i18n="lblUsersList">Users Master Table</h5>
+							<span class="badge text-bg-light"><?php echo count($userRows); ?> <span data-i18n="usersCountLabel">users</span></span>
 						</div>
 						<div class="card-body p-0">
 							<div class="table-responsive">
@@ -813,15 +817,30 @@ if ($usersResult) {
 									<thead>
 										<tr>
 											<?php foreach ($displayColumns as $column): ?>
-												<th><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $column))); ?></th>
+												<?php
+												$i18nKey = '';
+												if ($column === 'id') $i18nKey = 'thUserId';
+												elseif ($column === 'username') $i18nKey = 'lblUsername';
+												elseif ($column === 'name') $i18nKey = 'lblFullName';
+												elseif ($column === 'role') $i18nKey = 'lblRole';
+												elseif ($column === 'school_name') $i18nKey = 'lblSchoolName';
+												elseif ($column === 'is_active') $i18nKey = 'thStatus';
+												?>
+												<th>
+													<?php if ($i18nKey): ?>
+														<span data-i18n="<?php echo $i18nKey; ?>"><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $column))); ?></span>
+													<?php else: ?>
+														<?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $column))); ?>
+													<?php endif; ?>
+												</th>
 											<?php endforeach; ?>
-											<th style="text-align: center;">Actions</th>
+											<th style="text-align: center;" data-i18n="thActions">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
 										<?php if (empty($userRows)): ?>
 											<tr>
-												<td colspan="<?php echo count($displayColumns) + 1; ?>" class="text-center py-4 text-muted">
+												<td colspan="<?php echo count($displayColumns) + 1; ?>" class="text-center py-4 text-muted" data-i18n="lblNoUsersFound">
 													No users found.
 												</td>
 											</tr>
@@ -1069,12 +1088,105 @@ if ($usersResult) {
 						</div>
 					</div>
 					<div class="modal-footer bg-light" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
-						<button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
-						<button type="submit" name="update_user" class="btn btn-admin btn-sm px-4" style="background: linear-gradient(135deg, #7f2ab3 0%, #2d064d 100%); border: none;">Save Changes</button>
+						<button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal" data-i18n="modalClose">Close</button>
+						<button type="submit" name="update_user" class="btn btn-admin btn-sm px-4" style="background: linear-gradient(135deg, #7f2ab3 0%, #2d064d 100%); border: none;" data-i18n="btnSaveChanges">Save Changes</button>
 					</div>
 				</form>
 			</div>
 		</div>
 	</div>
+
+	<!-- Language Translation JavaScript -->
+	<script>
+		const langStrings = {
+			navTitle: { mar: 'युझर तयार करा', eng: 'Create User' },
+			pageTitle: { mar: 'युझर व्यवस्थापन', eng: 'Admin User Management' },
+			pageSubtitle: { mar: 'नवीन युझर अकाऊंट तयार करा आणि सिस्टम युझर्सची यादी व्यवस्थापित करा.', eng: 'Create user accounts and manage the master users list.' },
+			alertAdminOnly: { mar: 'मर्यादित प्रवेश: आपण युझर्सची यादी पाहू शकता. नवीन युझर तयार करण्यासाठी ॲडमीन प्रवेश आवश्यक आहे.', eng: 'Limited access mode: you can view existing users. Creating users requires administrator access.' },
+			cardTitle: { mar: 'नवीन युझर तयार करा', eng: 'Create New User' },
+			lblSchoolName: { mar: 'शाळेचे नाव', eng: 'School Name' },
+			lblRole: { mar: 'भूमिका / पद', eng: 'Role' },
+			lblFullName: { mar: 'पूर्ण नाव', eng: 'Full Name' },
+			lblUsername: { mar: 'युझरनेम', eng: 'Username' },
+			lblPassword: { mar: 'पासवर्ड', eng: 'Password' },
+			lblActive: { mar: 'सक्रिय', eng: 'Active' },
+			btnCreateAccount: { mar: 'अकाऊंट तयार करा', eng: 'Create User' },
+			lblUsersList: { mar: 'सिस्टम युझर्सची यादी', eng: 'Users Master Table' },
+			usersCountLabel: { mar: 'युझर्स', eng: 'users' },
+			thUserId: { mar: 'आयडी', eng: 'Id' },
+			thStatus: { mar: 'स्थिती', eng: 'Status' },
+			thActions: { mar: 'कृती', eng: 'Actions' },
+			lblNoUsersFound: { mar: 'कोणतेही युझर्स आढळले नाहीत.', eng: 'No users found.' },
+			statusActive: { mar: 'सक्रिय', eng: 'Active' },
+			statusInactive: { mar: 'निष्क्रिय', eng: 'Inactive' },
+			optNone: { mar: 'काही नाही / लागू नाही', eng: 'None / N/A' },
+			optSelectRole: { mar: 'निवडा', eng: 'Select' },
+			modalClose: { mar: 'बंद करा', eng: 'Close' },
+			btnSaveChanges: { mar: 'बदल जतन करा', eng: 'Save Changes' },
+			
+			sideDashboard: { mar: 'CEO डॅशबोर्ड', eng: 'CEO Dashboard' },
+			sideCreateStages: { mar: 'टप्पे तयार करा', eng: 'Create Stages' },
+			sideStagesReport: { mar: 'टप्प्यांचा अहवाल', eng: 'Stages Report' },
+			sideWorkReport: { mar: 'कामाचा अहवाल', eng: 'Work Report' },
+			sideFundingReport: { mar: 'निधी अहवाल', eng: 'Funding Report' },
+			sideCreateUser: { mar: 'युझर तयार करा', eng: 'Create User' },
+			sideFundUtil: { mar: 'निधी वापर तपशील', eng: 'Fund Utilization Details' }
+		};
+
+		function setLanguage(lang) {
+			document.querySelectorAll('[data-i18n]').forEach(el => {
+				const key = el.getAttribute('data-i18n');
+				if (langStrings[key] && langStrings[key][lang]) {
+					el.textContent = langStrings[key][lang];
+				}
+			});
+
+			// Toggle active class on language toggle buttons
+			const marBtn = document.getElementById('langMarBtn');
+			const engBtn = document.getElementById('langEngBtn');
+			if (marBtn && engBtn) {
+				marBtn.classList.toggle('btn-primary', lang === 'mar');
+				marBtn.classList.toggle('btn-outline-primary', lang !== 'mar');
+				engBtn.classList.toggle('btn-primary', lang === 'eng');
+				engBtn.classList.toggle('btn-outline-primary', lang !== 'eng');
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+			const sidebar = document.getElementById('sidebar');
+			
+			if (mobileSidebarToggle && sidebar) {
+				mobileSidebarToggle.addEventListener('click', function(e) {
+					e.stopPropagation();
+					sidebar.classList.toggle('active');
+				});
+				
+				document.addEventListener('click', function(e) {
+					if (window.innerWidth <= 991 && sidebar.classList.contains('active')) {
+						if (!sidebar.contains(e.target) && e.target !== mobileSidebarToggle) {
+							sidebar.classList.remove('active');
+						}
+					}
+				});
+			}
+
+			const marBtn = document.getElementById('langMarBtn');
+			const engBtn = document.getElementById('langEngBtn');
+			if (marBtn && engBtn) {
+				marBtn.addEventListener('click', () => {
+					localStorage.setItem('ceoLang', 'mar');
+					setLanguage('mar');
+				});
+				engBtn.addEventListener('click', () => {
+					localStorage.setItem('ceoLang', 'eng');
+					setLanguage('eng');
+				});
+			}
+
+			const savedLang = localStorage.getItem('ceoLang') || 'mar';
+			setLanguage(savedLang);
+		});
+	</script>
 </body>
 </html>

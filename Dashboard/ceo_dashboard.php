@@ -513,9 +513,9 @@ if ($fundDistributionResult) {
                                     <div class="fw-bold fs-5"><?php echo number_format($totalTalukas); ?> <span class="text-secondary" data-i18n="talukaLabel">तालुके</span></div>
                                 </div>
                             </div>
-                            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-6 g-3">
+                                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-6 g-3">
                                 <div class="col">
-                                    <button type="button" class="btn taluka-button taluka-button-active w-100 py-4" data-lang-mar="सर्व तालुके" data-lang-eng="All Talukas" id="talukaAllButton">
+                                    <button type="button" class="btn taluka-button taluka-button-active w-100 py-4" data-lang-mar="सर्व तालुके" data-lang-eng="All Talukas" data-taluka="ALL" id="talukaAllButton">
                                         <div class="taluka-button-inner">
                                             <div class="taluka-icon bg-primary text-white mb-3"><i class="fa-solid fa-map"></i></div>
                                             <span class="taluka-label fw-semibold" data-default="सर्व तालुके">सर्व तालुके</span>
@@ -524,7 +524,7 @@ if ($fundDistributionResult) {
                                 </div>
                                 <?php foreach ($talukaCoverage as $taluka): ?>
                                     <div class="col">
-                                        <button type="button" class="btn taluka-button w-100 py-4" data-lang-mar="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>" data-lang-eng="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>">
+                                        <button type="button" class="btn taluka-button w-100 py-4" data-taluka="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>" data-lang-mar="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>" data-lang-eng="<?php echo htmlspecialchars($taluka['taluka_name'], ENT_QUOTES); ?>">
                                             <div class="taluka-button-inner">
                                                 <div class="taluka-icon bg-light text-primary mb-3"><i class="fa-solid fa-map"></i></div>
                                                 <span class="taluka-label fw-semibold"><?php echo htmlspecialchars($taluka['taluka_name']); ?></span>
@@ -542,13 +542,13 @@ if ($fundDistributionResult) {
                         <div class="card dashboard-card p-4 h-100">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <div>
-                                    <h5 class="fw-bold mb-1" id="recentTitle" data-i18n="recentTitle">रिसेंट अॅक्टिव्हिटी</h5>
+                                    <h5 class="fw-bold mb-1" id="recentTitle" data-i18n="recentTitle">रिसेंट ॲक्टिव्हिटी</h5>
                                     <p class="text-muted mb-0" id="recentDescription" data-i18n="recentDescription">ताज्या HM खर्च नोंदी आणि शाळा/तालुका माहिती.</p>
                                 </div>
                                 <span class="badge bg-primary text-white" id="recentBadge" data-i18n="latestBadge">नवीनतम</span>
                             </div>
                             <?php if (empty($recentActivityRows)): ?>
-                                <div class="py-5 text-center text-muted" id="recentEmpty" data-i18n="noRecent">रिसेंट अॅक्टिव्हिटी उपलब्ध नाही.</div>
+                                <div class="py-5 text-center text-muted" id="recentEmpty" data-i18n="noRecent">रिसेंट ॲक्टिव्हिटी उपलब्ध नाही.</div>
                             <?php else: ?>
                                 <div class="list-group list-group-flush">
                                     <?php foreach ($recentActivityRows as $item): ?>
@@ -627,6 +627,26 @@ if ($fundDistributionResult) {
         </div>
     </div>
 
+    <!-- Taluka details modal -->
+    <div class="modal fade" id="talukaModal" tabindex="-1" aria-labelledby="talukaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="talukaModalLabel">तालुका माहिती</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="talukaModalContent">
+                        <div class="text-center text-muted py-4">लोड करत आहेत...</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -657,10 +677,10 @@ if ($fundDistributionResult) {
             summaryBudgetLabel: { mar: 'एकूण बजेट', eng: 'Total Budget' },
             summaryCompletedLabel: { mar: 'पूर्ण झालेले प्रकल्प', eng: 'Completed Projects' },
             summaryPendingLabel: { mar: 'प्रलंबित कामे', eng: 'Pending Works' },
-            recentTitle: { mar: 'रिसेंट अॅक्टिव्हिटी', eng: 'Recent Activity' },
+            recentTitle: { mar: 'रिसेंट ॲक्टिव्हिटी', eng: 'Recent Activity' },
             recentDescription: { mar: 'ताज्या HM खर्च नोंदी आणि शाळा/तालुका माहिती.', eng: 'Latest HM expense updates and taluka info.' },
             latestBadge: { mar: 'नवीनतम', eng: 'Latest' },
-            noRecent: { mar: 'रिसेंट अॅक्टिव्हिटी उपलब्ध नाही.', eng: 'No recent activity available.' },
+            noRecent: { mar: 'रिसेंट ॲक्टिव्हिटी उपलब्ध नाही.', eng: 'No recent activity available.' },
             blockerTitle: { mar: 'ब्लॉकर माहिती', eng: 'Blocker Info' },
             blockerDescription: { mar: 'उच्च उपयोग झालेल्या प्रकल्पांबद्दलची माहिती.', eng: 'Details of the highest utilization project.' },
             highBadge: { mar: 'उच्च', eng: 'High' },
@@ -671,7 +691,14 @@ if ($fundDistributionResult) {
             blockerSanctionLabel: { mar: 'अनुदान', eng: 'Sanction' },
             blockerSpentLabel: { mar: 'खर्च', eng: 'Spent' },
             fundReceivedLabel: { mar: 'प्राप्त निधी', eng: 'Funds Received' },
-            fundSpentLabel: { mar: 'वितरित निधी', eng: 'Funds Spent' }
+            fundSpentLabel: { mar: 'वितरित निधी', eng: 'Funds Spent' },
+            sideDashboard: { mar: 'CEO डॅशबोर्ड', eng: 'CEO Dashboard' },
+            sideCreateStages: { mar: 'टप्पे तयार करा', eng: 'Create Stages' },
+            sideStagesReport: { mar: 'टप्प्यांचा अहवाल', eng: 'Stages Report' },
+            sideWorkReport: { mar: 'कामाचा अहवाल', eng: 'Work Report' },
+            sideFundingReport: { mar: 'निधी अहवाल', eng: 'Funding Report' },
+            sideCreateUser: { mar: 'युझर तयार करा', eng: 'Create User' },
+            sideFundUtil: { mar: 'निधी वापर तपशील', eng: 'Fund Utilization Details' }
         };
 
         const fundReceiptLabels = <?php echo json_encode(array_column($fundTimeline, 'month_label')); ?>;
@@ -786,11 +813,109 @@ if ($fundDistributionResult) {
                     sidebar.classList.toggle('active');
                 });
             }
-            document.getElementById('langMarBtn').addEventListener('click', () => setLanguage('mar'));
-            document.getElementById('langEngBtn').addEventListener('click', () => setLanguage('eng'));
-            setLanguage('mar');
+            document.getElementById('langMarBtn').addEventListener('click', () => { localStorage.setItem('ceoLang','mar'); setLanguage('mar'); });
+            document.getElementById('langEngBtn').addEventListener('click', () => { localStorage.setItem('ceoLang','eng'); setLanguage('eng'); });
+            const savedLang = localStorage.getItem('ceoLang') || 'mar';
+            setLanguage(savedLang);
             createCharts();
+
+            // Taluka click handlers - fetch details and show in modal
+            const talukaButtons = document.querySelectorAll('.taluka-button');
+            talukaButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // toggle active state
+                    talukaButtons.forEach(b => b.classList.remove('taluka-button-active'));
+                    this.classList.add('taluka-button-active');
+
+                    const talukaName = this.getAttribute('data-taluka') || this.getAttribute('data-lang-mar') || this.textContent.trim();
+                    const currentLang = localStorage.getItem('ceoLang') || 'mar';
+                    const displayLabel = this.getAttribute('data-lang-' + currentLang) || this.textContent.trim();
+                    // Navigate to taluka details page in same tab, pass lang and label for proper translation
+                    const url = new URL(window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'taluka_details.php');
+                    url.searchParams.set('taluka', talukaName);
+                    url.searchParams.set('lang', currentLang);
+                    url.searchParams.set('label', displayLabel);
+                    window.location.href = url.toString();
+                });
+            });
         });
+
+        function fetchTalukaDetails(talukaName) {
+            const modalEl = document.getElementById('talukaModal');
+            const modal = new bootstrap.Modal(modalEl);
+            document.getElementById('talukaModalLabel').textContent = talukaName === 'ALL' ? 'सर्व तालुके' : talukaName;
+            const content = document.getElementById('talukaModalContent');
+            content.innerHTML = '<div class="text-center text-muted py-4">लोड करत आहेत...</div>';
+            modal.show();
+
+            const params = new URLSearchParams();
+            params.append('taluka', talukaName);
+
+            fetch('api/taluka_details.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            }).then(resp => resp.json()).then(data => {
+                if (data.error) {
+                    content.innerHTML = '<div class="text-danger">' + (data.error || 'Error loading data') + '</div>';
+                    return;
+                }
+                renderTalukaModal(data);
+            }).catch(err => {
+                content.innerHTML = '<div class="text-danger">लोड करताना त्रुटी आली.</div>';
+                console.error(err);
+            });
+        }
+
+        function renderTalukaModal(data) {
+            const content = document.getElementById('talukaModalContent');
+            const schoolsList = (data.schools || []).map(s => '<li class="list-group-item">' + escapeHtml(s) + '</li>').join('');
+            const totalSanctioned = Number(data.total_sanctioned || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            const totalSpent = Number(data.total_spent || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+            let worksHtml = '';
+            if (Array.isArray(data.work_summary) && data.work_summary.length) {
+                worksHtml = '<div class="mt-3"><h6>प्रकल्प सारांश</h6><div class="list-group">' + data.work_summary.map(w => '<div class="list-group-item d-flex justify-content-between align-items-center"><div><strong>' + escapeHtml(w.work_name || w.work) + '</strong><div class="small text-muted">' + escapeHtml(w.work_type || '') + '</div></div><div class="text-end"><div>शाळा: ' + (w.schools || 0) + '</div><div>खर्च: ₹' + Number(w.spent || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div></div></div>').join('') + '</div></div>';
+            }
+
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="text-muted small">शाळा संख्या</div>
+                            <div class="fw-semibold fs-4">${data.school_count || 0}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="text-muted small">एकूण अनुदान</div>
+                            <div class="fw-semibold fs-5">₹${totalSanctioned}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="text-muted small">एकूण खर्च</div>
+                            <div class="fw-semibold fs-5">₹${totalSpent}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>शाळांची यादी</h6>
+                        <ul class="list-group" style="max-height:260px; overflow:auto;">${schoolsList}</ul>
+                    </div>
+                    <div class="col-md-6">
+                        ${worksHtml}
+                    </div>
+                </div>`;
+        }
+
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe).replace(/[&<>"'`]/g, function (ch) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;","`":"&#96;"})[ch];
+            });
+        }
     </script>
 </body>
 </html>
