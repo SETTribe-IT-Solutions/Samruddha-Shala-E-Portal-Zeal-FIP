@@ -5,17 +5,7 @@ session_start();
 // Default user ID if session not set for the CEO/Admin.
 $created_by = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1; 
 
-$host = "82.25.121.144";
-$username = "u196817721_S_Eportal_U";
-$password = "Sam_shalaEportal@2026";
-$database = "u196817721_S_shalaEportal";
-
-$conn = mysqli_connect($host, $username, $password, $database);
-
-if (!$conn) {
-    echo json_encode(["status" => false, "message" => "Database connection failed"]);
-    exit;
-}
+require_once __DIR__ . '/../include/dbConfig.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {

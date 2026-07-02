@@ -1,18 +1,7 @@
 <?php
 header("Content-Type: application/json");
 
-$host = "82.25.121.144";
-$username = "u196817721_S_Eportal_U";
-$password = "Sam_shalaEportal@2026";
-$database = "u196817721_S_shalaEportal";
-
-$conn = mysqli_connect($host, $username, $password, $database);
-
-if (!$conn) {
-    http_response_code(500);
-    echo json_encode(["error" => "Database connection failed"]);
-    exit;
-}
+require_once __DIR__ . '/../include/dbConfig.php';
 
 // Build base query to fetch work records with joined names
 $sql = "SELECT wm.id, wm.school_name, wm.assigned_to, wm.status, wm.created_at, wm.updated_at,
@@ -112,7 +101,36 @@ if ($res) {
     }
 }
 
-echo json_encode(['data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $per_page]);
+// Get count statistics
+$stats = [
+    'total' => 0,
+    'completed' => 0,
+    'in_progress' => 0,
+    'not_started' => 0
+];
+
+$statsQuery = "SELECT 
+    COUNT(*) as total,
+    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+    SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+    SUM(CASE WHEN status = 'Not Started' OR status = 'Pending' OR status = '' OR status IS NULL THEN 1 ELSE 0 END) as not_started
+FROM work_master";
+
+$statsRes = mysqli_query($conn, $statsQuery);
+if ($statsRes && $sRow = mysqli_fetch_assoc($statsRes)) {
+    $stats['total'] = intval($sRow['total']);
+    $stats['completed'] = intval($sRow['completed']);
+    $stats['in_progress'] = intval($sRow['in_progress']);
+    $stats['not_started'] = intval($sRow['not_started']);
+}
+
+echo json_encode([
+    'data' => $rows, 
+    'total' => $total, 
+    'page' => $page, 
+    'per_page' => $per_page,
+    'stats' => $stats
+]);
 
 mysqli_close($conn);
 ?>
