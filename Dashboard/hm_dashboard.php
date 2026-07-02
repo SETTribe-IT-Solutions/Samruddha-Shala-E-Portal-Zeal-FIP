@@ -29,7 +29,7 @@ if($_SESSION['role'] != 'HM'){
 
     <!-- CSS -->
     <link href="../css/sidebar.css" rel="stylesheet">
-    <link href="css/hm_dashboard.css?v=1.0.1" rel="stylesheet">
+    <link href="css/hm_dashboard.css?v=2.0.2" rel="stylesheet">
 
     <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -49,239 +49,159 @@ if($_SESSION['role'] != 'HM'){
         <div class="hm-fixed-header">
             <?php include '../include/website_header.php'; ?>
         </div>
-
-        <!-- Header Top Bar (Navbar) -->
-        <nav class="navbar navbar-expand-lg navbar-light">
-            <div class="container-fluid">
-                <div class="d-flex align-items-center">
-                    <button type="button" id="sidebarCollapse" class="btn btn-link text-dark me-2 d-lg-none" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-                        <i class="fas fa-align-left fs-5"></i>
-                    </button>
-                    <h5 class="mb-0 fw-bold" id="pageMainHeader" data-en="School Progress Reporting Desk" data-mr="शाळा प्रगती अहवाल डेस्क">School Progress Reporting Desk</h5>
-                </div>
-
-                <div class="ms-auto d-flex align-items-center gap-3">
-                    <!-- Language Selector -->
-                    <div class="d-flex align-items-center gap-2 me-2">
-                        <label for="langSelector" class="mb-0 fw-semibold small text-muted" data-en="Language" data-mr="भाषा">Language</label>
-                        <select id="langSelector" class="form-select form-select-sm border-primary shadow-sm" style="width: 110px;" onchange="setHMLanguage(this.value)">
-                            <option value="en">English</option>
-                            <option value="mr">मराठी</option>
-                        </select>
-                    </div>
-
-                    <!-- Notifications Dropdown -->
-                    <div class="dropdown me-3 position-relative">
-                        <button class="btn btn-link text-dark p-1 text-decoration-none" id="notifBellButton" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-regular fa-bell fs-5"></i>
-                            <span id="alertsHeaderBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
-                                0
-                            </span>
+        
+        <div class="hm-main-content">
+            <!-- Header Top Bar (Navbar) -->
+            <nav class="navbar navbar-expand-lg navbar-light p-3 flex-shrink-0">
+                <div class="container-fluid d-flex flex-nowrap align-items-center px-1">
+                    <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="btn btn-light d-lg-none me-2 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%); color: white;" type="button" id="sidebarCollapse" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+                            <i class="fa-solid fa-bars fs-6"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2" id="notifBellDropdown" style="width: 320px; border-radius: 12px;">
-                            <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center border-bottom pb-2">
-                                <span>Notifications Center</span>
-                                <span class="badge bg-danger rounded-pill" id="notifBellCountText">0 Alerts</span>
-                            </li>
-                            <div id="notifBellList" class="my-2" style="max-height: 250px; overflow-y: auto;">
-                                <!-- Dynamic notifications go here -->
-                            </div>
-                            <li class="text-center pt-2 border-top">
-                                <a class="text-decoration-none text-primary fw-bold" href="javascript:void(0)" onclick="switchTab('hm-history')" style="font-size: 0.8rem;">View Submissions History</a>
-                            </li>
-                        </ul>
+                        <h4 class="fw-bold mb-0 text-dark">Dashboard</h4>
                     </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
 
-        <!-- Dashboard Content -->
-        <div class="container-fluid p-0">
-
-            <!-- PAGE TITLE -->
-            <div class="card p-4 mb-4">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h3 class="fw-bold mb-1 text-dark">
-                            <i class="fa-solid fa-school me-2 text-primary"></i>
-                            <span data-en="Head Master Dashboard" data-mr="मुख्याध्यापक डॅशबोर्ड">Head Master Dashboard</span>
-                        </h3>
-                        <p class="text-muted mb-0" data-en="Monitor assigned school projects, track fund utilization details, and view interactive visual KPIs." data-mr="नियुक्त शाळा प्रकल्पांवर लक्ष ठेवा, निधी वापराचा तपशील ट्रॅक करा आणि परस्परसंवादी व्हिज्युअल KPIs पहा.">
-                            Monitor assigned school projects, track fund utilization details, and view interactive visual KPIs.
-                        </p>
-                    </div>
-                    <div class="col-md-4 mt-3 mt-md-0">
-                        <label for="hmSchoolSelect" class="form-label fw-bold text-muted small text-uppercase mb-1" data-en="Active School Selection" data-mr="सक्रिय शाळा निवड">Active School Selection</label>
-                        <select id="hmSchoolSelect" class="form-select border-primary shadow-sm" onchange="loadHMSchoolSpecificDetails(this.value)">
-                            <!-- Dynamically populated by hm.js -->
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sub-navigation Tabs -->
-            <ul class="nav nav-pills mb-4 gap-2 bg-light p-2 rounded" id="hmDashboardTabs" role="tablist" style="width: fit-content; border: 1px solid rgba(228, 232, 239, 0.95); border-radius: 16px !important;">
-                <li class="nav-item">
-                    <button class="btn btn-sm active" id="nav-hm-report" onclick="switchTab('hm-report')">
-                        <i class="fa-solid fa-gauge-high me-2"></i><span data-en="Interactive Desk" data-mr="परस्परसंवादी डेस्क">Interactive Desk</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="btn btn-sm" id="nav-hm-history" onclick="switchTab('hm-history')">
-                        <i class="fa-solid fa-clock-rotate-left me-2"></i><span data-en="Submission History" data-mr="सबमिशन इतिहास">Submission History</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-sm text-decoration-none" href="hm_utilization.php">
-                        <i class="fa-solid fa-indian-rupee-sign me-2"></i><span data-en="Amount Utilization" data-mr="रक्कम वापर">Amount Utilization</span>
-                    </a>
-                </li>
-            </ul>
-
-            <!-- KPI Cards Row -->
-            <div class="row g-3 mb-4">
-                <!-- Card 1: Allotted Budget -->
+            <div class="container-fluid p-0 flex-grow-1" style="overflow: hidden;">
+                <!-- KPI Cards Row -->
+            <div class="row g-4 mb-4">
+                <!-- Card 1 -->
                 <div class="col-md-3">
-                    <div class="card hm-kpi-card h-100 border-0">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Allotted Budget" data-mr="वाटप केलेला निधी">Allotted Budget</h6>
-                                <h2 class="fw-bold mb-0 text-dark">₹<span id="kpiAllocatedBudget">0.00</span> L</h2>
-                            </div>
-                            <div class="hm-kpi-icon bg-primary-soft text-primary">
-                                <i class="fa-solid fa-wallet"></i>
-                            </div>
+                    <div class="hm-card kpi-card">
+                        <div class="kpi-icon-box kpi-icon-blue">
+                            <i class="fa-solid fa-layer-group"></i>
                         </div>
-                        <div class="d-flex align-items-center mt-3 pt-3 border-top border-light" style="font-size: 0.8rem;">
-                            <span class="text-muted" data-en="Total sanctioned budget" data-mr="एकूण मंजूर निधी">Total sanctioned budget</span>
+                        <div class="kpi-details">
+                            <h6>Total Works</h6>
+                            <h2>1</h2>
                         </div>
                     </div>
                 </div>
+                <!-- Card 2 -->
                 <div class="col-md-3">
-                    <a href="hm_utilization.php" class="text-decoration-none h-100 d-block">
-                        <div class="card hm-kpi-card h-100 border-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Amount Utilized" data-mr="वापरलेली रक्कम">Amount Utilized</h6>
-                                    <h2 class="fw-bold mb-0 text-dark">₹<span id="kpiAmountSpent">0.00</span> L</h2>
-                                </div>
-                                <div class="hm-kpi-icon bg-success-soft text-success">
-                                    <i class="fa-solid fa-sack-dollar"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mt-3 pt-3 border-top border-light text-success fw-bold" style="font-size: 0.8rem;">
-                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
-                                <span data-en="Open Weightage Setup" data-mr="टक्केवारी रचना पहा">Open Weightage Setup</span>
-                            </div>
+                    <div class="hm-card kpi-card">
+                        <div class="kpi-icon-box kpi-icon-green">
+                            <i class="fa-solid fa-circle-check"></i>
                         </div>
-                    </a>
-                </div>
-                <!-- Card 3: Completion Progress -->
-                <div class="col-md-3">
-                    <div class="card hm-kpi-card h-100 border-0">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Completion Progress" data-mr="पूर्णता प्रगती">Completion Progress</h6>
-                                <h2 class="fw-bold mb-1 text-dark"><span id="kpiCompletionProgress">0</span>%</h2>
-                            </div>
-                            <div class="hm-kpi-icon bg-info-soft text-info">
-                                <i class="fa-solid fa-chart-line"></i>
-                            </div>
-                        </div>
-                        <div class="progress mt-2" style="height: 6px; background: #e2e8f0; border-radius: 3px;">
-                            <div class="progress-bar bg-info" role="progressbar" id="kpiCompletionBar" style="width: 0%; border-radius: 3px;"></div>
+                        <div class="kpi-details">
+                            <h6>Completed Works</h6>
+                            <h2>0</h2>
                         </div>
                     </div>
                 </div>
-                <!-- Card 4: Active Blocker -->
+                <!-- Card 3 -->
                 <div class="col-md-3">
-                    <div class="card hm-kpi-card h-100 border-0" id="kpiBlockerCard">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 700;" data-en="Active Blocker" data-mr="सक्रिय अडथळा">Active Blocker</h6>
-                                <h3 class="fw-bold mb-0 text-dark text-truncate" id="kpiBlockerText" style="max-width: 140px; font-size: 1.3rem;">None</h3>
-                            </div>
-                            <div class="hm-kpi-icon bg-warning-soft text-warning" id="kpiBlockerIcon">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </div>
+                    <div class="hm-card kpi-card">
+                        <div class="kpi-icon-box kpi-icon-orange">
+                            <i class="fa-solid fa-clock"></i>
                         </div>
-                        <div class="d-flex align-items-center mt-3 pt-3 border-top border-light" style="font-size: 0.8rem;">
-                            <span class="text-muted text-truncate" id="kpiBlockerDetailsText" style="max-width: 220px;" data-en="No project blockers reported" data-mr="अडथळे नोंदवले नाहीत">No project blockers reported</span>
+                        <div class="kpi-details">
+                            <h6>In Progress Works</h6>
+                            <h2>1</h2>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="col-md-3">
+                    <div class="hm-card kpi-card">
+                        <div class="kpi-icon-box kpi-icon-purple">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h6>Pending Works</h6>
+                            <h2>0</h2>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- INTERACTIVE DESK REPORT VIEW -->
-            <div id="hm-report-view" class="view-panel">
-                <div class="row g-4">
-                    <!-- Column 1: Progress Ring Chart -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card p-4 text-center h-100">
-                            <h5 class="fw-bold mb-3 text-start text-dark">
-                                <i class="fa-solid fa-circle-notch text-primary me-2"></i>Stage Progress Ring
-                            </h5>
-                            <div class="position-relative d-flex justify-content-center align-items-center mx-auto my-auto" style="height: 200px; width: 200px;">
-                                <canvas id="hmProgressChart"></canvas>
-                                <div class="position-absolute text-center">
-                                    <h2 class="fw-bold mb-0 text-dark" id="chartPercentText" style="font-size: 2.1rem; line-height: 1;">0%</h2>
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Complete</small>
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-5">
+                    <div class="hm-card">
+                        <h5 class="hm-card-title">Completion Progress</h5>
+                        <div class="chart-container d-flex justify-content-center align-items-center">
+                            <div style="width: 220px; position: relative;">
+                                <canvas id="donutChart"></canvas>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <h2 class="fw-bold mb-0" style="font-size: 32px;">50%</h2>
+                                    <small class="text-muted">Completed</small>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Column 2: Budget vs Spent Bar Chart -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card p-4 h-100 d-flex flex-column">
-                            <h5 class="fw-bold mb-3 text-dark">
-                                <i class="fa-solid fa-chart-column text-primary me-2"></i>Budget vs Spent Allotment
-                            </h5>
-                            <div class="my-auto" style="height: 160px; position: relative;">
-                                <canvas id="hmFundChart"></canvas>
-                            </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="hm-card">
+                        <h5 class="hm-card-title"><i class="fa-solid fa-chart-simple text-primary me-2"></i> Funds Overview (Fund)</h5>
+                        <div class="d-flex justify-content-center mb-3 gap-4" style="font-size: 13px;">
+                            <div><span style="display:inline-block; width:12px; height:12px; background:#3b82f6; border-radius:50%; margin-right:6px;"></span>Total Sanctioned (Total Sanctioned)</div>
+                            <div><span style="display:inline-block; width:12px; height:12px; background:#22c55e; border-radius:50%; margin-right:6px;"></span>Total Remaining (Total Remaining)</div>
                         </div>
-                    </div>
-
-                    <!-- Column 3: Recent Alerts Feed & Update Action -->
-                    <div class="col-lg-4 col-md-12">
-                        <div class="card p-4 h-100 d-flex flex-column">
-                            <h5 class="fw-bold mb-3 text-dark">
-                                <i class="fa-solid fa-bell text-primary me-2"></i>Recent Alerts Feed
-                            </h5>
-                            <div id="hmAlertsFeed" class="scroll-panel flex-grow-1 mb-3" style="max-height: 200px; overflow-y: auto;">
-                                <!-- Populated dynamically by JS -->
-                            </div>
-                            <div class="mt-auto pt-2">
-                                <button type="button" class="btn btn-primary w-100 py-2.5 fw-semibold" onclick="redirectToUpdateProgress()">
-                                    <i class="fa-solid fa-file-pen me-2"></i>Report School Progress
-                                </button>
-                            </div>
+                        <div class="chart-container">
+                            <canvas id="barChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-                </div>
-            </div>
 
-            <!-- TIMELINE & HISTORY VIEW -->
-            <div id="hm-history-view" class="view-panel d-none">
-                <div class="card p-4">
-                    <h4 class="fw-bold mb-1 text-dark">
-                        <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>
-                        Submission Timeline & History
-                    </h4>
-                    <p class="text-muted mb-4">
-                        View all pending verification reports and historical milestone approvals.
-                    </p>
-                    <div id="hmTimelineContainer" class="timeline-container">
-                        <!-- Dynamic History -->
+            <!-- Lists Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-7">
+                    <div class="hm-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="hm-card-title mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Recent Updates</h5>
+                            <a href="#" class="view-all-link">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="update-list">
+                            <!-- Update Item 1 -->
+                            <div class="update-item">
+                                <img src="../images/demo.jpg" alt="Update" class="update-img">
+                                <div class="update-info">
+                                    <h6>New Entry</h6>
+                                    <p>Type: testing 2 (25%)<br><i>testing2</i></p>
+                                </div>
+                                <div class="update-meta">
+                                    <span class="date mb-2">6/30/2026</span>
+                                    <a href="#" class="view-link">View <i class="fa-solid fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- Update Item 2 -->
+                            <div class="update-item">
+                                <img src="../images/demo.jpg" alt="Update" class="update-img">
+                                <div class="update-info">
+                                    <h6>New Entry</h6>
+                                    <p>Type: testing 1 (25%)<br><i>testing</i></p>
+                                </div>
+                                <div class="update-meta">
+                                    <span class="date mb-2">6/30/2026</span>
+                                    <a href="#" class="view-link">View <i class="fa-solid fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="hm-card">
+                        <h5 class="hm-card-title"><i class="fa-solid fa-bell text-primary me-2"></i> Notifications</h5>
+                        <div class="notif-list mt-3">
+                            <div class="notif-item">
+                                <i class="fa-solid fa-bell notif-icon"></i>
+                                <div class="notif-info">
+                                    <h6>New Entry</h6>
+                                    <p>10:30 AM</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Fixed Footer -->
+            </div> <!-- End container-fluid -->
+        </div> <!-- End hm-main-content -->
+
         <div class="hm-fixed-footer">
             <?php include '../include/website_footer.php'; ?>
         </div>
@@ -293,11 +213,98 @@ if($_SESSION['role'] != 'HM'){
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Database scripts -->
-<script src="js/db.js"></script>
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
 
-<!-- Dashboard dynamic controller -->
-<script src="js/hm.js"></script>
+    // Initialize Charts to match design
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // Donut Chart
+        const ctxDonut = document.getElementById('donutChart');
+        if (ctxDonut) {
+            new Chart(ctxDonut.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending'],
+                    datasets: [{
+                        data: [50, 50],
+                        backgroundColor: ['#6366f1', '#e2e8f0'],
+                        borderWidth: 0,
+                        cutout: '75%',
+                        borderRadius: 50
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        }
+
+        // Bar Chart
+        const ctxBar = document.getElementById('barChart');
+        if (ctxBar) {
+            new Chart(ctxBar.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['School Fund (School Fund)'],
+                    datasets: [
+                        {
+                            label: 'Total Sanctioned',
+                            data: [20000],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4,
+                            barPercentage: 0.3,
+                            categoryPercentage: 0.5
+                        },
+                        {
+                            label: 'Total Remaining',
+                            data: [14500],
+                            backgroundColor: '#22c55e',
+                            borderRadius: 4,
+                            barPercentage: 0.3,
+                            categoryPercentage: 0.5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false } // Custom legend in HTML
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20000,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                },
+                                stepSize: 2000,
+                                font: { size: 11, color: '#64748b' }
+                            },
+                            grid: {
+                                color: '#e2e8f0',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 11, color: '#64748b' } }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
 
 </body>
 </html>

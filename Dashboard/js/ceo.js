@@ -391,7 +391,7 @@ function populateCEOAssignTaskSchools() {
     const select = document.getElementById('ceoTaskSchoolSelect');
     if (!select) return;
 
-    select.innerHTML = '';
+    select.innerHTML = '<option value="" disabled selected>Select School</option>';
 
     db.schools.forEach(school => {
         const option = document.createElement('option');
@@ -649,12 +649,12 @@ function renderCEOAlerts() {
     const feed = document.getElementById('detailedAlertsContainer');
     feed.innerHTML = '';
 
-    // Update sub-category badges counts
-    document.getElementById('alerts-cnt-all').textContent = db.alerts.length;
-    document.getElementById('alerts-cnt-blocker').textContent = db.alerts.filter(a => a.type === 'blocker').length;
-    document.getElementById('alerts-cnt-delay').textContent = db.alerts.filter(a => a.type === 'delay').length;
-    document.getElementById('alerts-cnt-geotag').textContent = db.alerts.filter(a => a.type === 'geotag').length;
-    document.getElementById('alerts-cnt-pending').textContent = db.alerts.filter(a => a.type === 'pending').length;
+    // Update sub-category badges counts safely
+    if (document.getElementById('alerts-cnt-all')) document.getElementById('alerts-cnt-all').textContent = db.alerts.length;
+    if (document.getElementById('alerts-cnt-blocker')) document.getElementById('alerts-cnt-blocker').textContent = db.alerts.filter(a => a.type === 'blocker').length;
+    if (document.getElementById('alerts-cnt-delay')) document.getElementById('alerts-cnt-delay').textContent = db.alerts.filter(a => a.type === 'delay').length;
+    if (document.getElementById('alerts-cnt-geotag')) document.getElementById('alerts-cnt-geotag').textContent = db.alerts.filter(a => a.type === 'geotag').length;
+    if (document.getElementById('alerts-cnt-pending')) document.getElementById('alerts-cnt-pending').textContent = db.alerts.filter(a => a.type === 'pending').length;
 
     const filteredAlerts = currentAlertFilter === 'all'
         ? db.alerts
@@ -683,18 +683,12 @@ function renderCEOAlerts() {
         } else if (alert.type === 'delay') {
             borderClass = 'border-warning';
             iconHtml = '<i class="fa-solid fa-triangle-exclamation fs-4 text-warning"></i>';
-            actionBtnHtml = `<button class="btn btn-sm btn-warning shadow-sm text-white" onclick="sendWarningNotification('${alert.school_id}')"><i class="fa-solid fa-envelope me-1"></i> Send Push Warning</button>`;
         } else if (alert.type === 'geotag') {
             borderClass = 'border-secondary';
             iconHtml = '<i class="fa-solid fa-location-dot fs-4 text-secondary"></i>';
         } else if (alert.type === 'pending') {
             borderClass = 'border-info';
             iconHtml = '<i class="fa-solid fa-envelope-open-text fs-4 text-info"></i>';
-            actionBtnHtml = `
-                <a href="sachiv_dashboard.php" class="btn btn-sm btn-info shadow-sm text-white text-decoration-none">
-                    <i class="fa-solid fa-clipboard-check me-1"></i> Go to Sachiv Portal
-                </a>
-            `;
         } else if (alert.type === 'task') {
             borderClass = 'border-primary';
             iconHtml = '<i class="fa-solid fa-file-signature fs-4 text-primary"></i>';
@@ -715,12 +709,53 @@ function renderCEOAlerts() {
                 <small class="text-muted d-block mb-2">${alert.date}</small>
                 <div class="d-flex justify-content-end gap-2">
                     ${actionBtnHtml}
-                    <button class="btn btn-sm btn-light" onclick="openProjectModal('${alert.school_id}')">Details</button>
+                    <button class="btn btn-sm btn-light" onclick="openAlertDetailsModal('${encodeURIComponent(alert.school_name)}', '${encodeURIComponent(alert.title)}', '${encodeURIComponent(alert.desc)}', '${alert.date}', '${alert.type}')">Details</button>
                 </div>
             </div>
         `;
         feed.appendChild(card);
     });
+}
+
+function openAlertDetailsModal(schoolNameEncoded, titleEncoded, descEncoded, date, type) {
+    const schoolName = decodeURIComponent(schoolNameEncoded);
+    const title = decodeURIComponent(titleEncoded);
+    const desc = decodeURIComponent(descEncoded);
+    
+    let modalHtml = `
+    <div class="modal fade" id="alertDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold">Notification Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <span class="badge bg-secondary mb-2 text-uppercase">${type}</span>
+                    <h5 class="fw-bold mb-1">${title}</h5>
+                    <p class="text-muted mb-4">${schoolName}</p>
+                    
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <p class="mb-0 fs-6" style="white-space: pre-wrap;">${desc}</p>
+                    </div>
+                    <small class="text-muted d-block text-end mt-2">Reported on: ${date}</small>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    let modalEl = document.getElementById('alertDetailsModal');
+    if (modalEl) {
+        modalEl.remove();
+    }
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    modalEl = document.getElementById('alertDetailsModal');
+
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
 }
 
 function filterAlerts(type) {
@@ -1127,6 +1162,10 @@ window.addEventListener('DOMContentLoaded', () => {
         switchTab(viewMap[requestedView]);
     } else {
         renderActiveViewData();
+        // Fallback for isolated pages like ceo_alerts.php
+        if (document.getElementById('detailedAlertsContainer') && !document.querySelector('.view-panel')) {
+            renderCEOAlerts();
+        }
     }
 });
 

@@ -10,6 +10,59 @@ if($_SESSION['role'] != 'HM'){
     header("Location: ../login.php");
     exit();
 }
+
+include '../include/dbConfig.php';
+
+$success_msg = '';
+$error_msg = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $work_id = mysqli_real_escape_string($conn, $_POST['work_name']);
+    $stages = $_POST['stage_name'] ?? [];
+    $percentages = $_POST['percentage'] ?? [];
+    $is_completed = $_POST['is_completed'] ?? [];
+
+    if (!empty($work_id)) {
+        for ($i = 0; $i < 4; $i++) {
+            $stage_name = mysqli_real_escape_string($conn, $stages[$i] ?? '');
+            $pct = isset($percentages[$i]) && $percentages[$i] !== '' ? (float)$percentages[$i] : 0;
+            $completed = isset($is_completed[$i]) ? 1 : 0;
+            $stage_no = $i + 1;
+
+            if (!empty($stage_name)) {
+                $sql = "INSERT INTO hm_work_progress (work_id, stage_no, stage_name, is_completed, progress_percentage, created_date, updated_date) 
+                        VALUES ('$work_id', '$stage_no', '$stage_name', '$completed', '$pct', NOW(), NOW())
+                        ON DUPLICATE KEY UPDATE 
+                        stage_name = VALUES(stage_name), 
+                        is_completed = VALUES(is_completed), 
+                        progress_percentage = VALUES(progress_percentage), 
+                        updated_date = NOW()";
+                mysqli_query($conn, $sql);
+            }
+        }
+        $success_msg = "Work progress submitted successfully!";
+    } else {
+        $error_msg = "Please select a work name.";
+    }
+}
+
+// Fetch distinct work types
+$work_types = [];
+$wt_query = mysqli_query($conn, "SELECT DISTINCT work_type FROM talukas_school_data WHERE work_type IS NOT NULL AND work_type != '' ORDER BY work_type ASC");
+if ($wt_query) {
+    while($row = mysqli_fetch_assoc($wt_query)){
+        $work_types[] = $row['work_type'];
+    }
+}
+
+// Fetch works with their IDs and work_types for filtering
+$works = [];
+$wn_query = mysqli_query($conn, "SELECT id, work_name, work_type FROM talukas_school_data WHERE work_name IS NOT NULL AND work_name != '' ORDER BY work_name ASC");
+if ($wn_query) {
+    while($row = mysqli_fetch_assoc($wn_query)){
+        $works[] = $row;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +82,7 @@ if($_SESSION['role'] != 'HM'){
 
     <!-- CSS -->
     <link href="../css/sidebar.css" rel="stylesheet">
-    <link href="css/hm_dashboard.css?v=1.0.1" rel="stylesheet">
+    <link href="css/hm_dashboard.css?v=2.0.2" rel="stylesheet">
 </head>
 
 <body class="hm-dashboard-page">
@@ -46,188 +99,140 @@ if($_SESSION['role'] != 'HM'){
         <div class="hm-fixed-header">
             <?php include '../include/website_header.php'; ?>
         </div>
-
-        <!-- Header Top Bar (Navbar) -->
-        <nav class="navbar navbar-expand-lg navbar-light">
-            <div class="container-fluid">
-                <div class="d-flex align-items-center">
-                    <button type="button" id="sidebarCollapse" class="btn btn-link text-dark me-2 d-lg-none" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-                        <i class="fas fa-align-left fs-5"></i>
-                    </button>
-                    <h5 class="mb-0 fw-bold" id="pageMainHeader">School Progress Reporting Desk</h5>
+        
+        <div class="hm-main-content">
+            <?php if(!empty($success_msg)): ?>
+                <div class="alert alert-success alert-dismissible fade show m-3 mb-0" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> <?php echo $success_msg; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="ms-auto d-flex align-items-center">
-                    <a href="hm_dashboard.php" class="btn btn-sm btn-outline-secondary fw-semibold">
-                        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
-                    </a>
+            <?php endif; ?>
+            <?php if(!empty($error_msg)): ?>
+                <div class="alert alert-danger alert-dismissible fade show m-3 mb-0" role="alert">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> <?php echo $error_msg; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-        </nav>
+            <?php endif; ?>
 
-        <!-- Form and List Content -->
-        <div class="container-fluid p-0">
-
-            <div class="card p-4 mb-4">
-                <h3 class="fw-bold mb-1 text-dark">
-                    <i class="fa-solid fa-file-pen me-2 text-primary"></i>
-                    Submit Progress Report
-                </h3>
-                <p class="text-muted mb-0">
-                    Select a school, update physical construction details, record expenses, capture geo-tagged proof, and submit for verification.
-                </p>
-            </div>
-
-            <div class="row g-4">
-                <!-- LEFT COLUMN: SCHOOLS LIST -->
-                <div class="col-lg-5">
-                    <div class="card p-4 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold mb-0 text-dark">
-                                <i class="fa-solid fa-list-check text-primary me-2"></i>Assigned Works
-                            </h5>
-                            <span class="badge bg-primary rounded-pill" id="worksCountBadge">0 Schools</span>
-                        </div>
-                        
-                        <!-- Search Bar -->
-                        <div class="search-wrapper mb-3">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="hmSchoolSearch" class="form-control" placeholder="Search by school or block name..." onkeyup="filterHMSchools()">
-                        </div>
-
-                        <!-- Filter Pills -->
-                        <div class="filter-pills-container mb-3 scroll-panel">
-                            <span class="filter-pill active" onclick="setSchoolFilter('all', this)">All</span>
-                            <span class="filter-pill" onclick="setSchoolFilter('active', this)">Active</span>
-                            <span class="filter-pill" onclick="setSchoolFilter('completed', this)">Completed</span>
-                            <span class="filter-pill" onclick="setSchoolFilter('blocked', this)">Blocked</span>
-                        </div>
-
-                        <!-- Scrollable Card list -->
-                        <div id="hmSchoolList" class="scroll-panel" style="max-height: 480px; overflow-y: auto; padding-right: 2px;">
-                            <!-- Dynamic Card listing populated by JS -->
-                        </div>
+            <!-- Header Top Bar (Navbar) -->
+            <nav class="navbar navbar-expand-lg navbar-light p-3 flex-shrink-0">
+                <div class="container-fluid d-flex flex-nowrap align-items-center px-1">
+                    <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="btn btn-light d-lg-none me-2 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; background: linear-gradient(135deg, #7f2ab3 0%, #f3be46 100%); color: white;" type="button" id="sidebarCollapse" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+                            <i class="fa-solid fa-bars fs-6"></i>
+                        </button>
                     </div>
                 </div>
+            </nav>
 
-                <!-- RIGHT COLUMN: UPDATE FORM -->
-                <div class="col-lg-7">
-                    <div class="card p-4">
-                        <h5 class="fw-bold mb-1 text-dark">
-                            <i class="fa-solid fa-square-plus text-primary me-2"></i>Update Progress Log
-                        </h5>
-                        <p class="text-muted small mb-3">
-                            Submit actual physical construction stages, release details, blockers, and geo-tag photos.
-                        </p>
-
-                        <!-- Hidden select element to bridge with script logic -->
-                        <select id="hmSchoolSelect" class="form-select d-none" onchange="loadHMSchoolSpecificDetails(this.value)"></select>
-
-                        <!-- Active Indicator banner -->
-                        <div class="alert alert-info-premium mb-3 d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">Active Selection</small>
-                                <strong id="hmSelectedSchoolName" class="text-primary" style="font-size: 0.95rem;">No School Selected</strong>
-                            </div>
-                            <span class="badge bg-secondary" id="hmSelectedBlockBadge">- Block</span>
+            <div class="container-fluid p-0 flex-grow-1 d-flex flex-column" style="overflow: hidden;">
+                
+                <div class="pt-1 pb-2 px-4 flex-grow-1 d-flex flex-column">
+                    
+                    <div class="hm-card p-4" style="width: 100%; border-radius: 20px;">
+                        <form id="progressForm" action="" method="POST">
+                        
+                        <!-- Main Title -->
+                        <div class="text-center mb-3">
+                            <h2 class="fw-bold text-dark mb-2" style="color: #0f172a;">Update Stage Progress</h2>
+                            <div style="height: 3px; width: 120px; background-color: #3b82f6; margin: 0 auto; border-radius: 2px;"></div>
                         </div>
 
-                        <!-- CEO Task Directive Banner if any -->
-                        <div id="hmTaskAlertBanner" class="alert alert-warning py-2 px-3 mb-3 d-none" style="border-radius: 12px; border-left: 4px solid #f59e0b;">
-                            <div class="d-flex align-items-start">
-                                <i class="fa-solid fa-circle-info mt-1 me-2 text-warning"></i>
-                                <div class="small">
-                                    <strong>Task Directive:</strong> <span id="hmTaskAlertText">None</span>
+                        <!-- General Information -->
+                        <div class="mb-3 border rounded-4 p-3" style="border-color: #e2e8f0 !important;">
+                            <div class="text-center mb-3">
+                                <h5 class="fw-bold mb-2" style="color: #1e293b;">General Information</h5>
+                                <div style="height: 3px; width: 150px; background-color: #3b82f6; margin: 0 auto; border-radius: 2px;"></div>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" style="color: #334155; font-size: 14px;">Work Type <span class="text-danger">*</span></label>
+                                    <select name="work_type" id="work_type" class="form-select py-2" style="border-radius: 8px; border: 1px solid #cbd5e1;" required onchange="filterWorkNames()">
+                                        <option value="">-- Select Work Type --</option>
+                                        <?php foreach($work_types as $wt): ?>
+                                            <option value="<?php echo htmlspecialchars($wt); ?>"><?php echo htmlspecialchars($wt); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" style="color: #334155; font-size: 14px;">Work Name <span class="text-danger">*</span></label>
+                                    <select name="work_name" id="work_name" class="form-select py-2" style="border-radius: 8px; border: 1px solid #cbd5e1;" required>
+                                        <option value="">-- Select Work Name --</option>
+                                        <?php foreach($works as $work): ?>
+                                            <option value="<?php echo htmlspecialchars($work['id']); ?>" data-type="<?php echo htmlspecialchars($work['work_type']); ?>"><?php echo htmlspecialchars($work['work_name']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Form -->
-                        <form id="hmUpdateForm" onsubmit="handleHMUpdateSubmit(event)">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="hmWorkType" class="form-label fw-semibold small text-muted mb-1">Work Category</label>
-                                    <input type="text" id="hmWorkType" class="form-control" readonly style="background-color: #f1f5f9;">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="hmFundingSource" class="form-label fw-semibold small text-muted mb-1">Funding Source</label>
-                                    <input type="text" id="hmFundingSource" class="form-control" readonly style="background-color: #f1f5f9;">
-                                </div>
+                        <!-- Stage Progress Area -->
+                        <div class="p-3 flex-grow-1" style="background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+                            <div class="text-center mb-3">
+                                <h5 class="fw-bold mb-2" style="color: #1e293b;">Stage Progress</h5>
+                                <div style="height: 3px; width: 100px; background-color: #3b82f6; margin: 0 auto; border-radius: 2px;"></div>
                             </div>
 
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label for="hmProgressRange" class="form-label fw-semibold small text-muted mb-0">Current Progress Stage</label>
-                                    <span id="hmProgressValueText" class="fw-bold text-primary">0%</span>
-                                </div>
-                                <input type="range" id="hmProgressRange" class="form-range" min="0" max="100" value="0" oninput="updateHMProgressSliderText(this.value)">
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="hmSpentAmount" class="form-label fw-semibold small text-muted mb-1">Amount Spent (Lakhs)</label>
-                                    <input type="number" id="hmSpentAmount" class="form-control" placeholder="e.g. 1.50" min="0" step="0.01">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="hmBudgetNotes" class="form-label fw-semibold small text-muted mb-1">Financial Notes</label>
-                                    <input type="text" id="hmBudgetNotes" class="form-control" placeholder="e.g. Materials purchased">
+                            <!-- Row 1 -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex justify-content-center align-items-center text-white me-3 flex-shrink-0" style="width: 28px; height: 28px; border-radius: 50%; background-color: #0ea5e9; font-weight: 700; font-size: 14px;">1</div>
+                                <input name="is_completed[0]" class="form-check-input me-3 flex-shrink-0" type="checkbox" value="1" style="width: 22px; height: 22px; margin-top: 0;">
+                                <input name="stage_name[0]" type="text" class="form-control me-3 flex-grow-1 py-2" placeholder="Stage Name" style="border-radius: 8px; border: 1px solid #cbd5e1;">
+                                <div class="input-group flex-shrink-0" style="width: 140px;">
+                                    <input name="percentage[0]" type="number" step="0.01" class="form-control py-2" placeholder="Enter" style="border-radius: 8px 0 0 8px; border: 1px solid #cbd5e1;">
+                                    <span class="input-group-text bg-white fw-bold" style="border-radius: 0 8px 8px 0; border: 1px solid #cbd5e1; border-left: none; color: #475569;">%</span>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="hmBlockerSelector" class="form-label fw-semibold small text-muted mb-1">Report Blocker Status</label>
-                                <select id="hmBlockerSelector" class="form-select" onchange="toggleHMBlockerDetailsInput(this.value)">
-                                    <option value="None">None</option>
-                                    <option value="Material Shortage">Material Shortage</option>
-                                    <option value="Labor Shortage">Labor Shortage</option>
-                                    <option value="Fund Delay">Fund Delay</option>
-                                    <option value="Weather Delays">Weather Delays</option>
-                                    <option value="Land Boundary Dispute">Land Boundary Dispute</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-
-                            <div id="hmBlockerDetailsContainer" class="mb-3 d-none">
-                                <label for="hmBlockerDetails" class="form-label fw-semibold small text-muted mb-1">Blocker Description</label>
-                                <textarea id="hmBlockerDetails" class="form-control" rows="2" placeholder="Describe the blocker details..."></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold small text-muted mb-1">Geo-Tagging Coordinates</label>
-                                <div class="input-group">
-                                    <input type="text" id="hmGeoCoordinates" class="form-control" placeholder="GPS coordinates" readonly required>
-                                    <button type="button" class="btn btn-outline-secondary small fw-bold" onclick="captureGeoTaggedPhoto()">
-                                        <i class="fa-solid fa-location-dot me-1"></i> Capture GPS
-                                    </button>
+                            <!-- Row 2 -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex justify-content-center align-items-center text-white me-3 flex-shrink-0" style="width: 28px; height: 28px; border-radius: 50%; background-color: #0ea5e9; font-weight: 700; font-size: 14px;">2</div>
+                                <input name="is_completed[1]" class="form-check-input me-3 flex-shrink-0" type="checkbox" value="1" style="width: 22px; height: 22px; margin-top: 0;">
+                                <input name="stage_name[1]" type="text" class="form-control me-3 flex-grow-1 py-2" placeholder="Stage Name" style="border-radius: 8px; border: 1px solid #cbd5e1;">
+                                <div class="input-group flex-shrink-0" style="width: 140px;">
+                                    <input name="percentage[1]" type="number" step="0.01" class="form-control py-2" placeholder="Enter" style="border-radius: 8px 0 0 8px; border: 1px solid #cbd5e1;">
+                                    <span class="input-group-text bg-white fw-bold" style="border-radius: 0 8px 8px 0; border: 1px solid #cbd5e1; border-left: none; color: #475569;">%</span>
                                 </div>
-                                <input type="hidden" id="hmGeotagInput" value="Missing">
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold small text-muted mb-1">Photo Proof Upload</label>
-                                <div class="upload-zone-premium" onclick="triggerPhotoUpload()">
-                                    <i class="fa-solid fa-cloud-arrow-up fs-3 mb-2 text-primary" id="uploadZoneIcon" style="opacity: 0.85;"></i>
-                                    <p class="mb-0 text-muted small fw-semibold" id="uploadZoneText">Click to select site photo proof</p>
-                                    <img id="photoPreview" class="upload-preview d-none" src="#" alt="Preview">
+                            <!-- Row 3 -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex justify-content-center align-items-center text-white me-3 flex-shrink-0" style="width: 28px; height: 28px; border-radius: 50%; background-color: #0ea5e9; font-weight: 700; font-size: 14px;">3</div>
+                                <input name="is_completed[2]" class="form-check-input me-3 flex-shrink-0" type="checkbox" value="1" style="width: 22px; height: 22px; margin-top: 0;">
+                                <input name="stage_name[2]" type="text" class="form-control me-3 flex-grow-1 py-2" placeholder="Stage Name" style="border-radius: 8px; border: 1px solid #cbd5e1;">
+                                <div class="input-group flex-shrink-0" style="width: 140px;">
+                                    <input name="percentage[2]" type="number" step="0.01" class="form-control py-2" placeholder="Enter" style="border-radius: 8px 0 0 8px; border: 1px solid #cbd5e1;">
+                                    <span class="input-group-text bg-white fw-bold" style="border-radius: 0 8px 8px 0; border: 1px solid #cbd5e1; border-left: none; color: #475569;">%</span>
                                 </div>
-                                <input type="file" id="hmPhotoFile" class="d-none" accept="image/*" onchange="previewHMUploadedPhoto(this)" required>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="hmRemarks" class="form-label fw-semibold small text-muted mb-1">Progress Remarks</label>
-                                <textarea id="hmRemarks" class="form-control" rows="2" placeholder="Enter what physical work has been completed..." required></textarea>
+                            <!-- Row 4 -->
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="d-flex justify-content-center align-items-center text-white me-3 flex-shrink-0" style="width: 28px; height: 28px; border-radius: 50%; background-color: #0ea5e9; font-weight: 700; font-size: 14px;">4</div>
+                                <input name="is_completed[3]" class="form-check-input me-3 flex-shrink-0" type="checkbox" value="1" style="width: 22px; height: 22px; margin-top: 0;">
+                                <input name="stage_name[3]" type="text" class="form-control me-3 flex-grow-1 py-2" placeholder="Stage Name" style="border-radius: 8px; border: 1px solid #cbd5e1;">
+                                <div class="input-group flex-shrink-0" style="width: 140px;">
+                                    <input name="percentage[3]" type="number" step="0.01" class="form-control py-2" placeholder="Enter" style="border-radius: 8px 0 0 8px; border: 1px solid #cbd5e1;">
+                                    <span class="input-group-text bg-white fw-bold" style="border-radius: 0 8px 8px 0; border: 1px solid #cbd5e1; border-left: none; color: #475569;">%</span>
+                                </div>
                             </div>
+                        </div>
 
-                            <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mt-2">
-                                <i class="fa-solid fa-paper-plane me-2"></i>Submit Progress Report
-                            </button>
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-center gap-4 mt-4 mb-1">
+                            <button type="reset" class="btn btn-light py-2 fw-bold shadow-sm" style="border-radius: 8px; font-size: 16px; width: 200px; border: 1px solid #cbd5e1; color: #475569;">Reset</button>
+                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm" style="border-radius: 8px; background-color: #096bc5; border-color: #096bc5; font-size: 16px; width: 200px;">Save</button>
+                        </div>
+                        
                         </form>
                     </div>
                 </div>
-            </div>
 
-        </div>
+            </div> <!-- End container-fluid -->
+        </div> <!-- End hm-main-content -->
 
-        <!-- Fixed Footer -->
         <div class="hm-fixed-footer">
             <?php include '../include/website_footer.php'; ?>
         </div>
@@ -238,12 +243,32 @@ if($_SESSION['role'] != 'HM'){
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
 
-<!-- Database scripts -->
-<script src="js/db.js"></script>
-
-<!-- Dashboard dynamic controller -->
-<script src="js/hm_update.js"></script>
-
+    function filterWorkNames() {
+        var typeSelect = document.getElementById('work_type');
+        var nameSelect = document.getElementById('work_name');
+        var selectedType = typeSelect.value;
+        
+        // Reset selection
+        nameSelect.value = '';
+        
+        var options = nameSelect.getElementsByTagName('option');
+        for (var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            if (opt.value === '') {
+                continue; // Always show the default placeholder
+            }
+            if (selectedType === '' || opt.getAttribute('data-type') === selectedType) {
+                opt.style.display = '';
+            } else {
+                opt.style.display = 'none';
+            }
+        }
+    }
+</script>
 </body>
 </html>
