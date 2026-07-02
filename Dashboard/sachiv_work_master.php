@@ -148,6 +148,45 @@ $count_total = count($works);
         border: 1px solid #e2e8f0;
         padding: 12px 10px;
     }
+
+    /* Custom Lightbox Styles */
+    .lightbox-popup {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    .lightbox-close-btn {
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        color: #ffffff !important;
+        font-size: 40px !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10000 !important;
+    }
+    .lightbox-close-btn:hover {
+        background: rgba(255, 0, 0, 0.8) !important;
+        color: #ffffff !important;
+    }
+    
+    /* Ensure popups stay above the sidebar */
+    .swal2-container {
+        z-index: 1200 !important;
+    }
+    
+    /* Fit lightbox image nicely inside viewport */
+    .custom-lightbox-img {
+        max-height: 85vh !important;
+        object-fit: contain !important;
+        width: auto !important;
+        margin: 0 auto !important;
+        max-width: 100% !important;
+    }
     
     /* Buttons & Badges */
     .btn-view {
@@ -329,8 +368,9 @@ $count_total = count($works);
                                     
                                     echo "<td data-label='Reminder / Blocker'>";
                                     echo "<div class='d-flex justify-content-start justify-content-md-center gap-2'>";
-                                    echo "<button class='btn-reminder shadow-sm' onclick=\"confirmAction('Reminder', '{$safe_name}', '{$safe_taluka}')\"><i class='fa-solid fa-bell me-1'></i> Reminder</button>";
-                                    echo "<button class='btn-blocker shadow-sm' onclick=\"confirmAction('Blocker', '{$safe_name}', '{$safe_taluka}')\"><i class='fa-solid fa-ban me-1'></i> Blocker</button>";
+                                    $work_id = isset($work['id']) ? $work['id'] : 0;
+                                    echo "<button class='btn-reminder shadow-sm' onclick=\"confirmAction('Reminder', '{$safe_name}', '{$safe_taluka}', '{$safe_school}', {$duration_days}, {$work_id})\"><i class='fa-solid fa-bell me-1'></i> Reminder</button>";
+                                    echo "<button class='btn-blocker shadow-sm' onclick=\"confirmAction('Blocker', '{$safe_name}', '{$safe_taluka}', '{$safe_school}', {$duration_days}, {$work_id})\"><i class='fa-solid fa-ban me-1'></i> Blocker</button>";
                                     echo "</div>";
                                     echo "</td>";
                                     echo "</tr>";
@@ -489,32 +529,52 @@ $count_total = count($works);
         }
     }
 
-    window.confirmAction = function(actionType, workName, taluka) {
+    window.confirmAction = function(actionType, workName, taluka, schoolName, durationDays, workId) {
         let defaultMsg = '';
         if (actionType === 'Reminder') {
-            defaultMsg = 'Priority: This work has not been updated in 15 days. Please update as soon';
+            defaultMsg = `Reminder\n01-07-2026, 10:30 AM\nWork Completion\n${workName}\nPriority: This work has not been updated in 15 days. Please update.`;
         }
 
         Swal.fire({
-            title: `Send ${actionType} to HM`,
-            html: `You are sending a ${actionType.toLowerCase()} regarding <b>${workName}</b> in <b>${taluka}</b>.`,
-            input: 'textarea',
-            inputValue: defaultMsg,
-            inputPlaceholder: 'Type your message for the HM here...',
-            inputAttributes: {
-                'aria-label': 'Type your message here'
-            },
+            title: `Send ${actionType} to HM?`,
+            html: `You are about to send a <b>${actionType.toLowerCase()}</b> regarding <b>${workName}</b> in <b>${taluka}</b>.`,
+            icon: 'question',
             showCancelButton: true,
             confirmButtonText: '<i class="fa-solid fa-paper-plane me-1"></i> Send Message',
             confirmButtonColor: '#10b981',
             cancelButtonColor: '#ef4444'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Message Sent!',
-                    text: `Your ${actionType.toLowerCase()} has been delivered to the HM.`,
-                    icon: 'success',
-                    confirmButtonColor: '#10b981'
+                // Send data to backend
+                fetch('api/send_reminder_blocker.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: actionType,
+                        work_name: workName,
+                        taluka_name: taluka,
+                        school_name: schoolName,
+                        duration_days: durationDays,
+                        work_id: workId,
+                        message: defaultMsg
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        Swal.fire({
+                            title: 'Message Sent!',
+                            text: `Your ${actionType.toLowerCase()} has been delivered to the HM and saved to the database.`,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        });
+                    } else {
+                        Swal.fire('Error', data.message || 'Failed to save to database', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    Swal.fire('Error', 'Network error occurred while saving', 'error');
                 });
             }
         });
@@ -527,10 +587,14 @@ $count_total = count($works);
             showCloseButton: true,
             showConfirmButton: false,
             customClass: {
-                image: 'img-fluid rounded shadow-sm'
+                image: 'img-fluid rounded shadow-lg custom-lightbox-img',
+                popup: 'lightbox-popup',
+                closeButton: 'lightbox-close-btn'
             },
-            width: '80%',
-            padding: '1em'
+            width: '90%',
+            padding: 0,
+            background: 'transparent',
+            backdrop: 'rgba(0,0,0,0.85)'
         });
     };
 

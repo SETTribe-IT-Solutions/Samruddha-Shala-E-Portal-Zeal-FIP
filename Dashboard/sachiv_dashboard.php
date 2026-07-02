@@ -82,193 +82,221 @@ if ($conn) {
 
         <!-- CONTENT AREA -->
         <div class="content-area">
-
-    <div class="mb-4 d-flex align-items-center bg-white p-3 shadow-sm border" style="border-radius: 20px;">
-        <!-- Mobile Sidebar Toggle -->
-        <button class="btn btn-light d-lg-none me-3 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 48px; height: 48px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
-            <i class="fa-solid fa-bars fs-5"></i>
-        </button>
-        
-        <div>
-            <h3 class="fw-bold mb-1">
-                <i class="fa-solid fa-user-tie text-primary d-none d-md-inline-block me-2"></i>Sachiv Dashboard
-            </h3>
-            <p class="text-muted mb-0">
-                Welcome to Samruddha Shala E-Portal
-            </p>
-        </div>
-    </div>
-
-    <!-- KPI CARDS -->
-    <div class="row g-4">
-
-        <div class="col-md-3">
-            <div class="card dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6>Total Works</h6>
-                        <h2><?php echo htmlspecialchars($total_works); ?></h2>
+            
+            <div class="row">
+                <!-- Main Content (Left 9 cols) -->
+                <div class="col-lg-9">
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        <button class="btn btn-light d-lg-none me-3 shadow-sm border-0 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
+                            <i class="fa-solid fa-bars fs-5"></i>
+                        </button>
+                        <h3 class="fw-bold mb-0">Dashboard</h3>
                     </div>
 
-                    <div class="icon-box bg-purple">
-                        <i class="fas fa-briefcase"></i>
+                    <!-- KPI Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md col-sm-6">
+                            <div class="card p-3 kpi-card new-card h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="kpi-icon-circle bg-light-primary text-primary">
+                                        <i class="fa-solid fa-school"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="kpi-label text-muted small fw-bold">Total Schools</div>
+                                        <div class="kpi-value fs-4 fw-bold">2</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md col-sm-6">
+                            <div class="card p-3 kpi-card new-card h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="kpi-icon-circle bg-light-purple text-purple">
+                                        <i class="fa-solid fa-list-ul"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="kpi-label text-muted small fw-bold">Total Works</div>
+                                        <div class="kpi-value fs-4 fw-bold">2</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md col-sm-6">
+                            <div class="card p-3 kpi-card new-card h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="kpi-icon-circle bg-light-info text-info">
+                                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="kpi-label text-muted small fw-bold">Total Budget</div>
+                                        <div class="kpi-value fs-4 fw-bold">₹20,000</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md col-sm-6">
+                            <div class="card p-3 kpi-card new-card h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="kpi-icon-circle bg-light-warning text-warning">
+                                        <i class="fa-solid fa-bell"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="kpi-label text-muted small fw-bold">Total Alerts</div>
+                                        <div class="kpi-value fs-4 fw-bold">2</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md col-sm-12">
+                            <div class="card p-3 kpi-card new-card h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="kpi-icon-circle bg-light-success text-success">
+                                        <i class="fa-solid fa-check-circle"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="kpi-label text-muted small fw-bold">Total Approvals</div>
+                                        <div class="kpi-value fs-4 fw-bold">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Charts Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-8">
+                            <div class="card p-4 h-100 new-card">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h6 class="fw-bold m-0">Work Completion Overview</h6>
+                                    <div class="d-flex gap-3 small">
+                                        <div><span class="d-inline-block rounded-circle bg-success me-1" style="width:8px;height:8px;"></span>Completed</div>
+                                        <div><span class="d-inline-block rounded-circle bg-primary me-1" style="width:8px;height:8px;"></span>In Progress</div>
+                                        <div><span class="d-inline-block rounded-circle bg-danger me-1" style="width:8px;height:8px;"></span>Pending</div>
+                                    </div>
+                                </div>
+                                <div style="height: 250px;">
+                                    <canvas id="barChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-4 h-100 new-card">
+                                <h6 class="fw-bold mb-4">Overall Progress</h6>
+                                <div class="position-relative d-flex justify-content-center mb-3">
+                                    <div style="width: 150px; height: 150px;">
+                                        <canvas id="donutChart"></canvas>
+                                    </div>
+                                    <div class="position-absolute top-50 start-50 translate-middle text-center" style="margin-top: 5px;">
+                                        <h3 class="fw-bold m-0" style="font-size: 28px;">38%</h3>
+                                        <small class="text-muted" style="font-size: 11px;">Completed</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 px-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted small fw-bold">Completed</span>
+                                        <span class="text-muted small fw-bold">0%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 6px;">
+                                        <div class="progress-bar bg-light" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted small fw-bold">Pending</span>
+                                        <span class="text-muted small fw-bold">100%</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card p-4 h-100 new-card">
+                                <h6 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left me-2 text-muted"></i>Recent Activities</h6>
+                                
+                                <div class="activity-item d-flex align-items-center p-3 bg-light rounded-3 mb-2 border">
+                                    <div class="activity-dot bg-success rounded-circle me-3" style="width: 10px; height: 10px;"></div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold small">Shrimati. Kavita Shinde</div>
+                                        <div class="text-muted small">Logged in successfully</div>
+                                    </div>
+                                    <i class="fa-solid fa-check-circle text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-4 h-100 new-card">
+                                <h6 class="fw-bold mb-4"><i class="fa-solid fa-building me-2 text-muted"></i>Work Progress Status</h6>
+                                
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="small fw-bold">Shrimati. Kavita Shinde <br><span class="text-muted fw-normal">(Dindori)</span></span>
+                                        <span class="small fw-bold text-primary align-self-end">60%</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 60%; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="small fw-bold">Shrimati. Savita Ghatte <br><span class="text-muted fw-normal">(Peth)</span></span>
+                                        <span class="small fw-bold text-primary align-self-end">28%</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 28%; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6>Completed</h6>
-                        <h2><?php echo htmlspecialchars($completed_works); ?></h2>
-                    </div>
-
-                    <div class="icon-box bg-green">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6>Pending</h6>
-                        <h2><?php echo htmlspecialchars($pending_works); ?></h2>
-                    </div>
-
-                    <div class="icon-box bg-orange">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6>Alerts</h6>
-                        <h2><?php echo htmlspecialchars($alerts_count); ?></h2>
-                    </div>
-
-                    <div class="icon-box bg-red">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- QUICK ACTIONS -->
-    <div class="row mt-4">
-
-        <div class="col-md-6">
-            <div class="card dashboard-card p-4 h-100">
-
-                <h5>Quick Actions</h5>
-
-                <a href="sachiv_work_master.php"
-                   class="btn btn-sidebar-gradient w-100 mb-2">
-                    <i class="fa-solid fa-list"></i>
-                    Work Master
-                </a>
                 
-                <a href="Financial_Master.php"
-                   class="btn btn-sidebar-gradient w-100 mb-2">
-                    <i class="fa-solid fa-coins"></i>
-                    Financial Master
-                </a>
+                <!-- Right Sidebar (Right 3 cols) -->
+                <div class="col-lg-3 mt-4 mt-lg-0">
+                    
+                    <div class="d-flex justify-content-lg-end mb-4">
+                        <button class="btn btn-primary d-flex align-items-center justify-content-center" style="background-color: #2563eb; border: none; border-radius: 8px; padding: 8px 16px; height: 40px; width: auto;" title="Refresh Data" onclick="location.reload();">
+                            <i class="fa-solid fa-rotate-right me-2"></i>
+                            <span class="fw-bold" style="font-size: 14px;">Refresh Data</span>
+                        </button>
+                    </div>
 
+                    <!-- Notifications -->
+                    <div class="card p-3 mb-3 new-card">
+                        <h6 class="fw-bold mb-3">Notifications (0)</h6>
+                        <div class="text-center text-muted small py-4">No new notifications</div>
+                    </div>
+                    
+                    <!-- Reminder -->
+                    <div class="card p-4 mb-3 new-card">
+                        <h6 class="fw-bold mb-4"><i class="fa-solid fa-bell text-warning me-2"></i>Reminder</h6>
+                        <div class="small text-muted mb-2">01-07-2026, 10:30 AM</div>
+                        <div class="text-primary small fw-bold mb-2">Work Completion</div>
+                        <div class="fw-bold mb-3 text-dark">School Building</div>
+                        <p class="small text-muted mb-4">Priority: This work has not been updated in 15 days. Please update.</p>
+                        <a href="#" class="text-danger small fw-bold text-decoration-none">Savita Ghatte <i class="fa-solid fa-play ms-1" style="font-size: 10px;"></i></a>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="card p-4 new-card">
+                        <h6 class="fw-bold mb-4">Quick Links</h6>
+                        <div class="d-grid gap-3">
+                            <a href="#" class="btn btn-light text-primary fw-bold btn-sm py-2 rounded-3" style="background-color: #eef2ff; border: 1px solid #e0e7ff;">Add New Work</a>
+                            <a href="sachiv_work_master.php" class="btn btn-light text-purple fw-bold btn-sm py-2 rounded-3" style="background-color: #faf5ff; border: 1px solid #f3e8ff;">Work List</a>
+                            <a href="Financial_Master.php" class="btn btn-light text-success fw-bold btn-sm py-2 rounded-3" style="background-color: #f0fdf4; border: 1px solid #dcfce7;">Reports</a>
+                            <a href="#" class="btn btn-light fw-bold btn-sm py-2 rounded-3" style="background-color: #fffbeb; border: 1px solid #fef3c7; color: #d97706 !important;">Settings</a>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card dashboard-card p-4 h-100">
-
-                <h5>Recent Notifications</h5>
-
-                <ul class="list-group">
-                    <li class="list-group-item">New Work Assigned</li>
-                    <li class="list-group-item">Utility Report Updated</li>
-                    <li class="list-group-item">Progress Report Submitted</li>
-                </ul>
-
-            </div>
-        </div>
-
-    </div>
-
-    <!-- RECENT WORKS -->
-    <div class="card table-card mt-4">
-
-        <div class="card-header bg-white">
-            <h5 class="mb-0">Recent Works</h5>
-        </div>
-
-        <div class="card-body">
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered">
-
-                    <thead class="table-light">
-                        <tr>
-                            <th>Sr No</th>
-                            <th>Work Name</th>
-                            <th>Fund Source</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        <tr>
-                            <td data-label="Sr No">1</td>
-                            <td data-label="Work Name">Classroom Repair</td>
-                            <td data-label="Fund Source">ZP Fund</td>
-                            <td data-label="Status">
-                                <span class="badge bg-success">
-                                    Completed
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td data-label="Sr No">2</td>
-                            <td data-label="Work Name">Water Tank Installation</td>
-                            <td data-label="Fund Source">Annual Plan</td>
-                            <td data-label="Status">
-                                <span class="badge bg-orange text-white">
-                                    Ongoing
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td data-label="Sr No">3</td>
-                            <td data-label="Work Name">Library Setup</td>
-                            <td data-label="Fund Source">CSR Fund</td>
-                            <td data-label="Status">
-                                <span class="badge bg-warning text-dark">
-                                    Pending
-                                </span>
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
 
         </div>
 
@@ -280,6 +308,7 @@ if ($conn) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
 </html>
@@ -298,6 +327,67 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.addEventListener("click", function () {
         sidebar.classList.remove("active");
         overlay.classList.remove("active");
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Completed', 'In Progress', 'Pending'],
+            datasets: [{
+                label: 'Works',
+                data: [0, 0, 100], // Example data to match mockup 
+                backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
+                borderRadius: 4,
+                barPercentage: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) { return value + "%" }
+                    },
+                    grid: { color: '#f1f5f9' },
+                    border: { display: false }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            }
+        }
+    });
+
+    // Donut Chart
+    const donutCtx = document.getElementById('donutChart').getContext('2d');
+    new Chart(donutCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Pending'],
+            datasets: [{
+                data: [38, 62],
+                backgroundColor: ['#3b82f6', '#f1f5f9'],
+                borderWidth: 0,
+                cutout: '80%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
     });
 
 });
