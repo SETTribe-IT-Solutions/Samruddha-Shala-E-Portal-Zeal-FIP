@@ -125,7 +125,7 @@ $count_total = count($works);
     .table-container {
         border: 1px solid #e2e8f0;
         border-radius: 8px;
-        overflow: hidden;
+        overflow-x: auto;
     }
     .table {
         margin-bottom: 0;
@@ -215,26 +215,28 @@ $count_total = count($works);
         <div class="content-area">
             
             <div class="main-card">
-                <div class="d-flex align-items-center justify-content-center position-relative mb-3">
-                    <button class="btn btn-light d-lg-none shadow-sm border-0 d-flex justify-content-center align-items-center position-absolute start-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
+                <div class="d-flex align-items-center justify-content-start justify-content-lg-center mb-3">
+                    <button class="btn btn-light d-lg-none shadow-sm border-0 d-flex justify-content-center align-items-center me-3 flex-shrink-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
                         <i class="fa-solid fa-bars fs-5"></i>
                     </button>
-                    <h3 class="page-title m-0">Work Master</h3>
+                    <div class="text-start text-lg-center">
+                        <h3 class="page-title m-0">Work Master</h3>
+                        <div class="title-underline mx-0 mx-lg-auto mt-2 mb-0" style="margin-bottom: 0;"></div>
+                    </div>
                 </div>
-                <div class="title-underline"></div>
 
                 <!-- Controls Top Row -->
                 <div class="d-flex flex-wrap justify-content-between mb-4 gap-3">
-                    <div class="d-flex gap-3 flex-grow-1" style="max-width: 800px;">
-                        <div class="input-group" style="flex: 2;">
+                    <div class="d-flex flex-wrap gap-3 flex-grow-1" style="max-width: 800px;">
+                        <div class="input-group" style="flex: 1 1 200px;">
                             <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input type="text" class="form-control border-start-0 search-input ps-0" id="filterWorkName" placeholder="Search Work..." onkeyup="handleFilterChange()">
                         </div>
-                        <select class="form-select" id="filterTaluka" style="flex: 1;">
+                        <select class="form-select" id="filterTaluka" style="flex: 1 1 150px;">
                             <option value="">Select Taluka</option>
                             <?php foreach($talukas as $t) { echo '<option value="'.htmlspecialchars($t).'">'.htmlspecialchars($t).'</option>'; } ?>
                         </select>
-                        <select class="form-select" id="filterSchool" style="flex: 1;" onchange="handleFilterChange()">
+                        <select class="form-select" id="filterSchool" style="flex: 1 1 150px;" onchange="handleFilterChange()">
                             <option value="">Select School</option>
                         </select>
                     </div>
@@ -261,6 +263,11 @@ $count_total = count($works);
                     </div>
                 </div>
 
+                <!-- Swipe hint for mobile -->
+                <div class="d-md-none text-end text-muted small mb-2">
+                    <i class="fa-solid fa-arrows-left-right me-1"></i> Swipe table to view more
+                </div>
+                
                 <!-- TABLE -->
                 <div class="table-container shadow-sm mb-3">
                     <table class="table table-bordered w-100" id="workTable">
@@ -304,11 +311,11 @@ $count_total = count($works);
                                     }
                                     
                                     echo "<tr class='data-row' data-taluka='".htmlspecialchars($taluka, ENT_QUOTES)."' data-school='".htmlspecialchars($school, ENT_QUOTES)."'>";
-                                    echo "<td>{$sr_no}</td>";
-                                    echo "<td>{$taluka}</td>";
-                                    echo "<td>{$school}</td>";
-                                    echo "<td>{$work_type}</td>";
-                                    echo "<td class='work-name-cell'>{$work_name}</td>";
+                                    echo "<td data-label='Sr. No.'>{$sr_no}</td>";
+                                    echo "<td data-label='Taluka'>{$taluka}</td>";
+                                    echo "<td data-label='School Name'>{$school}</td>";
+                                    echo "<td data-label='Work Type'>{$work_type}</td>";
+                                    echo "<td data-label='Work Name' class='work-name-cell'>{$work_name}</td>";
                                     
                                     $safe_name = htmlspecialchars($work_name, ENT_QUOTES);
                                     $safe_taluka = htmlspecialchars($taluka, ENT_QUOTES);
@@ -316,12 +323,12 @@ $count_total = count($works);
                                     $safe_type = htmlspecialchars($work_type, ENT_QUOTES);
                                     $safe_duration = htmlspecialchars($duration_days . " Days", ENT_QUOTES);
                                     
-                                    echo "<td><button class='btn-view shadow-sm' onclick=\"viewDetails('{$sr_no}', '{$safe_taluka}', '{$safe_school}', '{$safe_type}', '{$safe_name}', '{$status}', '{$safe_duration}')\"><i class='fa-solid fa-eye me-1'></i> View</button></td>";
-                                    echo "<td><span class='badge-status {$status_class}'>{$status}</span></td>";
-                                    echo "<td>{$duration_html}</td>";
+                                    echo "<td data-label='View'><button class='btn-view shadow-sm' onclick=\"viewDetails('{$sr_no}', '{$safe_taluka}', '{$safe_school}', '{$safe_type}', '{$safe_name}', '{$status}', '{$safe_duration}')\"><i class='fa-solid fa-eye me-1'></i> View</button></td>";
+                                    echo "<td data-label='Status'><span class='badge-status {$status_class}'>{$status}</span></td>";
+                                    echo "<td data-label='Duration (Days)'>{$duration_html}</td>";
                                     
-                                    echo "<td>";
-                                    echo "<div class='d-flex justify-content-center gap-2'>";
+                                    echo "<td data-label='Reminder / Blocker'>";
+                                    echo "<div class='d-flex justify-content-start justify-content-md-center gap-2'>";
                                     echo "<button class='btn-reminder shadow-sm' onclick=\"confirmAction('Reminder', '{$safe_name}', '{$safe_taluka}')\"><i class='fa-solid fa-bell me-1'></i> Reminder</button>";
                                     echo "<button class='btn-blocker shadow-sm' onclick=\"confirmAction('Blocker', '{$safe_name}', '{$safe_taluka}')\"><i class='fa-solid fa-ban me-1'></i> Blocker</button>";
                                     echo "</div>";
@@ -513,17 +520,34 @@ $count_total = count($works);
         });
     };
     
+    window.viewFullImage = function(url) {
+        Swal.fire({
+            imageUrl: url,
+            imageAlt: 'Work Photo',
+            showCloseButton: true,
+            showConfirmButton: false,
+            customClass: {
+                image: 'img-fluid rounded shadow-sm'
+            },
+            width: '80%',
+            padding: '1em'
+        });
+    };
+
     window.viewDetails = function(sr, taluka, school, type, name, status, duration) {
         const statusColor = status === 'Completed' ? 'success' : (status === 'Pending' ? 'warning' : 'primary');
+        const img_url = 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100';
         Swal.fire({
             title: 'Work Details',
             html: `
                 <div class="text-start mt-3" style="font-size: 14px;">
-                    <div class="text-center mb-3">
-                        <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" style="max-height: 200px; width: 100%; object-fit: cover;" class="rounded shadow-sm" alt="Live Photo Preview">
-                        <div class="text-muted mt-1 small"><i class="fa-solid fa-camera"></i> Live Photo Preview</div>
+                    <div class="mb-3 text-start">
+                        <button class="btn btn-outline-primary border-0 shadow-sm" style="padding: 8px 16px; font-weight: 500; background-color: #f8fafc;" onclick="viewFullImage('${img_url}')">
+                            <i class="fa-solid fa-camera text-primary me-2"></i>
+                            View Live Picture
+                        </button>
                     </div>
-                    <table class="table table-bordered">
+                    <table class="table table-bordered mb-0">
                         <tbody>
                             <tr><th class="bg-light" style="width: 40%;">Sr. No.</th><td>${sr}</td></tr>
                             <tr><th class="bg-light">Taluka</th><td>${taluka}</td></tr>

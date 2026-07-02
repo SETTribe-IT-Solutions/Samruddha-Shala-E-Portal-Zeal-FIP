@@ -61,6 +61,7 @@ body.sachiv-dashboard-page #sidebar .logout-btn {
 
 /* Content wrapper that handles scrolling and layout padding */
 body.sachiv-dashboard-page #content {
+    box-sizing: border-box;
     margin-left: var(--sachiv-sidebar-width);
     width: calc(100vw - var(--sachiv-sidebar-width));
     height: 100vh;
@@ -361,4 +362,11 @@ body.sachiv-dashboard-page .sachiv-fixed-footer .login-page-footer {
     .content-area {
         padding-top: 70px !important;
     }
-}
+
+    /* Restore default horizontal scroll for tables on mobile */
+    .table-container, .table-responsive {
+        border: 1px solid #e2e8f0 !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* smooth sliding on iOS */
+    }
+}

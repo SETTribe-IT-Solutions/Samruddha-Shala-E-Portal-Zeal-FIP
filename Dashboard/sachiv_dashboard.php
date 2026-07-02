@@ -228,10 +228,10 @@ if ($conn) {
                     <tbody>
 
                         <tr>
-                            <td>1</td>
-                            <td>Classroom Repair</td>
-                            <td>ZP Fund</td>
-                            <td>
+                            <td data-label="Sr No">1</td>
+                            <td data-label="Work Name">Classroom Repair</td>
+                            <td data-label="Fund Source">ZP Fund</td>
+                            <td data-label="Status">
                                 <span class="badge bg-success">
                                     Completed
                                 </span>
@@ -239,27 +239,25 @@ if ($conn) {
                         </tr>
 
                         <tr>
-                            <td>2</td>
-                            <td>Water Tank Installation</td>
-                            <td>Annual Plan</td>
-                            <td>
+                            <td data-label="Sr No">2</td>
+                            <td data-label="Work Name">Water Tank Installation</td>
+                            <td data-label="Fund Source">Annual Plan</td>
+                            <td data-label="Status">
                                 <span class="badge bg-orange text-white">
                                     Ongoing
                                 </span>
                             </td>
-                            
                         </tr>
 
                         <tr>
-                            <td>3</td>
-                            <td>Toilet Construction</td>
-                            <td>CSR Fund</td>
-                            <td>
-                                <span class="badge bg-danger">
+                            <td data-label="Sr No">3</td>
+                            <td data-label="Work Name">Library Setup</td>
+                            <td data-label="Fund Source">CSR Fund</td>
+                            <td data-label="Status">
+                                <span class="badge bg-warning text-dark">
                                     Pending
                                 </span>
                             </td>
-                            
                         </tr>
 
                     </tbody>

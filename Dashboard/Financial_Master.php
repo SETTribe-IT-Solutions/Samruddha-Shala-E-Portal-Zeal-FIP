@@ -261,13 +261,15 @@ function formatRupee($num) {
         <div class="content-area">
             
             <div class="main-card">
-                <div class="d-flex align-items-center justify-content-center position-relative mb-3">
-                    <button class="btn btn-light d-lg-none shadow-sm border-0 d-flex justify-content-center align-items-center position-absolute start-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
+                <div class="d-flex align-items-center justify-content-start justify-content-lg-center mb-3">
+                    <button class="btn btn-light d-lg-none shadow-sm border-0 d-flex justify-content-center align-items-center me-3 flex-shrink-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6420a5 0%, #efbc4d 100%); color: white; border-radius: 12px;" type="button" id="menuToggle" aria-label="Toggle Sidebar">
                         <i class="fa-solid fa-bars fs-5"></i>
                     </button>
-                    <h3 class="page-title m-0">Financial Master</h3>
+                    <div class="text-start text-lg-center">
+                        <h3 class="page-title m-0">Financial Master</h3>
+                        <div class="title-underline mx-0 mx-lg-auto mt-2 mb-0" style="margin-bottom: 0;"></div>
+                    </div>
                 </div>
-                <div class="title-underline"></div>
 
                 <!-- KPI Cards -->
                 <div class="row mb-5 mt-4 g-3">
@@ -308,16 +310,16 @@ function formatRupee($num) {
 
                 <!-- Controls Top Row -->
                 <div class="d-flex flex-wrap justify-content-between mb-4 gap-3">
-                    <div class="d-flex gap-3 flex-grow-1" style="max-width: 700px;">
-                        <div class="input-group" style="flex: 2;">
+                    <div class="d-flex flex-wrap gap-3 flex-grow-1" style="max-width: 700px;">
+                        <div class="input-group" style="flex: 1 1 200px;">
                             <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input type="text" class="form-control border-start-0 search-input ps-0" id="filterWorkName" placeholder="Search School or Fund..." onkeyup="handleFilterChange()">
                         </div>
-                        <select class="form-select" id="filterTaluka" style="flex: 1;" onchange="handleFilterChange()">
+                        <select class="form-select" id="filterTaluka" style="flex: 1 1 150px;" onchange="handleFilterChange()">
                             <option value="">Select Taluka</option>
                             <?php foreach($talukas as $t) { echo '<option value="'.htmlspecialchars($t).'">'.htmlspecialchars($t).'</option>'; } ?>
                         </select>
-                        <select class="form-select" id="filterFund" style="flex: 1;" onchange="handleFilterChange()">
+                        <select class="form-select" id="filterFund" style="flex: 1 1 150px;" onchange="handleFilterChange()">
                             <option value="">Select Fund Source</option>
                             <?php foreach($fund_sources as $f) { echo '<option value="'.htmlspecialchars($f).'">'.htmlspecialchars($f).'</option>'; } ?>
                         </select>
@@ -345,7 +347,12 @@ function formatRupee($num) {
                     </div>
                 </div>
 
-                <!-- TABLE -->
+                <!-- Swipe hint for mobile -->
+                <div class="d-md-none text-end text-muted small mb-2">
+                    <i class="fa-solid fa-arrows-left-right me-1"></i> Swipe table to view more
+                </div>
+                
+                <!-- Table -->
                 <div class="table-container shadow-sm mb-3">
                     <table class="table table-bordered w-100" id="workTable">
                         <thead>
@@ -378,16 +385,16 @@ function formatRupee($num) {
                                     $status_class = "status-" . $fin['mock_status_color'];
                                     
                                     echo "<tr class='data-row' data-taluka='".htmlspecialchars($taluka, ENT_QUOTES)."' data-fund='".htmlspecialchars($fund, ENT_QUOTES)."'>";
-                                    echo "<td>{$sr_no}</td>";
-                                    echo "<td>{$taluka}</td>";
-                                    echo "<td class='school-name-cell'>{$school}</td>";
-                                    echo "<td>{$fund}</td>";
-                                    echo "<td class='fw-bold text-dark'>{$budget}</td>";
-                                    echo "<td class='text-primary'>{$spent}</td>";
-                                    echo "<td class='text-success fw-bold'>{$balance}</td>";
-                                    echo "<td><span class='badge-status {$status_class}'>{$status}</span></td>";
+                                    echo "<td data-label='Sr. No.'>{$sr_no}</td>";
+                                    echo "<td data-label='Taluka'>{$taluka}</td>";
+                                    echo "<td data-label='School Name' class='school-name-cell'>{$school}</td>";
+                                    echo "<td data-label='Fund Source'>{$fund}</td>";
+                                    echo "<td data-label='Allocated Budget' class='fw-bold text-dark'>{$budget}</td>";
+                                    echo "<td data-label='Spent Amount' class='text-primary'>{$spent}</td>";
+                                    echo "<td data-label='Balance' class='text-success fw-bold'>{$balance}</td>";
+                                    echo "<td data-label='Status'><span class='badge-status {$status_class}'>{$status}</span></td>";
                                     
-                                    echo "<td><button class='btn-view shadow-sm'><i class='fa-solid fa-eye me-1'></i> View</button></td>";
+                                    echo "<td data-label='Action'><button class='btn-view shadow-sm'><i class='fa-solid fa-eye me-1'></i> View</button></td>";
                                     echo "</tr>";
                                 }
                             }
